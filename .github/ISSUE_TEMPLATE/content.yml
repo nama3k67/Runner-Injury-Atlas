@@ -1,0 +1,30 @@
+name: Content change
+description: New or corrected medical content. Goes through the medical review gate.
+body:
+  - type: input
+    id: injury
+    attributes:
+      label: Injury slug
+      placeholder: itbs
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What should change
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Links to the studies or guidance that support the change. Required for any claim.
+    validations:
+      required: true
+  - type: checkboxes
+    id: gate
+    attributes:
+      label: Review gate
+      options:
+        - label: I understand the page returns to "draft" until a clinician reviews the new content hash
+          required: true

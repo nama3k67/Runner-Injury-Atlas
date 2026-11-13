@@ -1,0 +1,29 @@
+name: Feature or fix
+description: A change to code, sized for one pull request
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is missing or wrong, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      description: Testable statements. An agent will turn each into a test or a named manual check.
+      placeholder: "- [ ] Dragging the knee slider to 25° turns the fat pad red"
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Needs an ADR?
+      options: ["No", "Yes: architecture", "Yes: data or privacy", "Yes: process"]
+    validations:
+      required: true
