@@ -1,0 +1,3 @@
+#!/bin/sh
+# Full gate before code leaves the machine. CI runs the same command.
+pnpm check

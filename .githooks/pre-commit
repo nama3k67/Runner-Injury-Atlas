@@ -1,0 +1,3 @@
+#!/bin/sh
+# Fast gate: lint and format only what is staged.
+pnpm exec biome check --staged --no-errors-on-unmatched

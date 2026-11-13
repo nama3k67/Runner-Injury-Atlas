@@ -1,0 +1,10 @@
+{
+  "name": "@atlas/harness",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "node --check guard.mjs && node --check commit-msg.mjs && node --check hook-guard.mjs && node --check hook-format.mjs"
+  }
+}

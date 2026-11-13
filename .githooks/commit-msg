@@ -1,0 +1,2 @@
+#!/bin/sh
+node tools/harness/commit-msg.mjs "$1"
