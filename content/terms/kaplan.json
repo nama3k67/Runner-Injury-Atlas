@@ -1,0 +1,18 @@
+{
+  "id": "kaplan",
+  "vi": "Sợi Kaplan",
+  "en": "Kaplan fibers",
+  "category": "structure",
+  "short": "Các bó sợi xơ neo dải chậu chày vào đầu dưới xương đùi.",
+  "body": "Đây là sợi xơ bình thường, không phải \"dính\" bệnh lý. Chúng nhìn rõ được khi phẫu tích hoặc chụp MRI[^r2]. Nhờ các sợi này, dải không thể trượt qua lại trên mỏm lồi cầu[^r1].",
+  "related": ["itb", "lfe"],
+  "injuries": {
+    "itbs": {
+      "role": "Lý do chính khiến giả thuyết \"cọ xát\" khó đứng vững.",
+      "scene": {
+        "structure": "kaplan",
+        "camera": "knee"
+      }
+    }
+  }
+}

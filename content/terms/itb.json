@@ -1,0 +1,18 @@
+{
+  "id": "itb",
+  "vi": "Dải chậu chày",
+  "en": "Iliotibial band (ITB) · Tractus iliotibialis",
+  "category": "structure",
+  "short": "Phần dày lên của mạc đùi, chạy từ mào chậu xuống lồi củ Gerdy ở xương chày.",
+  "body": "Không phải một dây chằng hay gân riêng lẻ, mà là đoạn dày lên của **mạc đùi** bao quanh đùi. Phía trên nhận lực từ cơ căng mạc đùi và cơ mông lớn. Phía dưới được **neo vào đầu dưới xương đùi** bằng các sợi xơ (sợi Kaplan) và vách gian cơ, rồi bám tận ở lồi củ Gerdy[^r2].\n\nRất cứng: các tư thế kéo giãn thông thường chỉ tạo biến dạng rất nhỏ trên dải[^r4]. Mẫu dải tách rời chịu được lực kéo hàng trăm Newton trước khi đứt[^r13].",
+  "related": ["fatpad", "kaplan", "tfl", "gmax", "gerdy"],
+  "injuries": {
+    "itbs": {
+      "role": "Truyền lực từ hông xuống gối và ổn định mặt ngoài gối. Bản thân dải thường không phải nơi đau, nơi đau là mô bị nó ép bên dưới.",
+      "scene": {
+        "structure": "itb",
+        "camera": "lateral"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "renne",
+  "vi": "Test Renne",
+  "en": "Renne test",
+  "category": "test",
+  "short": "Đứng một chân, gập gối khoảng 30–40°.",
+  "body": "Dương tính khi đau ở mỏm lồi cầu ngoài[^r8].",
+  "related": ["noble"],
+  "injuries": {
+    "itbs": {
+      "role": "Giống động tác tiếp đất khi chạy, chỉ chậm hơn.",
+      "scene": {
+        "camera": "knee",
+        "kneeAngle": 35
+      }
+    }
+  }
+}

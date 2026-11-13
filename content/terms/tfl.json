@@ -1,0 +1,18 @@
+{
+  "id": "tfl",
+  "vi": "Cơ căng mạc đùi",
+  "en": "Tensor fasciae latae (TFL)",
+  "category": "muscle",
+  "short": "Cơ nhỏ ở phía trước-ngoài hông, đổ trực tiếp vào dải chậu chày.",
+  "body": "Đi từ gai chậu trước trên xuống, hòa vào dải chậu chày ở khoảng 1/3 trên đùi. Cùng với cơ mông lớn, nó co **lệch tâm** để hãm chân ngay sau khi tiếp đất, đúng lúc dải căng trong vùng ép[^r6].\n\nPhần **cơ** này mới là thứ kéo giãn được, không phải phần mạc[^r4].",
+  "related": ["itb", "gmax", "eccentric"],
+  "injuries": {
+    "itbs": {
+      "role": "Một trong hai \"động cơ\" kéo căng dải chậu chày.",
+      "scene": {
+        "structure": "tfl",
+        "camera": "hip"
+      }
+    }
+  }
+}

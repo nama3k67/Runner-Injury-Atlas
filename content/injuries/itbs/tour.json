@@ -1,0 +1,329 @@
+{
+  "locale": "vi",
+  "steps": [
+    {
+      "id": "step-1",
+      "title": "Mở đầu",
+      "enter": {
+        "camera": "lateral",
+        "mode": "manual",
+        "kneeAngle": 0,
+        "hipDrop": 0,
+        "highlight": null,
+        "showTension": false
+      },
+      "lines": [
+        {
+          "id": "s1-l1",
+          "text": "Chào bạn. Đây là mô hình chân phải, nhìn từ mặt ngoài."
+        },
+        {
+          "id": "s1-l2",
+          "text": "Trong khoảng ba phút, mình sẽ cùng xem vì sao dải chậu chày gây đau ở mặt ngoài gối của người chạy bộ."
+        }
+      ]
+    },
+    {
+      "id": "step-2",
+      "title": "Dải chậu chày",
+      "enter": {
+        "camera": "lateral",
+        "highlight": "itb"
+      },
+      "lines": [
+        {
+          "id": "s2-l1",
+          "text": "Dải màu trắng bạc, chạy dọc mặt ngoài đùi, chính là dải chậu chày."
+        },
+        {
+          "id": "s2-l2",
+          "text": "Nó không phải một sợi gân riêng, mà là phần dày lên của lớp mạc bao quanh đùi."
+        },
+        {
+          "id": "s2-l3",
+          "text": "Dải đi từ mào chậu ở hông, xuống tận xương chày, ngay dưới khớp gối."
+        }
+      ]
+    },
+    {
+      "id": "step-3",
+      "title": "Hai cơ kéo dải",
+      "enter": {
+        "camera": "hip",
+        "highlight": "tfl"
+      },
+      "lines": [
+        {
+          "id": "s3-l1",
+          "text": "Ở phía trên, có hai cơ đổ lực vào dải này."
+        },
+        {
+          "id": "s3-l2",
+          "text": "Thứ nhất là cơ căng mạc đùi, ở phía trước hông.",
+          "actions": [
+            {
+              "type": "highlight",
+              "structure": "tfl"
+            }
+          ]
+        },
+        {
+          "id": "s3-l3",
+          "text": "Thứ hai là cơ mông lớn, ở phía sau.",
+          "actions": [
+            {
+              "type": "highlight",
+              "structure": "gmax"
+            }
+          ]
+        },
+        {
+          "id": "s3-l4",
+          "text": "Khi bạn chạy, hai cơ này hãm chân lại ngay lúc tiếp đất, và làm dải căng lên."
+        }
+      ]
+    },
+    {
+      "id": "step-4",
+      "title": "Dải được neo chặt",
+      "enter": {
+        "camera": "knee",
+        "kneeAngle": 0,
+        "highlight": "kaplan"
+      },
+      "lines": [
+        {
+          "id": "s4-l1",
+          "text": "Bây giờ, hãy nhìn gần vào gối."
+        },
+        {
+          "id": "s4-l2",
+          "text": "Ngay phía trên gối, dải được neo chặt vào xương đùi bằng những bó sợi xơ, gọi là sợi Kaplan."
+        },
+        {
+          "id": "s4-l3",
+          "text": "Vì bị neo như vậy, dải không thể trượt qua trượt lại trên xương, như nhiều người vẫn nghĩ."
+        }
+      ]
+    },
+    {
+      "id": "step-5",
+      "title": "Lớp mỡ nhạy cảm",
+      "enter": {
+        "camera": "knee",
+        "highlight": "fatpad"
+      },
+      "lines": [
+        {
+          "id": "s5-l1",
+          "text": "Bên dưới dải có một lớp mỡ nhỏ màu vàng."
+        },
+        {
+          "id": "s5-l2",
+          "text": "Lớp mỡ này có rất nhiều mạch máu và đầu dây thần kinh."
+        },
+        {
+          "id": "s5-l3",
+          "text": "Theo các nghiên cứu giải phẫu và hình ảnh học, đây mới là nơi gây ra cơn đau."
+        }
+      ]
+    },
+    {
+      "id": "step-6",
+      "title": "Vùng ép 20–30°",
+      "enter": {
+        "camera": "knee",
+        "highlight": "fatpad"
+      },
+      "lines": [
+        {
+          "id": "s6-l1",
+          "text": "Hãy xem điều gì xảy ra khi gối gập dần.",
+          "actions": [
+            {
+              "type": "tween",
+              "param": "kneeAngle",
+              "to": 25,
+              "ms": 4200
+            }
+          ]
+        },
+        {
+          "id": "s6-l2",
+          "text": "Khi gối gập tới khoảng hai mươi đến ba mươi độ, xương chày xoay vào trong một chút, kéo dải ép mạnh vào lớp mỡ."
+        },
+        {
+          "id": "s6-l3",
+          "text": "Bạn thấy lớp mỡ chuyển sang màu đỏ. Đó chính là vùng ép."
+        }
+      ]
+    },
+    {
+      "id": "step-7",
+      "title": "Ảo giác \"trượt\"",
+      "enter": {
+        "camera": "knee",
+        "highlight": "itb",
+        "showTension": true
+      },
+      "lines": [
+        {
+          "id": "s7-l1",
+          "text": "Gập sâu hơn nữa thì lực ép giảm đi.",
+          "actions": [
+            {
+              "type": "tween",
+              "param": "kneeAngle",
+              "to": 65,
+              "ms": 3800
+            }
+          ]
+        },
+        {
+          "id": "s7-l2",
+          "text": "Màu cam cho thấy phần sợi đang căng. Khi gối duỗi, sợi phía trước căng. Khi gối gập sâu, sợi phía sau căng."
+        },
+        {
+          "id": "s7-l3",
+          "text": "Sự đổi qua lại này tạo ra cảm giác như dải đang trượt qua xương, dù thật ra nó được neo chặt."
+        }
+      ]
+    },
+    {
+      "id": "step-8",
+      "title": "Hông rơi",
+      "enter": {
+        "camera": "front",
+        "highlight": "gmed",
+        "showTension": false
+      },
+      "lines": [
+        {
+          "id": "s8-l1",
+          "text": "Giờ đến phần hông.",
+          "actions": [
+            {
+              "type": "tween",
+              "param": "kneeAngle",
+              "to": 25,
+              "ms": 1500
+            }
+          ]
+        },
+        {
+          "id": "s8-l2",
+          "text": "Cơ mông nhỡ giữ cho xương chậu thăng bằng khi bạn đứng trên một chân."
+        },
+        {
+          "id": "s8-l3",
+          "text": "Nếu cơ này yếu, xương chậu bên kia sẽ rơi xuống, và đùi khép vào trong. Thanh màu cam cho thấy độ nghiêng đó.",
+          "actions": [
+            {
+              "type": "tween",
+              "param": "hipDrop",
+              "to": 8,
+              "ms": 3500
+            }
+          ]
+        },
+        {
+          "id": "s8-l4",
+          "text": "Khi đó dải chậu chày căng hơn, và ở cùng một góc gối, lớp mỡ bị ép mạnh hơn."
+        }
+      ]
+    },
+    {
+      "id": "step-9",
+      "title": "Chạy đường phẳng",
+      "enter": {
+        "camera": "lateral",
+        "mode": "flat",
+        "hipDrop": 0,
+        "highlight": null
+      },
+      "lines": [
+        {
+          "id": "s9-l1",
+          "text": "Bây giờ, hãy cho mô hình chạy trên đường phẳng, với pace dễ."
+        },
+        {
+          "id": "s9-l2",
+          "text": "Nhìn biểu đồ ngay bên dưới. Đường màu xanh là góc gối trong một bước chạy, còn dải đỏ là vùng ép."
+        },
+        {
+          "id": "s9-l3",
+          "text": "Lúc tiếp đất, gối gập khoảng hai mươi mốt độ, nằm ngay trong vùng ép, đúng lúc cơ đang hãm chân."
+        }
+      ]
+    },
+    {
+      "id": "step-10",
+      "title": "Chạy xuống dốc",
+      "enter": {
+        "camera": "lateral",
+        "mode": "down"
+      },
+      "lines": [
+        {
+          "id": "s10-l1",
+          "text": "Còn khi chạy xuống dốc, gối tiếp đất ở tư thế duỗi hơn, rồi gập sâu để hãm người lại."
+        },
+        {
+          "id": "s10-l2",
+          "text": "Gối đi xuyên qua vùng ép, đúng lúc lực hãm lớn nhất."
+        },
+        {
+          "id": "s10-l3",
+          "text": "Đây là lý do những người chạy trail, với nhiều đoạn đổ dốc dài, rất hay bị chấn thương này."
+        }
+      ]
+    },
+    {
+      "id": "step-11",
+      "title": "Chạy nhanh",
+      "enter": {
+        "camera": "lateral",
+        "mode": "fast"
+      },
+      "lines": [
+        {
+          "id": "s11-l1",
+          "text": "Ngược lại, khi chạy nhanh, lúc tiếp đất gối đã gập quá ba mươi độ, tức là đã vượt qua vùng ép."
+        },
+        {
+          "id": "s11-l2",
+          "text": "Vì vậy, nhiều người thấy chạy nhanh lại đỡ đau hơn chạy chậm."
+        }
+      ]
+    },
+    {
+      "id": "step-12",
+      "title": "Tóm lại",
+      "enter": {
+        "camera": "lateral",
+        "mode": "manual",
+        "kneeAngle": 0,
+        "hipDrop": 0,
+        "highlight": null
+      },
+      "lines": [
+        {
+          "id": "s12-l1",
+          "text": "Tóm lại, đây là chấn thương do tải và do lực ép, không phải do cọ xát."
+        },
+        {
+          "id": "s12-l2",
+          "text": "Phục hồi thường tập trung vào ba việc. Một, tạm giảm những buổi chạy gây đau, nhất là chạy xuống dốc."
+        },
+        {
+          "id": "s12-l3",
+          "text": "Hai, tăng sức mạnh cho hông và đùi. Ba, quay lại chạy từng bước, trên đường phẳng trước."
+        },
+        {
+          "id": "s12-l4",
+          "text": "Nếu đau kéo dài, hãy gặp bác sĩ hoặc chuyên viên vật lý trị liệu. Giờ bạn có thể tự xoay mô hình, hoặc kéo xuống để đọc chi tiết từng phần."
+        }
+      ]
+    }
+  ]
+}

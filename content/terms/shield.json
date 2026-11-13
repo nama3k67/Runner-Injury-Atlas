@@ -1,0 +1,14 @@
+{
+  "id": "shield",
+  "vi": "Né tải",
+  "en": "Stress shielding",
+  "category": "concept",
+  "short": "Tránh hoàn toàn mọi tải lên vùng đau, khiến mô ngày càng yếu đi.",
+  "body": "Nghỉ hẳn có thể làm bạn *tưởng* đã khỏi, nhưng khả năng chịu tải của mô vẫn tiếp tục giảm. Khi chạy lại, đau quay lại, tạo thành vòng lặp[^r7]. Né tải dễ gây tái phát không kém việc quá tải[^r12].",
+  "related": ["capacity"],
+  "injuries": {
+    "itbs": {
+      "role": "Lý do phục hồi chủ động tốt hơn nghỉ thụ động."
+    }
+  }
+}

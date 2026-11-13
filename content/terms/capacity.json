@@ -1,0 +1,14 @@
+{
+  "id": "capacity",
+  "vi": "Khả năng chịu tải",
+  "en": "Load capacity",
+  "category": "concept",
+  "short": "Lượng tải mà mô chịu được mà không đau hoặc tổn thương.",
+  "body": "Khi đã bị đau, khả năng chịu tải giảm mạnh, nên cả việc nhẹ như bước xuống bậc thang cũng có thể đau[^r7]. Phục hồi là quá trình nâng mức này lên dần.",
+  "related": ["shield"],
+  "injuries": {
+    "itbs": {
+      "role": "Mục tiêu của toàn bộ chương trình phục hồi."
+    }
+  }
+}

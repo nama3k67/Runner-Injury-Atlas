@@ -1,0 +1,19 @@
+{
+  "id": "noble",
+  "vi": "Test ép Noble",
+  "en": "Noble compression test",
+  "category": "test",
+  "short": "Ấn ngay trên mỏm lồi cầu ngoài rồi gập và duỗi gối.",
+  "body": "Dương tính khi đau lại quanh góc ~30°. Test này hay được dùng, nhưng chưa có nghiên cứu đầy đủ về độ chính xác[^r8][^r7].",
+  "related": ["lfe", "renne"],
+  "injuries": {
+    "itbs": {
+      "role": "Tái tạo đúng cơ chế ép bằng tay.",
+      "scene": {
+        "structure": "lfe",
+        "camera": "knee",
+        "kneeAngle": 30
+      }
+    }
+  }
+}

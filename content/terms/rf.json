@@ -1,0 +1,18 @@
+{
+  "id": "rf",
+  "vi": "Cơ thẳng đùi",
+  "en": "Rectus femoris",
+  "category": "muscle",
+  "short": "Phần giữa-trước của cơ tứ đầu đùi (hiển thị mờ để làm nền).",
+  "body": "Cơ duy nhất của nhóm tứ đầu bắt chéo cả khớp háng lẫn khớp gối. Không liên quan trực tiếp tới ITBS, nhưng là một phần của khối cơ đùi cần tập khi phục hồi.",
+  "related": ["vl"],
+  "injuries": {
+    "itbs": {
+      "role": "Cấu trúc nền, giúp định hướng.",
+      "scene": {
+        "structure": "rf",
+        "camera": "front"
+      }
+    }
+  }
+}

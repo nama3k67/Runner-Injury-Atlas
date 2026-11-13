@@ -1,0 +1,18 @@
+{
+  "id": "gerdy",
+  "vi": "Lồi củ Gerdy",
+  "en": "Gerdy's tubercle",
+  "category": "structure",
+  "short": "Điểm bám tận của dải chậu chày ở mặt trước-ngoài đầu trên xương chày.",
+  "body": "Nằm ở phía trước-ngoài mâm chày, dưới khe khớp gối một chút. Khi gối gập, xương chày **xoay trong** và kéo đầu dưới của dải theo, góp phần ép dải vào mỏm lồi cầu[^r1].",
+  "related": ["tibia", "itb"],
+  "injuries": {
+    "itbs": {
+      "role": "Gắn dải vào xương chày, nên chuyển động xoay của cẳng chân ảnh hưởng trực tiếp tới lực ép.",
+      "scene": {
+        "structure": "gerdy",
+        "camera": "knee"
+      }
+    }
+  }
+}

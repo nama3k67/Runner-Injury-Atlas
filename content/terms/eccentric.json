@@ -1,0 +1,14 @@
+{
+  "id": "eccentric",
+  "vi": "Co cơ lệch tâm",
+  "en": "Eccentric contraction",
+  "category": "concept",
+  "short": "Cơ vừa dài ra vừa sinh lực, như khi hãm người lúc tiếp đất hoặc xuống dốc.",
+  "body": "Ngay sau khi tiếp đất, cơ căng mạc đùi và cơ mông lớn co lệch tâm để hãm chân, tạo sức căng trên dải chậu chày[^r6].",
+  "related": ["tfl", "gmax", "downhill"],
+  "injuries": {
+    "itbs": {
+      "role": "Giải thích vì sao vùng ép gây đau nhất khi đang chịu tải."
+    }
+  }
+}

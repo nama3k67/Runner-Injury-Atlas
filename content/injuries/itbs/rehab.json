@@ -1,0 +1,88 @@
+{
+  "painRule": {
+    "acceptableMax": 2,
+    "source": "r12"
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "label": "GĐ 1",
+      "title": "Giảm kích ứng",
+      "focus": "Đau chiếm ưu thế",
+      "goal": "Giảm số lần và mức ép lên vùng đau, nhưng không đánh mất hết khả năng chịu tải.",
+      "do": [
+        "Tạm giảm hoặc dừng các buổi gây đau: chạy dài, xuống dốc, đường nghiêng",
+        "Duy trì thể lực bằng hoạt động không đau: đạp xe, bơi, đi bộ dốc lên trên máy",
+        "Bài tập tải nhẹ: gồng tĩnh cơ dạng hông, nằm nghiêng dạng hông, clamshell, cầu mông"
+      ],
+      "avoid": [
+        "Lăn foam roller mạnh trực tiếp lên vùng gối ngoài",
+        "Nghỉ hoàn toàn mọi vận động (né tải)"
+      ],
+      "gate": "Đi **xuống cầu thang không đau**, thì chuyển sang GĐ 2[^r12]"
+    },
+    {
+      "id": "phase-2",
+      "label": "GĐ 2",
+      "title": "Xây lại sức mạnh",
+      "focus": "Tải chiếm ưu thế",
+      "goal": "Tăng sức mạnh cơ dạng và duỗi hông, cơ tứ đầu, bằng các bài tập nặng, chậm, có kiểm soát.",
+      "do": [
+        "Bulgarian/split squat, cầu mông một chân",
+        "Side lunge với dây kháng lực, đi ngang với dây",
+        "Step-down chậm từ bục (giữ gối thẳng hàng với bàn chân)",
+        "Tập gần mức \"còn 1–2 lần nữa là hết sức\""
+      ],
+      "avoid": ["Tăng tải nhiều biến số cùng lúc (cả tạ, số lần và tốc độ)"],
+      "gate": "Các bài tập một chân **không đau**, không sụp hông"
+    },
+    {
+      "id": "phase-3",
+      "label": "GĐ 3",
+      "title": "Sức mạnh chức năng",
+      "focus": "Chuẩn bị chạy",
+      "goal": "Chuyển sức mạnh thành khả năng chịu lực đàn hồi giống khi chạy.",
+      "do": [
+        "Squat một chân có kiểm soát trước gương",
+        "Nhảy tại chỗ, nhảy dây, lò cò một chân",
+        "Bounding nhẹ, nhảy ngang",
+        "Tiếp tục duy trì các bài sức mạnh của GĐ 2"
+      ],
+      "avoid": ["Plyometric với số lượng lớn ngay từ đầu"],
+      "gate": "Lò cò một chân **không đau** lúc tập và sáng hôm sau"
+    },
+    {
+      "id": "phase-4",
+      "label": "GĐ 4",
+      "title": "Quay lại chạy",
+      "focus": "Đường phẳng",
+      "goal": "Đưa lại tải chạy theo từng bậc, trên địa hình dễ trước.",
+      "do": [
+        "Chạy xen đi bộ trên đường phẳng, mặt đường không nghiêng",
+        "Tăng dần thời lượng trước, sau đó mới tăng tốc độ",
+        "Nếu sải chân dài hoặc khép háng nhiều: tăng nhịp bước 5–10%[^r9]",
+        "Đoạn chạy hơi nhanh hơn pace dễ có thể dễ chịu hơn chạy rất chậm[^r3]"
+      ],
+      "avoid": [
+        "Dốc xuống, đường nghiêng, chạy vòng một chiều",
+        "Tăng nhiều khối lượng trong một tuần"
+      ],
+      "gate": "Chạy liên tục 30–45 phút trên đường phẳng với mức đau 0–2/10"
+    },
+    {
+      "id": "phase-5",
+      "label": "GĐ 5",
+      "title": "Trở lại trail & dốc",
+      "focus": "Đặc thù trail",
+      "goal": "Đưa lại địa hình và dốc xuống, phần gây áp lực nhất với dải chậu chày.",
+      "do": [
+        "Thêm dốc lên trước, rồi mới đến dốc xuống ngắn và thoải",
+        "Tăng dần độ dài và độ dốc của các đoạn xuống",
+        "Tập xuống dốc có chủ đích (sức mạnh lệch tâm của đùi) từ trước mùa giải",
+        "Tăng khối lượng tuần từ từ khi chuẩn bị cho giải dài"
+      ],
+      "avoid": ["Dồn nhiều km xuống dốc vào một buổi chạy dài khi mới quay lại"],
+      "gate": "Chạy được buổi trail có dốc xuống như kế hoạch, không đau tăng dần qua các ngày"
+    }
+  ]
+}

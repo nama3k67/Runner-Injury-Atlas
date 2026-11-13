@@ -1,0 +1,18 @@
+{
+  "id": "gmax",
+  "vi": "Cơ mông lớn",
+  "en": "Gluteus maximus",
+  "category": "muscle",
+  "short": "Cơ lớn nhất vùng mông. Phần lớn sợi nông bám vào dải chậu chày.",
+  "body": "Duỗi và xoay ngoài háng. Một phần lực của nó truyền thẳng xuống gối qua dải chậu chày. Khi chạy, nó cùng cơ căng mạc đùi hãm chân trong pha tiếp đất[^r6].",
+  "related": ["itb", "tfl", "gmed"],
+  "injuries": {
+    "itbs": {
+      "role": "Động cơ thứ hai kéo căng dải. Mạnh và kiểm soát tốt thì hông ổn định hơn.",
+      "scene": {
+        "structure": "gmax",
+        "camera": "hip"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "vl",
+  "vi": "Cơ rộng ngoài",
+  "en": "Vastus lateralis",
+  "category": "muscle",
+  "short": "Phần ngoài của cơ tứ đầu đùi, nằm ngay dưới dải chậu chày.",
+  "body": "Dải chậu chày phủ lên cơ này và dính với nó qua vách gian cơ ngoài. Vì vậy, khi \"lăn dải chậu chày\", phần lớn lực thật ra đè lên cơ rộng ngoài.",
+  "related": ["itb", "eccentric"],
+  "injuries": {
+    "itbs": {
+      "role": "Chịu tải hãm lớn khi xuống dốc (co lệch tâm), là mục tiêu chính của bài tập sức mạnh đùi.",
+      "scene": {
+        "structure": "vl",
+        "camera": "lateral"
+      }
+    }
+  }
+}

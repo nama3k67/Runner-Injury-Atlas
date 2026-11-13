@@ -1,0 +1,18 @@
+{
+  "id": "fibula",
+  "vi": "Xương mác",
+  "en": "Fibula",
+  "category": "bone",
+  "short": "Xương nhỏ ở mặt ngoài cẳng chân.",
+  "body": "Đau gần **đầu xương mác**, phía sau-ngoài, gợi ý bệnh lý gân cơ nhị đầu đùi hơn là ITBS.",
+  "related": ["gerdy"],
+  "injuries": {
+    "itbs": {
+      "role": "Mốc phân biệt chẩn đoán.",
+      "scene": {
+        "structure": "fibula",
+        "camera": "knee"
+      }
+    }
+  }
+}

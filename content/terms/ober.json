@@ -1,0 +1,17 @@
+{
+  "id": "ober",
+  "vi": "Test Ober",
+  "en": "Ober test",
+  "category": "test",
+  "short": "Nằm nghiêng, hạ chân trên xuống. Không đo được độ căng của dải chậu chày.",
+  "body": "Trên xác, cắt đứt dải chậu chày cũng không làm đổi kết quả test. Bao khớp háng, rồi đến cơ mông nhỡ, mới là các yếu tố góp phần lớn nhất[^r7].",
+  "related": ["gmed"],
+  "injuries": {
+    "itbs": {
+      "role": "Ví dụ về một test \"kinh điển\" nhưng dễ gây hiểu sai.",
+      "scene": {
+        "camera": "hip"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "foot",
+  "vi": "Xương bàn chân",
+  "en": "Tarsal & metatarsal bones",
+  "category": "bone",
+  "short": "Các xương cổ chân và bàn chân, giúp định hướng mô hình.",
+  "body": "Không liên quan trực tiếp tới ITBS. Kiểu tiếp đất và đôi giày có thể thay đổi cách tải truyền lên gối, nhưng bằng chứng về vai trò của bàn chân trong ITBS còn hạn chế.",
+  "related": ["tibia"],
+  "injuries": {
+    "itbs": {
+      "role": "Cấu trúc nền.",
+      "scene": {
+        "structure": "foot",
+        "camera": "lateral"
+      }
+    }
+  }
+}

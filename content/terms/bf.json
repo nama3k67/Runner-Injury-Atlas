@@ -1,0 +1,18 @@
+{
+  "id": "bf",
+  "vi": "Cơ nhị đầu đùi",
+  "en": "Biceps femoris (long & short head)",
+  "category": "muscle",
+  "short": "Cơ phía sau-ngoài đùi, bám vào đầu xương mác (hiển thị mờ).",
+  "body": "Bệnh lý gân cơ này gây đau **phía sau-ngoài** gối, gần đầu xương mác, nên đôi khi bị nhầm với ITBS.",
+  "related": ["fibula"],
+  "injuries": {
+    "itbs": {
+      "role": "Một chẩn đoán phân biệt quan trọng.",
+      "scene": {
+        "structure": "bf",
+        "camera": "lateral"
+      }
+    }
+  }
+}

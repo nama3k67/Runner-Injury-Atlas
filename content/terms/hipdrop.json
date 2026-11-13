@@ -1,0 +1,19 @@
+{
+  "id": "hipdrop",
+  "vi": "Hông rơi / khép háng",
+  "en": "Contralateral pelvic drop · hip adduction",
+  "category": "concept",
+  "short": "Xương chậu bên kia rơi xuống khi đứng trên một chân, làm đùi khép vào trong.",
+  "body": "Kiểu chạy khép háng nhiều và bước hẹp đều làm tăng sức căng trên dải chậu chày[^r7]. Hông rơi thường liên quan tới cơ dạng hông yếu[^r5].",
+  "related": ["gmed", "crossover"],
+  "injuries": {
+    "itbs": {
+      "role": "Thanh \"Hông rơi\" trên mô phỏng làm cả dải căng hơn và lớp mỡ bị ép mạnh hơn.",
+      "scene": {
+        "camera": "front",
+        "kneeAngle": 25,
+        "hipDrop": 8
+      }
+    }
+  }
+}

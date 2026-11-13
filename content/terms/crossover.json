@@ -1,0 +1,14 @@
+{
+  "id": "crossover",
+  "vi": "Bước hẹp / chạy bắt chéo",
+  "en": "Narrow step width · crossover gait",
+  "category": "concept",
+  "short": "Chân đáp gần hoặc vượt qua đường giữa cơ thể.",
+  "body": "Bước càng hẹp thì dải chậu chày càng căng[^r7]. Tăng nhịp bước thường làm bước rộng ra một chút một cách tự nhiên.",
+  "related": ["cadence", "hipdrop"],
+  "injuries": {
+    "itbs": {
+      "role": "Một yếu tố kỹ thuật có thể chỉnh được."
+    }
+  }
+}

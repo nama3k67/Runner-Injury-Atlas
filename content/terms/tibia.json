@@ -1,0 +1,18 @@
+{
+  "id": "tibia",
+  "vi": "Xương chày",
+  "en": "Tibia",
+  "category": "bone",
+  "short": "Xương chính của cẳng chân. Dải chậu chày bám vào lồi củ Gerdy của nó.",
+  "body": "Khi gối gập, xương chày xoay trong một chút. Mô phỏng có thêm chuyển động xoay này[^r1].",
+  "related": ["gerdy"],
+  "injuries": {
+    "itbs": {
+      "role": "Chuyển động của nó kéo đầu dưới dải chậu chày.",
+      "scene": {
+        "structure": "tibia",
+        "camera": "knee"
+      }
+    }
+  }
+}

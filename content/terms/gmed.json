@@ -1,0 +1,20 @@
+{
+  "id": "gmed",
+  "vi": "Cơ mông nhỡ",
+  "en": "Gluteus medius",
+  "category": "muscle",
+  "short": "Cơ dạng hông chính. Giữ xương chậu thăng bằng khi đứng một chân.",
+  "body": "Khi cơ này yếu, xương chậu bên kia rơi xuống và đùi bên đứng khép vào trong. Dải chậu chày vì thế căng hơn. Runner bị ITBS có cơ dạng hông bên đau yếu hơn bên lành, và chương trình 6 tuần tập trung vào cơ này giúp 22/24 người quay lại chạy được[^r5].",
+  "related": ["hipdrop", "itb"],
+  "injuries": {
+    "itbs": {
+      "role": "Không bám vào dải chậu chày, nhưng quyết định dải căng đến đâu. Thử thanh \"Hông rơi\".",
+      "scene": {
+        "structure": "gmed",
+        "camera": "hip",
+        "kneeAngle": 25,
+        "hipDrop": 7
+      }
+    }
+  }
+}

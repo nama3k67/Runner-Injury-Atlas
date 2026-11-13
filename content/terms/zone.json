@@ -1,0 +1,18 @@
+{
+  "id": "zone",
+  "vi": "Vùng ép",
+  "en": "Impingement zone (~20–30° knee flexion)",
+  "category": "concept",
+  "short": "Khoảng góc gập gối mà dải chậu chày ép mạnh nhất vào mỏm lồi cầu ngoài.",
+  "body": "Ở runner bị ITBS, gối lúc tiếp đất gập trung bình khoảng **21°**, và lực ép xảy ra ở mức bằng hoặc hơi dưới 30°. Chạy nhanh hoặc sprint ít gây đau hơn vì lúc tiếp đất gối đã gập quá khoảng này[^r3].",
+  "related": ["fatpad", "downhill"],
+  "injuries": {
+    "itbs": {
+      "role": "Khái niệm trung tâm của mô phỏng: thanh đỏ trên thanh trượt góc gối.",
+      "scene": {
+        "camera": "knee",
+        "kneeAngle": 25
+      }
+    }
+  }
+}

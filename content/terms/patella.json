@@ -1,0 +1,18 @@
+{
+  "id": "patella",
+  "vi": "Xương bánh chè",
+  "en": "Patella",
+  "category": "bone",
+  "short": "Xương vừng phía trước gối. Mốc để phân biệt với đau khớp chè đùi.",
+  "body": "Đau **quanh hoặc sau** xương bánh chè gợi ý đau khớp chè đùi (PFPS). Đau ở **mặt ngoài** gối, phía trên khe khớp, gợi ý ITBS.",
+  "related": ["lfe"],
+  "injuries": {
+    "itbs": {
+      "role": "Mốc phân biệt chẩn đoán.",
+      "scene": {
+        "structure": "patella",
+        "camera": "front"
+      }
+    }
+  }
+}

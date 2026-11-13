@@ -1,0 +1,18 @@
+{
+  "id": "femur",
+  "vi": "Xương đùi",
+  "en": "Femur",
+  "category": "bone",
+  "short": "Xương dài nhất cơ thể. Đầu dưới có lồi cầu ngoài và mỏm trên lồi cầu ngoài.",
+  "body": "Mấu chuyển lớn ở đầu trên là nơi dải chậu chày đi ngang qua. Đầu dưới là nơi dải được neo và nơi xảy ra lực ép.",
+  "related": ["lfe", "kaplan"],
+  "injuries": {
+    "itbs": {
+      "role": "Khung xương mà dải chậu chày bám dọc theo.",
+      "scene": {
+        "structure": "femur",
+        "camera": "lateral"
+      }
+    }
+  }
+}

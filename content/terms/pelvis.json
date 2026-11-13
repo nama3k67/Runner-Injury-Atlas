@@ -1,0 +1,18 @@
+{
+  "id": "pelvis",
+  "vi": "Xương chậu & mào chậu",
+  "en": "Pelvis · Iliac crest",
+  "category": "bone",
+  "short": "Nơi xuất phát của dải chậu chày (củ mào chậu) và các cơ hông.",
+  "body": "Khi đứng một chân, nếu cơ mông nhỡ yếu, xương chậu bên kia rơi xuống (dấu hiệu Trendelenburg). Thanh ngang màu vàng trên mô hình cho thấy độ nghiêng này.",
+  "related": ["gmed", "hipdrop"],
+  "injuries": {
+    "itbs": {
+      "role": "Điểm neo phía trên của toàn bộ hệ dải chậu chày.",
+      "scene": {
+        "structure": "pelvis",
+        "camera": "hip"
+      }
+    }
+  }
+}

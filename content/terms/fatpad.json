@@ -1,0 +1,19 @@
+{
+  "id": "fatpad",
+  "vi": "Lớp mỡ dưới dải chậu chày",
+  "en": "Adipose tissue deep to ITB · fat pad",
+  "category": "structure",
+  "short": "Lớp mỡ giàu mạch máu và thần kinh nằm giữa dải và mỏm lồi cầu ngoài. Nguồn đau chính theo mô hình \"ép\".",
+  "body": "Ở cả 15 xác được phẫu tích, giữa dải chậu chày và xương đùi đều có một lớp mỡ **giàu mạch máu và thần kinh**. Không thấy túi hoạt dịch thực sự ở ai[^r1].\n\nTrên MRI của runner đang đau, tín hiệu bất thường nằm ở vùng lớp mỡ này[^r1].",
+  "related": ["lfe", "zone", "itb"],
+  "injuries": {
+    "itbs": {
+      "role": "Bị ép mạnh nhất khi gối gập khoảng 20–30°. Hãy kéo thanh góc gối trên mô phỏng để xem lớp mỡ chuyển đỏ.",
+      "scene": {
+        "structure": "fatpad",
+        "camera": "knee",
+        "kneeAngle": 25
+      }
+    }
+  }
+}

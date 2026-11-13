@@ -1,0 +1,17 @@
+{
+  "id": "downhill",
+  "vi": "Chạy xuống dốc",
+  "en": "Downhill running",
+  "category": "concept",
+  "short": "Gối tiếp đất duỗi hơn, đi qua vùng ép khi lực hãm lớn nhất.",
+  "body": "Xuống dốc là yếu tố dễ gây ITBS vì **góc gập gối lúc tiếp đất nhỏ hơn**[^r3]. Kèm theo đó là lực hãm (co lệch tâm) lớn hơn. Tăng khối lượng nhanh, đặc biệt là xuống dốc, làm tăng nguy cơ[^r7].",
+  "related": ["zone", "eccentric"],
+  "injuries": {
+    "itbs": {
+      "role": "Lý do dân trail đặc biệt dễ bị. Trong phục hồi, dốc xuống nên là thứ được thêm lại cuối cùng.",
+      "scene": {
+        "camera": "knee"
+      }
+    }
+  }
+}

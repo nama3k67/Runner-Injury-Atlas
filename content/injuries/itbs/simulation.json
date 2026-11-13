@@ -1,0 +1,116 @@
+{
+  "note": "Đường cong định tính, minh họa. Góc tiếp đất ~21° theo Orchard 1996.",
+  "sources": ["r3", "r1"],
+  "impingementZone": {
+    "minDeg": 20,
+    "maxDeg": 30
+  },
+  "compression": {
+    "peakDeg": 25,
+    "widthDeg": 7.5,
+    "baseline": 0.55,
+    "hipDropGain": 0.45,
+    "hipDropMaxDeg": 10
+  },
+  "gait": {
+    "flat": {
+      "stanceEnd": 0.36,
+      "keyframes": [
+        {
+          "phase": 0,
+          "deg": 21
+        },
+        {
+          "phase": 0.13,
+          "deg": 40
+        },
+        {
+          "phase": 0.36,
+          "deg": 20
+        },
+        {
+          "phase": 0.52,
+          "deg": 62
+        },
+        {
+          "phase": 0.7,
+          "deg": 96
+        },
+        {
+          "phase": 0.9,
+          "deg": 16
+        },
+        {
+          "phase": 1,
+          "deg": 21
+        }
+      ]
+    },
+    "down": {
+      "stanceEnd": 0.38,
+      "keyframes": [
+        {
+          "phase": 0,
+          "deg": 9
+        },
+        {
+          "phase": 0.16,
+          "deg": 47
+        },
+        {
+          "phase": 0.38,
+          "deg": 22
+        },
+        {
+          "phase": 0.54,
+          "deg": 60
+        },
+        {
+          "phase": 0.71,
+          "deg": 88
+        },
+        {
+          "phase": 0.9,
+          "deg": 6
+        },
+        {
+          "phase": 1,
+          "deg": 9
+        }
+      ]
+    },
+    "fast": {
+      "stanceEnd": 0.28,
+      "keyframes": [
+        {
+          "phase": 0,
+          "deg": 33
+        },
+        {
+          "phase": 0.11,
+          "deg": 49
+        },
+        {
+          "phase": 0.28,
+          "deg": 30
+        },
+        {
+          "phase": 0.45,
+          "deg": 85
+        },
+        {
+          "phase": 0.62,
+          "deg": 118
+        },
+        {
+          "phase": 0.88,
+          "deg": 30
+        },
+        {
+          "phase": 1,
+          "deg": 33
+        }
+      ]
+    }
+  }
+}
