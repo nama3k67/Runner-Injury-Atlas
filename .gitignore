@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.output/
+.vinxi/
+.tanstack/
+.nitro/
+.env
+.env.*
+!.env.example
+coverage/
+*.log
+.DS_Store
+playwright-report/
+test-results/
+packages/anatomy-pipeline/.cache/

@@ -1,0 +1,18 @@
+# Local Postgres for apps/api. Not needed for tests or `pnpm dev:api:pglite`.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: atlas
+      POSTGRES_DB: atlas
+    ports:
+      - "5432:5432"
+    volumes:
+      - atlas-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlas"]
+      interval: 5s
+      retries: 10
+volumes:
+  atlas-db:

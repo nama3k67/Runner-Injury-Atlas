@@ -1,0 +1,31 @@
+{
+  "name": "runner-injury-atlas",
+  "private": true,
+  "version": "0.4.0",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
+    "dev": "pnpm --parallel --filter @atlas/web --filter @atlas/api dev",
+    "dev:web": "pnpm --filter @atlas/web dev",
+    "dev:api": "pnpm --filter @atlas/api dev",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "pnpm -r --workspace-concurrency=1 typecheck",
+    "test": "pnpm -r --workspace-concurrency=1 test",
+    "validate:content": "pnpm --filter @atlas/content-schema validate",
+    "build": "pnpm -r build",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm validate:content",
+    "dev:api:pglite": "pnpm --filter @atlas/api dev:pglite",
+    "e2e": "pnpm --filter @atlas/web e2e"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.7",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0",
+    "tsx": "^4.23.15",
+    "@types/node": "^22"
+  }
+}
