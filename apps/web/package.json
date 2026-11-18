@@ -15,16 +15,20 @@
     "@atlas/content-schema": "workspace:*",
     "@atlas/contracts": "workspace:*",
     "@atlas/sim": "workspace:*",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
     "@tanstack/react-router": "^1.170.46",
     "@tanstack/react-start": "^1.169.5",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
   },
   "devDependencies": {
+    "@playwright/test": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "latest",
-    "vite": "^8.3.8",
-    "@playwright/test": "latest"
+    "vite": "^8.3.8"
   }
 }

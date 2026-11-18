@@ -98,3 +98,162 @@ export function softTissueWeights(y: number, hipY: number, kneeY: number): SkinW
   const femur = Math.max(0, 1 - tibia - pelvis);
   return { pelvis, femur, tibia };
 }
+
+export type Segment = keyof SkinWeights;
+
+/** Bones follow one segment rigidly; anything not listed is soft tissue and is blended. */
+const RIGID_SEGMENT: Readonly<Record<string, Segment>> = {
+  pelvisR: 'pelvis',
+  pelvisL: 'pelvis',
+  sacrum: 'pelvis',
+  femur: 'femur',
+  patella: 'tibia',
+  tibia: 'tibia',
+  fibula: 'tibia',
+  talus: 'tibia',
+  calcaneus: 'tibia',
+  navicular: 'tibia',
+  cuboid: 'tibia',
+  cun1: 'tibia',
+  cun2: 'tibia',
+  cun3: 'tibia',
+  mt1: 'tibia',
+  mt2: 'tibia',
+  mt3: 'tibia',
+  mt4: 'tibia',
+  mt5: 'tibia',
+};
+
+/** Skin weights for a vertex of an anatomy part (names from leg-right.meta.json). */
+export function partWeights(part: string, y: number, hipY: number, kneeY: number): SkinWeights {
+  const rigid = RIGID_SEGMENT[part];
+  if (!rigid) return softTissueWeights(y, hipY, kneeY);
+  return { pelvis: 0, femur: 0, tibia: 0, [rigid]: 1 };
+}
+
+export interface RigPose {
+  /** Flexion about the knee axis. */
+  tibiaFlexDeg: number;
+  /** Tibial internal rotation that accompanies flexion (reverse screw-home). */
+  tibiaRotDeg: number;
+  /** Contralateral pelvic drop, about the forward axis. */
+  pelvisRollDeg: number;
+  /** Femur relative to the pelvis: the hip adducts as the pelvis drops. */
+  femurRollDeg: number;
+}
+
+export function rigPose(kneeDeg: number, hipDropDeg: number): RigPose {
+  return {
+    tibiaFlexDeg: kneeDeg,
+    tibiaRotDeg: 9 * smoothstep(0, 60, kneeDeg),
+    pelvisRollDeg: hipDropDeg,
+    femurRollDeg: -1.6 * hipDropDeg,
+  };
+}
+
+export interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface ItbVertexFeatures {
+  /** 1 near the knee, 0 towards the hip. */
+  distal: number;
+  /** How much this vertex sits over the lateral epicondyle, where the fat pad is squeezed. */
+  knee: number;
+}
+
+/** Per-vertex ITB features in rest pose (cm, y up, +x lateral). */
+export function itbVertexFeatures(p: Vec3, lfe: Vec3, kneeY: number): ItbVertexFeatures {
+  const lateral = p.x > lfe.x - 1.2 ? 1 : 0;
+  return {
+    distal: smoothstep(16, 4, p.y - kneeY),
+    knee:
+      Math.exp(-(((p.y - lfe.y) / 2.2) ** 2)) * Math.exp(-(((p.z - lfe.z) / 2.8) ** 2)) * lateral,
+  };
+}
+
+/** ITB morph target: displacement (cm) per unit of `knee` at full compression. */
+export const ITB_COMPRESSION_MORPH: Readonly<Vec3> = { x: -0.42, y: 0, z: 0.06 };
+
+/** Colour mix for an ITB vertex: `tense` towards amber, `hot` towards red (both 0..1). */
+export function itbHeat(
+  f: ItbVertexFeatures,
+  hipDropDeg: number,
+  hipDropMaxDeg: number,
+  compression: number,
+): { tense: number; hot: number } {
+  const hip = clamp(hipDropDeg, 0, hipDropMaxDeg) / hipDropMaxDeg;
+  return {
+    tense: Math.min(1, hip * (0.3 + 0.45 * f.distal)),
+    hot: Math.min(1, compression * f.knee * 1.15),
+  };
+}
+
+export interface FatPadPlacement {
+  center: Vec3;
+  /** Half the gap between femur and ITB, clamped to a visible range (cm). */
+  halfWidth: number;
+}
+
+/**
+ * Places the synthetic fat pad (not in BodyParts3D) in the gap between the
+ * femur and the ITB at epicondyle height. Positions are flat xyz arrays.
+ */
+export function fatPadPlacement(
+  itbPos: ArrayLike<number>,
+  femurPos: ArrayLike<number>,
+  lfe: Vec3,
+): FatPadPlacement {
+  const nearY = (pos: ArrayLike<number>, i: number) =>
+    Math.abs((pos[i + 1] ?? Infinity) - lfe.y) < 0.8;
+
+  let zSum = 0;
+  let zCount = 0;
+  for (let i = 0; i < itbPos.length; i += 3) {
+    if (nearY(itbPos, i)) {
+      zSum += itbPos[i + 2] ?? 0;
+      zCount++;
+    }
+  }
+  const zc = zCount ? zSum / zCount : lfe.z;
+  const nearZ = (pos: ArrayLike<number>, i: number) =>
+    Math.abs((pos[i + 2] ?? Infinity) - zc) < 0.9;
+
+  let xi = Infinity;
+  for (let i = 0; i < itbPos.length; i += 3) {
+    if (nearY(itbPos, i) && nearZ(itbPos, i)) xi = Math.min(xi, itbPos[i] ?? Infinity);
+  }
+  let xf = -Infinity;
+  for (let i = 0; i < femurPos.length; i += 3) {
+    if (nearY(femurPos, i) && nearZ(femurPos, i)) xf = Math.max(xf, femurPos[i] ?? -Infinity);
+  }
+  if (xi === Infinity) xi = lfe.x + 0.6;
+  if (xf === -Infinity) xf = lfe.x;
+
+  const gap = xi - xf;
+  return {
+    center: { x: gap > 0.3 ? (xi + xf) / 2 : xf + 0.18, y: lfe.y - 0.2, z: zc + 0.3 },
+    halfWidth: clamp(gap / 2, 0.16, 0.42),
+  };
+}
+
+/** Fat pad response to compression: flattens across its width, shifts medially, reddens. */
+export function fatPadState(compression: number): {
+  widthScale: number;
+  shiftX: number;
+  heat: number;
+} {
+  return {
+    widthScale: 1 - 0.5 * compression,
+    shiftX: -0.1 * compression,
+    heat: Math.min(1, compression * 1.25),
+  };
+}
+
+/** Camera distance that fits a box of height `h` and width `h * widthRatio` in view. */
+export function fitDistance(h: number, widthRatio: number, fovDeg: number, aspect: number): number {
+  const tf = Math.tan(((fovDeg / 2) * Math.PI) / 180);
+  return Math.max(h / 2 / tf, (h * widthRatio) / 2 / (tf * aspect)) * 1.05;
+}

@@ -63,10 +63,12 @@ packages/sim (pure maths) ──► 3D scene                                    
 ## What works today, and what does not
 
 Works: content pipeline with validation, ITBS page rendered from data, feedback form,
-review badge driven by the API, unit, integration and browser tests for all of it, and the v0.3
-interactive 3D simulation (embedded as a frozen legacy page).
+review badge driven by the API, unit, integration and browser tests for all of it, and the
+ITBS 3D rig in React Three Fiber (knee and hip-drop sliders, compression shown on the ITB and
+fat pad). The full v0.3 simulation stays reachable as a frozen legacy page.
 
-Not yet: the React Three Fiber port of the 3D scene, long-form ITBS sections as data,
+Not yet: the rest of the 3D port (layers, picking, labels, camera presets, run modes, gait
+chart, guided tour), long-form ITBS sections as data,
 recorded narration audio, clinician review, deployment, real authentication for reviewers.
 Details in [docs/backlog.md](docs/backlog.md).
 
