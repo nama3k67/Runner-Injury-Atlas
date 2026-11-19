@@ -106,12 +106,50 @@ h2 {
   background: #0f2a22;
   border: 1px solid #1f5a47;
 }
-.legacy {
-  width: 100%;
-  height: 820px;
+.sim {
+  display: grid;
+  gap: 16px;
+}
+.stage {
+  position: relative;
+  height: 620px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #000;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 20%, #14223a 0%, #0b1220 60%, #080d17 100%);
+}
+.stage-msg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+}
+.sim-controls {
+  display: grid;
+  gap: 10px;
+}
+.sim-controls label {
+  display: grid;
+  gap: 4px;
+}
+.sim-readout .zone {
+  display: inline-block;
+  margin-right: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.sim-readout .zone.hot {
+  background: #3a0b0b;
+  border-color: #ef4444;
+}
+@media (max-width: 680px) {
+  .stage {
+    height: 460px;
+  }
 }
 .feedback {
   display: grid;

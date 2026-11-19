@@ -5,10 +5,11 @@ picked up. Phases refer to the roadmap in the project plan.
 
 ## Phase 1 — reach parity with v0.3 inside the repo (gate 1)
 
-- [ ] **Port the 3D scene to React Three Fiber.** Replace the legacy iframe on `/$injury`.
-      Load `public/anatomy/leg-right.glb` + `leg-right.meta.json`, 3-bone skeleton, skin
-      weights from `@atlas/sim`, fat pad / Kaplan fibres / arrows as synthetic meshes,
-      layer toggles, picking that opens the dictionary term.
+- [x] **Port the 3D rig to React Three Fiber.** GLB + meta, 3-bone skeleton, skin weights,
+      ITB colour/morph and fat pad from `@atlas/sim`, knee and hip-drop sliders.
+- [ ] **Finish the R3F scene.** Kaplan fibres, arrows and pelvic bar; layer toggles; picking
+      that opens the dictionary term; labels; camera presets (refit on resize). Then remove
+      the "Xem bản v0.3" link.
 - [ ] **Zustand store for simulation state** (knee angle, hip drop, run mode, selection, tour).
 - [ ] **Guided tour runner driven by `tour.json`**, using the browser voice until recorded
       audio exists.

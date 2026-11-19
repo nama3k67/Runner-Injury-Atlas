@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router';
 import { FeedbackForm } from '../components/FeedbackForm';
 import { ReviewBadge } from '../components/ReviewBadge';
 import { Inline, RichText } from '../components/RichText';
+import { Simulation } from '../components/Simulation';
 import { content, findInjury, termsFor } from '../content';
 
 export const Route = createFileRoute('/$injury')({
@@ -22,7 +23,7 @@ function InjuryPage() {
   const { slug } = Route.useLoaderData();
   const bundle = findInjury(slug);
   if (!bundle) return null;
-  const { injury, rehab, myths, contentHash } = bundle;
+  const { injury, rehab, myths, simulation, contentHash } = bundle;
   const terms = termsFor(slug);
 
   return (
@@ -34,16 +35,7 @@ function InjuryPage() {
 
       <section aria-labelledby="sim">
         <h2 id="sim">Mô phỏng 3D</h2>
-        <p className="note">
-          Tạm thời đây là bản v0.3 (HTML thuần) nhúng nguyên trạng. Bản React Three Fiber sẽ thay
-          thế khung này; xem docs/backlog.md.
-        </p>
-        <iframe
-          className="legacy"
-          title={`Mô phỏng 3D: ${injury.title.vi}`}
-          src="/legacy/v0.3/index.html"
-          loading="lazy"
-        />
+        <Simulation sim={simulation} />
       </section>
 
       <section aria-labelledby="rehab">
