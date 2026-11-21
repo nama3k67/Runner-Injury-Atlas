@@ -1,19 +1,14 @@
 import { type CompressionParams, fitDistance } from '@atlas/sim';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { type RefObject, Suspense, useEffect, useMemo } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { type PerspectiveCamera, PMREMGenerator } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { buildItbsRig, FOOT_Y, LATERAL_VIEW } from '../scene/itbsRig';
-
-export interface Pose {
-  knee: number;
-  hip: number;
-}
+import { useSimStore } from '../simStore';
 
 interface Props {
-  pose: RefObject<Pose>;
   params: CompressionParams;
   onReady: () => void;
 }
@@ -21,7 +16,7 @@ interface Props {
 const GLB_URL = '/anatomy/leg-right.glb';
 const FOV = 30;
 
-export default function AnatomyScene({ pose, params, onReady }: Props) {
+export default function AnatomyScene({ params, onReady }: Props) {
   return (
     <Canvas
       dpr={[1, 2]}
@@ -35,7 +30,7 @@ export default function AnatomyScene({ pose, params, onReady }: Props) {
       <directionalLight color={0xffffff} intensity={0.35} position={[20, -40, -80]} />
       <gridHelper args={[120, 24, 0x22324d, 0x16233a]} position={[0, FOOT_Y - 0.3, 0]} />
       <Suspense fallback={null}>
-        <Leg pose={pose} params={params} onReady={onReady} />
+        <Leg params={params} onReady={onReady} />
       </Suspense>
       <LateralCamera />
       <OrbitControls
@@ -50,7 +45,7 @@ export default function AnatomyScene({ pose, params, onReady }: Props) {
   );
 }
 
-function Leg({ pose, params, onReady }: Props) {
+function Leg({ params, onReady }: Props) {
   const gltf = useLoader(GLTFLoader, GLB_URL);
   const rig = useMemo(() => buildItbsRig(gltf.scene, params), [gltf, params]);
 
@@ -59,7 +54,10 @@ function Leg({ pose, params, onReady }: Props) {
     return () => rig.dispose();
   }, [rig, onReady]);
 
-  useFrame(() => rig.update(pose.current.knee, pose.current.hip));
+  useFrame(() => {
+    const { knee, hip } = useSimStore.getState();
+    rig.update(knee, hip);
+  });
 
   return <primitive object={rig.root} />;
 }
