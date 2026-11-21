@@ -10,7 +10,9 @@ picked up. Phases refer to the roadmap in the project plan.
 - [ ] **Finish the R3F scene.** Kaplan fibres, arrows and pelvic bar; layer toggles; picking
       that opens the dictionary term; labels; camera presets (refit on resize). Then remove
       the "Xem bản v0.3" link.
-- [ ] **Zustand store for simulation state** (knee angle, hip drop, run mode, selection, tour).
+- [x] **Zustand store for simulation state** (`apps/web/src/simStore.ts`, knee angle and hip
+      drop). Selection, run mode and tour state join it in the PRs that add picking, the gait
+      chart and the tour runner.
 - [ ] **Guided tour runner driven by `tour.json`**, using the browser voice until recorded
       audio exists.
 - [ ] **Gait chart** from `simulation.json` (currently only in the legacy page).

@@ -1,18 +1,8 @@
 import type { Simulation as SimulationContent } from '@atlas/content-schema';
 import { compression, inZone } from '@atlas/sim';
 import { ClientOnly } from '@tanstack/react-router';
-import {
-  Component,
-  lazy,
-  type ReactNode,
-  type RefObject,
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import type { Pose } from './AnatomyScene';
+import { Component, lazy, type ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
+import { useSimStore } from '../simStore';
 
 const AnatomyScene = lazy(() => import('./AnatomyScene'));
 
@@ -27,13 +17,8 @@ const hasWebGL = (): boolean => {
 };
 
 export function Simulation({ sim }: { sim: SimulationContent }) {
-  const [knee, setKnee] = useState(0);
-  const [hip, setHip] = useState(0);
-  // The scene reads the pose every frame from this ref, so dragging re-renders only the readout.
-  const pose = useRef<Pose>({ knee: 0, hip: 0 });
-
-  const c = compression(knee, hip, sim.compression);
-  const hot = inZone(knee, sim.impingementZone);
+  // Reset on unmount so the next injury page starts from the neutral pose without a flash.
+  useEffect(() => useSimStore.getState().reset, []);
 
   return (
     <div className="sim">
@@ -44,53 +29,60 @@ export function Simulation({ sim }: { sim: SimulationContent }) {
           </div>
         }
       >
-        <Stage pose={pose} sim={sim} />
+        <Stage sim={sim} />
       </ClientOnly>
-
-      <div className="sim-controls">
-        <label>
-          Góc gập gối <span data-testid="sim-knee">{knee}°</span>
-          <input
-            type="range"
-            min={0}
-            max={90}
-            step={1}
-            value={knee}
-            onChange={(e) => {
-              pose.current.knee = e.target.valueAsNumber;
-              setKnee(pose.current.knee);
-            }}
-          />
-        </label>
-        <label>
-          Độ sụp hông bên đối diện <span>{hip}°</span>
-          <input
-            type="range"
-            min={0}
-            max={sim.compression.hipDropMaxDeg}
-            step={0.5}
-            value={hip}
-            onChange={(e) => {
-              pose.current.hip = e.target.valueAsNumber;
-              setHip(pose.current.hip);
-            }}
-          />
-        </label>
-        <p className="sim-readout">
-          <span className={hot ? 'zone hot' : 'zone'} data-testid="sim-zone">
-            {hot ? 'TRONG VÙNG ÉP' : 'Ngoài vùng ép'}
-          </span>
-          Mức ép lớp mỡ (minh họa):{' '}
-          <strong data-testid="sim-compression">{Math.round(c * 100)}%</strong>
-        </p>
-        <p className="note">{sim.note}</p>
-        <a href="/legacy/v0.3/index.html">Xem bản v0.3</a>
-      </div>
+      <Controls sim={sim} />
     </div>
   );
 }
 
-function Stage({ pose, sim }: { pose: RefObject<Pose>; sim: SimulationContent }) {
+// Only this subtree subscribes to the pose, so dragging a slider never re-renders the stage.
+function Controls({ sim }: { sim: SimulationContent }) {
+  const knee = useSimStore((s) => s.knee);
+  const hip = useSimStore((s) => s.hip);
+  const { setKnee, setHip } = useSimStore.getState();
+
+  const c = compression(knee, hip, sim.compression);
+  const hot = inZone(knee, sim.impingementZone);
+
+  return (
+    <div className="sim-controls">
+      <label>
+        Góc gập gối <span data-testid="sim-knee">{knee}°</span>
+        <input
+          type="range"
+          min={0}
+          max={90}
+          step={1}
+          value={knee}
+          onChange={(e) => setKnee(e.target.valueAsNumber)}
+        />
+      </label>
+      <label>
+        Độ sụp hông bên đối diện <span>{hip}°</span>
+        <input
+          type="range"
+          min={0}
+          max={sim.compression.hipDropMaxDeg}
+          step={0.5}
+          value={hip}
+          onChange={(e) => setHip(e.target.valueAsNumber)}
+        />
+      </label>
+      <p className="sim-readout">
+        <span className={hot ? 'zone hot' : 'zone'} data-testid="sim-zone">
+          {hot ? 'TRONG VÙNG ÉP' : 'Ngoài vùng ép'}
+        </span>
+        Mức ép lớp mỡ (minh họa):{' '}
+        <strong data-testid="sim-compression">{Math.round(c * 100)}%</strong>
+      </p>
+      <p className="note">{sim.note}</p>
+      <a href="/legacy/v0.3/index.html">Xem bản v0.3</a>
+    </div>
+  );
+}
+
+function Stage({ sim }: { sim: SimulationContent }) {
   const [state, setState] = useState<StageState>('loading');
   const ready = useCallback(() => setState('ready'), []);
   const failed = useCallback(() => setState('error'), []);
@@ -104,7 +96,7 @@ function Stage({ pose, sim }: { pose: RefObject<Pose>; sim: SimulationContent })
       {state !== 'error' && (
         <SceneBoundary onError={failed}>
           <Suspense fallback={null}>
-            <AnatomyScene pose={pose} params={sim.compression} onReady={ready} />
+            <AnatomyScene params={sim.compression} onReady={ready} />
           </Suspense>
         </SceneBoundary>
       )}
