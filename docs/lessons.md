@@ -7,6 +7,36 @@ Each entry: what happened, why, what we changed, and the rule from now on. If a 
 to matter a lot, move it down the harness table in `docs/process.md` (a helper, a lint rule,
 a test) instead of leaving it here as advice.
 
+## 2026-11-22 — Multi-step 3D e2e tests run out of the 30 s budget on CI
+
+**What happened.** PR #8 (picking) passed e2e locally but failed CI: three picking tests timed
+out on desktop and mobile, on retry too. The errors looked like a hang ("Received: ''",
+`mouse.move` timeouts).
+
+**Why.** The CI trace showed no hang. Every Playwright action took about 1.1–1.7 s, including
+the first `expect` before any interaction, and the canvas `boundingBox` took 4.5 s. Add the
+9.3 s first-load wait, and the click test reached 30.0 s exactly. Locally the same steps take
+milliseconds. Our reading is that each action waits on a rendered frame, and the leg scene
+renders slowly on SwiftShader. That is inferred from the trace, not profiled. Older tests
+passed because they have few steps.
+
+Measured on: GitHub Actions runner, Chrome with SwiftShader, cold browser, production build.
+Forcing SwiftShader locally (Mac, `--use-angle=swiftshader`, production build) runs the same
+tests in about 4 s each, so a local run does not reproduce the CI cost. Only CI proves the budget.
+
+**What we changed.** The picking `describe` calls `test.slow()` (90 s budget). The assertions
+did not change.
+
+**Rules from now on.**
+
+- Budget a 3D e2e test at roughly 1.5 s per action on CI, on top of the first-load stall.
+  Mark a test `test.slow()` when it does more than a handful of actions on the scene.
+- An error that looks like a hang (empty text, input timeouts) is often a timeout hit halfway
+  through. Add up the action durations in the trace before you suspect the app.
+
+**Open.** Rendering on demand (`frameloop="demand"`) would cut the per-frame cost on CI and
+the battery use on phones. See `docs/backlog.md`.
+
 ## 2026-11-22 — The first 3D scene load stalls the main thread; e2e must wait for readiness
 
 **What happened.** PR #4 failed CI. The test _ITBS page renders the R3F scene_ could not find
