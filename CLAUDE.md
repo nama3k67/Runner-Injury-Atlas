@@ -28,6 +28,7 @@ tools/harness/         Agent guard hooks, commit-msg check (unit-tested).
 tools/anatomy-pipeline/  BodyParts3D STL -> GLB + landmark metadata (Python, run by hand).
 apps/web/public/legacy/v0.3/  Frozen single-file prototype, embedded until the R3F port lands.
 docs/adr/              Why things are the way they are. Read the relevant ADR before changing a decision.
+docs/lessons.md        Incidents and the rules they taught. Read before debugging a flaky or CI-only failure.
 ```
 
 ## Rules that are enforced (hooks/CI will stop you)
