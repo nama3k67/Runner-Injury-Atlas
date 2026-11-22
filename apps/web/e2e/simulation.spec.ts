@@ -66,6 +66,8 @@ test('the page says which 3D parts are illustrations, even before the scene load
 });
 
 test.describe('picking a structure in the 3D scene', () => {
+  // Every action waits on a rendered frame, about 1–1.7 s each on CI's software GL (lessons.md).
+  test.slow();
   // The camera frames the whole leg from the lateral side, so the centre of the canvas is on the thigh.
   test.beforeEach(async ({ page }) => {
     await page.goto('/itbs');

@@ -23,6 +23,9 @@ picked up. Phases refer to the roadmap in the project plan.
 - [ ] **Visual regression snapshots** of the 3D scene at fixed camera/angle presets.
 - [ ] **Test on real phones** and record frame rate; decide on a reduced-detail mode.
       Start from the first-load stall in `docs/lessons.md` (2026-11-22).
+- [ ] **Render on demand** (`frameloop="demand"`, invalidate on store, controls and highlight
+      changes). Today the scene re-renders every frame; on CI that costs 1–1.7 s per e2e action.
+      The pulsing highlight needs continuous frames, so decide how it should behave first.
 - [ ] **Port the anatomy pipeline to TypeScript** (gltf-transform, meshopt) so it runs in CI.
 - [ ] **Run the API against real Postgres** (docker compose) and add it to CI as a service.
       Only PGlite has been exercised so far.
