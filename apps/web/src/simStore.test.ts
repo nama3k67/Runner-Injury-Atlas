@@ -27,4 +27,19 @@ describe('useSimStore', () => {
     reset();
     expect(useSimStore.getState().layers).toEqual(allOn);
   });
+
+  it('selects one term at a time, clears it, and reset clears it', () => {
+    const { select, reset } = useSimStore.getState();
+    expect(useSimStore.getState().selected).toBeNull();
+
+    select('femur');
+    select('kaplan');
+    expect(useSimStore.getState().selected).toBe('kaplan');
+    select(null);
+    expect(useSimStore.getState().selected).toBeNull();
+
+    select('itb');
+    reset();
+    expect(useSimStore.getState().selected).toBeNull();
+  });
 });

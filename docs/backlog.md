@@ -7,11 +7,12 @@ picked up. Phases refer to the roadmap in the project plan.
 
 - [x] **Port the 3D rig to React Three Fiber.** GLB + meta, 3-bone skeleton, skin weights,
       ITB colour/morph and fat pad from `@atlas/sim`, knee and hip-drop sliders.
-- [ ] **Finish the R3F scene.** Kaplan fibres, arrows and pelvic bar; layer toggles; picking
-      that opens the dictionary term; labels; camera presets (refit on resize). Then remove
-      the "Xem bản v0.3" link.
+- [ ] **Finish the R3F scene.** Still missing: tension colouring, labels, camera presets
+      (refit on resize, and applying a term's `scene` hint). Done: Kaplan fibres, arrows and
+      pelvic bar; layer toggles; picking that opens the dictionary term. Then remove the
+      "Xem bản v0.3" link.
 - [x] **Zustand store for simulation state** (`apps/web/src/simStore.ts`, knee angle and hip
-      drop). Selection, run mode and tour state join it in the PRs that add picking, the gait
+      drop). Selection joined with picking; run mode and tour state join in the PRs that add the gait
       chart and the tour runner.
 - [ ] **Guided tour runner driven by `tour.json`**, using the browser voice until recorded
       audio exists.
@@ -22,6 +23,9 @@ picked up. Phases refer to the roadmap in the project plan.
 - [ ] **Visual regression snapshots** of the 3D scene at fixed camera/angle presets.
 - [ ] **Test on real phones** and record frame rate; decide on a reduced-detail mode.
       Start from the first-load stall in `docs/lessons.md` (2026-11-22).
+- [ ] **Render on demand** (`frameloop="demand"`, invalidate on store, controls and highlight
+      changes). Today the scene re-renders every frame; on CI that costs 1–1.7 s per e2e action.
+      The pulsing highlight needs continuous frames, so decide how it should behave first.
 - [ ] **Port the anatomy pipeline to TypeScript** (gltf-transform, meshopt) so it runs in CI.
 - [ ] **Run the API against real Postgres** (docker compose) and add it to CI as a service.
       Only PGlite has been exercised so far.

@@ -35,7 +35,7 @@ function InjuryPage() {
 
       <section aria-labelledby="sim">
         <h2 id="sim">Mô phỏng 3D</h2>
-        <Simulation sim={simulation} />
+        <Simulation sim={simulation} terms={terms} injury={{ slug, name: injury.title.vi }} />
       </section>
 
       <section aria-labelledby="rehab">

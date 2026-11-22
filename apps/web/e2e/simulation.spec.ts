@@ -64,3 +64,75 @@ test('the page says which 3D parts are illustrations, even before the scene load
   const html = await (await request.get('/itbs')).text();
   expect(html).toContain('Lớp mỡ, sợi Kaplan và mũi tên là phần minh họa thêm');
 });
+
+test.describe('picking a structure in the 3D scene', () => {
+  // Every action waits on a rendered frame, about 1–1.7 s each on CI's software GL (lessons.md).
+  test.slow();
+  // The camera frames the whole leg from the lateral side, so the centre of the canvas is on the thigh.
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/itbs');
+    await expect(page.getByTestId('sim-stage')).toHaveAttribute('data-state', 'ready', {
+      timeout: 20_000,
+    });
+  });
+
+  const centre = async (page: import('@playwright/test').Page) => {
+    const box = await page.getByTestId('sim-stage').locator('canvas').boundingBox();
+    if (!box) throw new Error('canvas has no box');
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  };
+
+  test('a click opens the term, related terms open from the panel, and it can be cleared', async ({
+    page,
+  }) => {
+    await expect(page.getByTestId('term-hint')).toBeVisible();
+    const { x, y } = await centre(page);
+    await page.mouse.click(x, y);
+
+    const panel = page.getByTestId('term-panel');
+    await expect(panel).toBeVisible();
+    const first = await panel.getByRole('heading').textContent();
+    await expect(panel.getByText(/^Vai trò trong /)).toBeVisible();
+
+    const related = panel
+      .getByRole('navigation', { name: 'Thuật ngữ liên quan' })
+      .getByRole('button');
+    const target = await related.first().textContent();
+    await related.first().click();
+    await expect(panel.getByRole('heading')).toHaveText(target ?? '');
+    expect(target).not.toBe(first);
+
+    await panel.getByRole('button', { name: 'Bỏ chọn' }).click();
+    await expect(panel).toHaveCount(0);
+    await expect(page.getByTestId('term-hint')).toBeVisible();
+  });
+
+  test('the cursor turns into a pointer over a pickable structure', async ({ page }) => {
+    const canvas = page.getByTestId('sim-stage').locator('canvas');
+    const { x, y } = await centre(page);
+    await page.mouse.move(x - 5, y);
+    await page.mouse.move(x, y);
+    await expect(canvas).toHaveCSS('cursor', 'pointer');
+  });
+
+  test('an orbit drag does not open a term', async ({ page }) => {
+    const { x, y } = await centre(page);
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 40, y + 10, { steps: 5 });
+    await page.mouse.up();
+    await expect(page.getByTestId('term-hint')).toBeVisible();
+    await expect(page.getByTestId('term-panel')).toHaveCount(0);
+  });
+
+  test('structures in hidden layers cannot be picked', async ({ page }) => {
+    const layers = page.getByRole('group', { name: 'Lớp hiển thị' });
+    for (const name of ['Xương', 'Cơ', 'Dải chậu chày', 'Lớp mỡ']) {
+      await layers.getByRole('button', { name, exact: true }).click();
+    }
+    const { x, y } = await centre(page);
+    await page.mouse.click(x, y);
+    await expect(page.getByTestId('term-hint')).toBeVisible();
+    await expect(page.getByTestId('term-panel')).toHaveCount(0);
+  });
+});
