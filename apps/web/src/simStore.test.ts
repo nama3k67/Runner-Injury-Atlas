@@ -42,4 +42,43 @@ describe('useSimStore', () => {
     reset();
     expect(useSimStore.getState().selected).toBeNull();
   });
+
+  it('counts every view request, so asking for the current preset again still moves the camera', () => {
+    const { setView, reset } = useSimStore.getState();
+    expect(useSimStore.getState().view).toEqual({ name: 'lateral', seq: 0 });
+    setView('knee');
+    setView('knee');
+    expect(useSimStore.getState().view).toEqual({ name: 'knee', seq: 2 });
+    reset();
+    expect(useSimStore.getState().view).toEqual({ name: 'lateral', seq: 0 });
+  });
+
+  it('opening a term applies its scene hint, and only the parts the hint has', () => {
+    const { openTerm, setKnee, setHip, reset } = useSimStore.getState();
+    setKnee(10);
+    setHip(2);
+
+    openTerm('fatpad', { structure: 'fatpad', camera: 'knee', kneeAngle: 25 });
+    expect(useSimStore.getState()).toMatchObject({
+      selected: 'fatpad',
+      view: { name: 'knee', seq: 1 },
+      knee: 25,
+      hip: 2,
+    });
+
+    openTerm('gmed', { camera: 'hip', hipDrop: 7 });
+    expect(useSimStore.getState()).toMatchObject({
+      view: { name: 'hip', seq: 2 },
+      knee: 25,
+      hip: 7,
+    });
+
+    openTerm('cadence', undefined);
+    expect(useSimStore.getState()).toMatchObject({
+      selected: 'cadence',
+      view: { seq: 2 },
+      knee: 25,
+    });
+    reset();
+  });
 });

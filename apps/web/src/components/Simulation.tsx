@@ -12,7 +12,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { LAYERS, type Layer, useSimStore } from '../simStore';
+import { type CameraView, LAYERS, type Layer, useSimStore } from '../simStore';
 import { TermPanel } from './TermPanel';
 
 const AnatomyScene = lazy(() => import('./AnatomyScene'));
@@ -24,6 +24,14 @@ const LAYER_UI: Readonly<Record<Layer, { label: string; colour: string }>> = {
   itb: { label: 'Dải chậu chày', colour: '#7cc4f5' },
   fat: { label: 'Lớp mỡ', colour: '#f2cf63' },
 };
+
+// Camera preset buttons, labels from legacy v0.3.
+const VIEWS: readonly { name: CameraView; label: string }[] = [
+  { name: 'lateral', label: 'Mặt ngoài' },
+  { name: 'front', label: 'Phía trước' },
+  { name: 'knee', label: 'Cận gối' },
+  { name: 'hip', label: 'Hông' },
+];
 
 const KNEE_MAX_DEG = 90;
 
@@ -198,6 +206,27 @@ function Controls({ sim }: { sim: SimulationContent }) {
   );
 }
 
+/** Camera presets over the scene. Choosing one again brings the camera back after orbiting. */
+function ViewButtons() {
+  const view = useSimStore((s) => s.view.name);
+  const { setView } = useSimStore.getState();
+  return (
+    <fieldset className="hud" aria-label="Góc nhìn">
+      {VIEWS.map((v) => (
+        <button
+          key={v.name}
+          type="button"
+          className="btn"
+          aria-pressed={view === v.name}
+          onClick={() => setView(v.name)}
+        >
+          {v.label}
+        </button>
+      ))}
+    </fieldset>
+  );
+}
+
 /** Knee angle and zone over the scene. Its own subscriber, so the canvas does not re-render. */
 function Readout({ sim }: { sim: SimulationContent }) {
   const knee = useSimStore((s) => s.knee);
@@ -258,9 +287,11 @@ function Stage({
           </Suspense>
         </SceneBoundary>
       )}
+      <ViewButtons />
       <Readout sim={sim} />
       <p className="stage-hint">
-        Kéo để xoay · Cuộn/chụm để phóng to · Bấm vào cấu trúc để xem mục từ
+        Kéo để xoay · Shift, chuột phải hoặc hai ngón để dời · Cuộn/chụm để phóng to · Bấm vào cấu
+        trúc để xem mục từ
       </p>
       <div className="tip" ref={tip} role="tooltip" data-testid="sim-tip" hidden />
       {state === 'loading' && <p className="stage-msg">Đang tải mô hình giải phẫu…</p>}

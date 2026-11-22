@@ -19,7 +19,7 @@ interface Props {
 
 export function TermPanel({ terms, injury }: Props) {
   const selected = useSimStore((s) => s.selected);
-  const { select } = useSimStore.getState();
+  const { select, openTerm } = useSimStore.getState();
   const term = selected === null ? undefined : terms.get(selected);
   const link = term?.injuries[injury.slug];
 
@@ -57,7 +57,12 @@ export function TermPanel({ terms, injury }: Props) {
       {related.length > 0 && (
         <nav className="entry-related" aria-label="Thuật ngữ liên quan">
           {related.map((r) => (
-            <button key={r.id} type="button" className="btn" onClick={() => select(r.id)}>
+            <button
+              key={r.id}
+              type="button"
+              className="btn"
+              onClick={() => openTerm(r.id, r.injuries[injury.slug]?.scene)}
+            >
               {r.vi}
             </button>
           ))}

@@ -1,4 +1,25 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
+
+interface TermFile {
+  vi: string;
+  injuries: Record<string, { scene?: { camera?: string; kneeAngle?: number; hipDrop?: number } }>;
+}
+// Expected scene hints come from the content itself, so the test follows content edits.
+const termsDir = join(process.cwd(), '../../content/terms');
+const termByName = new Map(
+  readdirSync(termsDir).map((f) => {
+    const t = JSON.parse(readFileSync(join(termsDir, f), 'utf8')) as TermFile;
+    return [t.vi, t] as const;
+  }),
+);
+const VIEW_LABEL: Record<string, string> = {
+  lateral: 'Mặt ngoài',
+  front: 'Phía trước',
+  knee: 'Cận gối',
+  hip: 'Hông',
+};
 
 test('prerendered HTML ships a placeholder, not the 3D scene', async ({ request }) => {
   const html = await (await request.get('/itbs')).text();
@@ -108,6 +129,18 @@ test.describe('picking a structure in the 3D scene', () => {
     await expect(panel.getByRole('heading')).toHaveText(target ?? '');
     expect(target).not.toBe(first);
 
+    // A related term applies its scene hint: camera preset and pose.
+    const hint = termByName.get(target ?? '')?.injuries.itbs?.scene;
+    const views = page.getByRole('group', { name: 'Góc nhìn' });
+    if (hint?.camera) {
+      await expect(
+        views.getByRole('button', { name: VIEW_LABEL[hint.camera], exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true');
+    }
+    if (hint?.kneeAngle !== undefined) {
+      await expect(page.getByTestId('sim-knee')).toHaveText(`${hint.kneeAngle}°`);
+    }
+
     await panel.getByRole('button', { name: 'Bỏ chọn' }).click();
     await expect(panel).toHaveCount(0);
     await expect(page.getByTestId('term-hint')).toBeVisible();
@@ -121,6 +154,7 @@ test.describe('picking a structure in the 3D scene', () => {
   }) => {
     const canvas = page.getByTestId('sim-stage').locator('canvas');
     const tip = page.getByTestId('sim-tip');
+    await expect(canvas).toHaveCSS('cursor', 'grab');
     const { x, y } = await centre(page);
     await page.mouse.click(x, y);
     const name = await page.getByTestId('term-panel').getByRole('heading').textContent();
@@ -154,5 +188,15 @@ test.describe('picking a structure in the 3D scene', () => {
     await page.mouse.click(x, y);
     await expect(tab(page, 'Điều khiển')).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByTestId('term-panel')).toHaveCount(0);
+  });
+
+  test('camera preset buttons show which view is chosen', async ({ page }) => {
+    const views = page.getByRole('group', { name: 'Góc nhìn' });
+    const lateral = views.getByRole('button', { name: 'Mặt ngoài', exact: true });
+    const knee = views.getByRole('button', { name: 'Cận gối', exact: true });
+    await expect(lateral).toHaveAttribute('aria-pressed', 'true');
+    await knee.click();
+    await expect(knee).toHaveAttribute('aria-pressed', 'true');
+    await expect(lateral).toHaveAttribute('aria-pressed', 'false');
   });
 });

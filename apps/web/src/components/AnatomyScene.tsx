@@ -1,11 +1,12 @@
-import { type CompressionParams, fitDistance } from '@atlas/sim';
+import type { CompressionParams } from '@atlas/sim';
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo } from 'react';
-import { type PerspectiveCamera, PMREMGenerator, Raycaster, Vector2 } from 'three';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { PMREMGenerator, Raycaster, Vector2, type Vector3 } from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { buildItbsRig, FOOT_Y, type ItbsRig, LATERAL_VIEW } from '../scene/itbsRig';
+import { buildItbsRig, cameraPose, FOOT_Y, type ItbsRig } from '../scene/itbsRig';
 import { isClick } from '../scene/picking';
 import { useSimStore } from '../simStore';
 
@@ -37,15 +38,14 @@ export default function AnatomyScene(props: Props) {
       <Suspense fallback={null}>
         <Leg {...props} />
       </Suspense>
-      <LateralCamera />
       <OrbitControls
         makeDefault
         enableDamping
         dampingFactor={0.08}
         minDistance={8}
         maxDistance={420}
-        target={LATERAL_VIEW.target}
       />
+      <CameraRig />
     </Canvas>
   );
 }
@@ -93,18 +93,22 @@ function usePicking(rig: ItbsRig, onHover: Props['onHover']) {
       raycaster.setFromCamera(ndc, camera);
       return rig.pick(raycaster);
     };
+    // Open hand says "drag me", as in v0.3; the pointing hand marks something to click.
+    el.style.cursor = 'grab';
     const clearHover = () => {
       latest = null;
-      el.style.cursor = '';
+      el.style.cursor = 'grab';
       onHover(null, 0, 0);
     };
     const onDown = (e: PointerEvent) => {
       down = { x: e.clientX, y: e.clientY };
       clearHover();
+      el.style.cursor = 'grabbing';
     };
     const onUp = (e: PointerEvent) => {
       const click = down !== null && isClick(down, { x: e.clientX, y: e.clientY });
       down = null;
+      el.style.cursor = 'grab';
       if (!click) return;
       const term = termUnder(e);
       if (term) useSimStore.getState().select(term);
@@ -117,7 +121,7 @@ function usePicking(rig: ItbsRig, onHover: Props['onHover']) {
       if (!e) return;
       latest = null;
       const term = termUnder(e);
-      el.style.cursor = term ? 'pointer' : '';
+      el.style.cursor = term ? 'pointer' : 'grab';
       const r = el.getBoundingClientRect();
       onHover(term, e.clientX - r.left, e.clientY - r.top);
       timer = window.setTimeout(flushHover, HOVER_INTERVAL_MS);
@@ -158,16 +162,76 @@ function RoomLighting() {
   return null;
 }
 
-// ponytail: fits once on mount; refit on resize when camera presets land (backlog step 2).
-function LateralCamera() {
-  const camera = useThree((s) => s.camera as PerspectiveCamera);
-  const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height));
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fit only on mount so user orbiting is kept
+const CAMERA_MOVE_MS = 700;
+
+interface CameraMove {
+  fromPosition: Vector3;
+  fromTarget: Vector3;
+  toPosition: Vector3;
+  toTarget: Vector3;
+  startMs: number;
+}
+
+/**
+ * Moves the camera to the preset in the store. Glides on a request, snaps on resize, and stops
+ * refitting once the reader orbits (v0.3), until the next preset request.
+ */
+function CameraRig() {
+  const camera = useThree((s) => s.camera);
+  const controls = useThree((s) => s.controls) as OrbitControlsImpl | null;
+  const width = useThree((s) => s.size.width);
+  const height = useThree((s) => s.size.height);
+  const move = useRef<CameraMove | null>(null);
+  const orbited = useRef(false);
+
   useEffect(() => {
-    const { target, direction, height, widthRatio } = LATERAL_VIEW;
-    const distance = fitDistance(height, widthRatio, FOV, aspect);
-    camera.position.copy(target).addScaledVector(direction, distance);
-    camera.lookAt(target);
-  }, [camera]);
+    if (!controls) return;
+    const onStart = () => {
+      orbited.current = true;
+      move.current = null;
+    };
+    controls.addEventListener('start', onStart);
+    return () => controls.removeEventListener('start', onStart);
+  }, [controls]);
+
+  useEffect(() => {
+    if (!controls || orbited.current || move.current) return;
+    const aspect = width / Math.max(1, height);
+    const pose = cameraPose(useSimStore.getState().view.name, FOV, aspect);
+    camera.position.copy(pose.position);
+    controls.target.copy(pose.target);
+    controls.update();
+  }, [camera, controls, width, height]);
+
+  useEffect(() => {
+    if (!controls) return;
+    return useSimStore.subscribe((state, prev) => {
+      if (state.view === prev.view) return;
+      const { width: w, height: h } = controls.domElement?.getBoundingClientRect() ?? {
+        width,
+        height,
+      };
+      const pose = cameraPose(state.view.name, FOV, w / Math.max(1, h));
+      orbited.current = false;
+      move.current = {
+        fromPosition: camera.position.clone(),
+        fromTarget: controls.target.clone(),
+        toPosition: pose.position,
+        toTarget: pose.target,
+        startMs: performance.now(),
+      };
+    });
+  }, [camera, controls, width, height]);
+
+  useFrame(() => {
+    const m = move.current;
+    if (!m || !controls) return;
+    const t = Math.min(1, (performance.now() - m.startMs) / CAMERA_MOVE_MS);
+    const eased = 1 - (1 - t) ** 3;
+    camera.position.lerpVectors(m.fromPosition, m.toPosition, eased);
+    controls.target.lerpVectors(m.fromTarget, m.toTarget, eased);
+    if (t >= 1) move.current = null;
+  });
+
   return null;
 }
