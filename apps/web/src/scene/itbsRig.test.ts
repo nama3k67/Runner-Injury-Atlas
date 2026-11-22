@@ -1,7 +1,8 @@
+import { fitDistance } from '@atlas/sim';
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import meta from '../../public/anatomy/leg-right.meta.json';
-import { buildItbsRig } from './itbsRig';
+import { buildItbsRig, CAMERA_PRESETS, cameraPose } from './itbsRig';
 
 const params = { peakDeg: 25, widthDeg: 7.5, baseline: 0.55, hipDropGain: 0.45, hipDropMaxDeg: 10 };
 const [lx = 0, ly = 0, lz = 0] = meta.lfe;
@@ -204,5 +205,33 @@ describe('buildItbsRig highlight', () => {
     rig.highlight(null, 0);
     expect(markerOpacity()).toBe(0);
     rig.dispose();
+  });
+});
+
+describe('cameraPose', () => {
+  it('places the camera along the preset direction, at the distance that fits the preset', () => {
+    for (const [name, preset] of Object.entries(CAMERA_PRESETS)) {
+      const { position, target } = cameraPose(name as keyof typeof CAMERA_PRESETS, 30, 1.5);
+      expect(target.equals(preset.target), name).toBe(true);
+      const offset = position.clone().sub(target);
+      expect(offset.length(), name).toBeCloseTo(
+        fitDistance(preset.height, preset.widthRatio, 30, 1.5),
+      );
+      expect(offset.normalize().dot(preset.direction.clone().normalize()), name).toBeCloseTo(1);
+    }
+  });
+
+  it('backs off when the screen is narrower than the preset, so it still fits', () => {
+    const distance = (aspect: number) =>
+      cameraPose('lateral', 30, aspect).position.distanceTo(CAMERA_PRESETS.lateral.target);
+    // The lateral preset is 0.42 as wide as it is tall: height decides above that, width below.
+    expect(distance(0.3)).toBeGreaterThan(distance(1.8));
+    expect(distance(0.6)).toBeCloseTo(distance(1.8));
+  });
+
+  it('aims the knee preset at the lateral epicondyle', () => {
+    expect(cameraPose('knee', 30, 1).target.distanceTo(new THREE.Vector3(lx, ly, lz))).toBeLessThan(
+      3,
+    );
   });
 });

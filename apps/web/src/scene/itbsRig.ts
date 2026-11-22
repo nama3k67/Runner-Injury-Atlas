@@ -4,6 +4,7 @@ import {
   compressionArrows,
   fatPadPlacement,
   fatPadState,
+  fitDistance,
   ITB_COMPRESSION_MORPH,
   itbHeat,
   itbVertexFeatures,
@@ -15,7 +16,7 @@ import {
 } from '@atlas/sim';
 import * as THREE from 'three';
 import meta from '../../public/anatomy/leg-right.meta.json';
-import { LAYERS, type Layer, type LayerVisibility } from '../simStore';
+import { type CameraView, LAYERS, type Layer, type LayerVisibility } from '../simStore';
 import { PART_TERM, termAt } from './picking';
 
 // Imperative three.js on purpose (ADR 0002): skinning and per-vertex colour run every
@@ -53,13 +54,57 @@ const CREST = vec(meta.crestTop);
 const crestY = CREST.y;
 const SACRUM_MID_X = (vec(bounds.sacrum?.[0]).x + vec(bounds.sacrum?.[1]).x) / 2;
 
-/** Lateral camera preset from v0.3: the whole leg seen from the outside. */
-export const LATERAL_VIEW = {
-  target: new THREE.Vector3(2, (crestY + FOOT_Y) / 2, -1),
-  direction: new THREE.Vector3(1, 0.05, -0.38).normalize(),
-  height: crestY - FOOT_Y + 6,
-  widthRatio: 0.42,
+interface CameraPreset {
+  target: THREE.Vector3;
+  /** From the target towards the camera. */
+  direction: THREE.Vector3;
+  /** Height of the box to fit, and its width as a share of that height. */
+  height: number;
+  widthRatio: number;
+}
+
+const legMidY = (crestY + FOOT_Y) / 2;
+const legHeight = crestY - FOOT_Y + 6;
+
+/** Camera presets from legacy v0.3 (CAMS). */
+export const CAMERA_PRESETS: Readonly<Record<CameraView, CameraPreset>> = {
+  lateral: {
+    target: new THREE.Vector3(2, legMidY, -1),
+    direction: new THREE.Vector3(1, 0.05, -0.38),
+    height: legHeight,
+    widthRatio: 0.42,
+  },
+  front: {
+    target: new THREE.Vector3(-4, legMidY + 2.5, -1),
+    direction: new THREE.Vector3(0.16, 0.05, -1),
+    height: legHeight + 9,
+    widthRatio: 0.6,
+  },
+  knee: {
+    target: LFE.clone().add(new THREE.Vector3(-1.5, -1.2, -0.6)),
+    direction: new THREE.Vector3(0.88, 0.06, -0.48),
+    height: 22,
+    widthRatio: 1,
+  },
+  hip: {
+    target: HIP.clone().add(new THREE.Vector3(2, 5, 0)),
+    direction: new THREE.Vector3(0.82, 0.14, -0.56),
+    height: 36,
+    widthRatio: 1,
+  },
 };
+
+/** Where the camera stands to frame `view` on a screen of the given aspect. */
+export function cameraPose(
+  view: CameraView,
+  fovDeg: number,
+  aspect: number,
+): { position: THREE.Vector3; target: THREE.Vector3 } {
+  const p = CAMERA_PRESETS[view];
+  const distance = fitDistance(p.height, p.widthRatio, fovDeg, aspect);
+  const position = p.target.clone().addScaledVector(p.direction.clone().normalize(), distance);
+  return { position, target: p.target.clone() };
+}
 
 const MUSCLE_COLOUR: Readonly<Record<string, number>> = {
   gmax: 0xa8423d,

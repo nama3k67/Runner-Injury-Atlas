@@ -7,10 +7,10 @@ picked up. Phases refer to the roadmap in the project plan.
 
 - [x] **Port the 3D rig to React Three Fiber.** GLB + meta, 3-bone skeleton, skin weights,
       ITB colour/morph and fat pad from `@atlas/sim`, knee and hip-drop sliders.
-- [ ] **Finish the R3F scene.** Still missing: tension colouring, labels, camera presets
-      (refit on resize, and applying a term's `scene` hint). Done: Kaplan fibres, arrows and
-      pelvic bar; layer toggles; picking that opens the dictionary term. Then remove the
-      "Xem bản v0.3" link.
+- [ ] **Finish the R3F scene.** Still missing: tension colouring, labels, and the "Xem trên
+      3D" buttons in the dictionary section. Done: Kaplan fibres, arrows and pelvic bar; layer
+      toggles; picking that opens the dictionary term; camera presets (refit on resize, a
+      related term applies its `scene` hint). Then remove the "Xem bản v0.3" link.
 - [x] **Zustand store for simulation state** (`apps/web/src/simStore.ts`, knee angle and hip
       drop). Selection joined with picking; run mode and tour state join in the PRs that add the gait
       chart and the tour runner.
