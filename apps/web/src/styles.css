@@ -135,6 +135,45 @@ h2 {
   display: grid;
   gap: 4px;
 }
+.layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.layers legend {
+  width: 100%;
+  padding: 0 0 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.layers button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+}
+.layers button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.layers .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.layers button[aria-pressed="false"] .swatch {
+  opacity: 0.3;
+}
 .sim-readout .zone {
   display: inline-block;
   margin-right: 12px;

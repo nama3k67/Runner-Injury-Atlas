@@ -37,3 +37,21 @@ test('knee angle drives the impingement readout', async ({ page }) => {
   await expect(zone).toHaveText('Ngoài vùng ép');
   await expect(pressure).toHaveText('0%');
 });
+
+test('layer buttons toggle and report their state', async ({ page }) => {
+  await page.goto('/itbs');
+  await expect(page.getByTestId('sim-stage')).toBeVisible();
+  const layers = page.getByRole('group', { name: 'Lớp hiển thị' });
+  for (const name of ['Xương', 'Cơ', 'Dải chậu chày', 'Lớp mỡ']) {
+    await expect(layers.getByRole('button', { name, exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  }
+
+  const muscle = layers.getByRole('button', { name: 'Cơ', exact: true });
+  await muscle.click();
+  await expect(muscle).toHaveAttribute('aria-pressed', 'false');
+  await muscle.click();
+  await expect(muscle).toHaveAttribute('aria-pressed', 'true');
+});
