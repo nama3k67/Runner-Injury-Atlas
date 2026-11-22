@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bestVertex,
   compressionArrows,
   fatPadPlacement,
   fatPadState,
@@ -181,5 +182,23 @@ describe('pelvicBar', () => {
     expect((a.x + b.x) / 2).toBeCloseTo(-7.5);
     expect(b.y).toBe(a.y);
     expect(b.z).toBe(a.z);
+  });
+});
+
+describe('bestVertex', () => {
+  const pos = [0, 0, 0, 1, 5, 2, 3, 5, -1, 9, 9, 9];
+
+  it('returns the vertex with the highest score', () => {
+    expect(bestVertex(pos, (v) => v.x)).toEqual({ x: 9, y: 9, z: 9 });
+  });
+
+  it('ignores vertices scored -Infinity, so a score can filter by height', () => {
+    const atY5 = (v: { x: number; y: number; z: number }) => (v.y === 5 ? v.z : -Infinity);
+    expect(bestVertex(pos, atY5)).toEqual({ x: 1, y: 5, z: 2 });
+  });
+
+  it('returns null when no vertex passes the filter', () => {
+    expect(bestVertex(pos, () => -Infinity)).toBeNull();
+    expect(bestVertex([], (v) => v.x)).toBeNull();
   });
 });

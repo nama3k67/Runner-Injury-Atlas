@@ -324,3 +324,18 @@ export function fitDistance(h: number, widthRatio: number, fovDeg: number, aspec
   const tf = Math.tan(((fovDeg / 2) * Math.PI) / 180);
   return Math.max(h / 2 / tf, (h * widthRatio) / 2 / (tf * aspect)) * 1.05;
 }
+
+/** The vertex of a flat xyz array with the highest score. Scores of -Infinity never win. */
+export function bestVertex(pos: ArrayLike<number>, score: (v: Vec3) => number): Vec3 | null {
+  let best: Vec3 | null = null;
+  let bestScore = -Infinity;
+  for (let i = 0; i + 2 < pos.length; i += 3) {
+    const v = { x: pos[i] ?? 0, y: pos[i + 1] ?? 0, z: pos[i + 2] ?? 0 };
+    const s = score(v);
+    if (s > bestScore) {
+      bestScore = s;
+      best = v;
+    }
+  }
+  return best;
+}

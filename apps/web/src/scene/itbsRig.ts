@@ -1,4 +1,5 @@
 import {
+  bestVertex,
   type CompressionParams,
   compression,
   compressionArrows,
@@ -17,6 +18,7 @@ import {
 import * as THREE from 'three';
 import meta from '../../public/anatomy/leg-right.meta.json';
 import { type CameraView, LAYERS, type Layer, type LayerVisibility } from '../simStore';
+import { LABELS } from './labels';
 import { PART_TERM, termAt } from './picking';
 
 // Imperative three.js on purpose (ADR 0002): skinning and per-vertex colour run every
@@ -41,6 +43,8 @@ const PIVOT = vec(meta.pivot);
 const AXIS = vec(meta.axis).normalize();
 const LFE = vec(meta.lfe);
 const GERDY = vec(meta.gerdy);
+const anchors: Readonly<Record<string, Triple>> = meta.anchors;
+const anchor = (id: string): THREE.Vector3 => vec(anchors[id]);
 const X = new THREE.Vector3(1, 0, 0);
 const Y = new THREE.Vector3(0, 1, 0);
 const Z = new THREE.Vector3(0, 0, 1);
@@ -228,6 +232,8 @@ export interface ItbsRig {
   update(kneeDeg: number, hipDropDeg: number): void;
   /** Show or hide whole layers. Cheap enough to call every frame. */
   showLayers(layers: LayerVisibility): void;
+  /** Where each label in LABELS sits; each anchor follows its bone and its layer. */
+  labelAnchors: readonly { id: string; object: THREE.Object3D }[];
   /** Term of the nearest visible structure under the ray, or null. */
   pick(raycaster: THREE.Raycaster): string | null;
   /** Pulse one structure (a term id), or none. Call every frame after `update`. */
@@ -418,8 +424,80 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
     colours.needsUpdate = true;
   }
 
+  // Label anchors, as in v0.3: muscle labels sit on the real surface where the geometry has it
+  // (placeSynthetic), the rest at fixed offsets. Positions are world-space at rest.
+  const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+  const surface = (part: string, score: (v: { x: number; y: number; z: number }) => number) => {
+    const pos = source[part]?.getAttribute('position');
+    const best = pos ? bestVertex(pos.array, score) : null;
+    return best ? v3(best) : null;
+  };
+  const near = (y: number, at: number, within: number) => Math.abs(y - at) < within;
+  const kaplanStrand = kaplan.children[1] ?? kaplan.children[0];
+  const labelAt: Record<string, { bone: THREE.Bone; world: THREE.Vector3 }> = {
+    itb: {
+      bone: femur,
+      world:
+        surface('itb', (v) => (near(v.y, HIP.y * 0.62, 1.2) ? v.x : -Infinity))?.add(
+          V(0.6, 0, 0),
+        ) ?? anchor('itb').add(V(0.4, -6, 0)),
+    },
+    tfl: {
+      bone: femur,
+      world:
+        surface('tfl', (v) => (near(v.y, HIP.y + 1, 1.5) ? v.x - v.z * 0.3 : -Infinity))?.add(
+          V(0.6, 0, -0.4),
+        ) ?? anchor('tfl').add(V(0.5, 1, -1.5)),
+    },
+    gmax: {
+      bone: femur,
+      world:
+        surface('gmax', (v) => (near(v.y, HIP.y + 2, 1.5) ? v.z + v.x * 0.3 : -Infinity))?.add(
+          V(0.4, 0, 0.8),
+        ) ?? anchor('gmax').add(V(0.5, -2, 3.5)),
+    },
+    gmed: {
+      bone: pelvis,
+      world:
+        surface('gmed', (v) => (v.y > HIP.y + 7 ? v.x + v.y * 0.05 : -Infinity))?.add(
+          V(0.6, 0.6, 0),
+        ) ?? anchor('gmed').add(V(0.5, 4, 0)),
+    },
+    vl: {
+      bone: femur,
+      world:
+        surface('vl', (v) => (near(v.y, HIP.y * 0.4, 1.2) ? v.x - v.z * 0.4 : -Infinity))?.add(
+          V(0.5, 0, -0.5),
+        ) ?? anchor('vl').add(V(0.6, -4, -1)),
+    },
+    lfe: { bone: femur, world: LFE.clone().add(V(0.4, 1.4, 2.4)) },
+    fatpad: { bone: femur, world: v3(pad.center).add(V(1.4, -1.6, -0.8)) },
+    gerdy: { bone: tibia, world: GERDY.clone().add(V(1.2, -0.6, -1.6)) },
+    kaplan: {
+      bone: femur,
+      world: kaplanStrand
+        ? kaplanStrand.position
+            .clone()
+            .add(HIP)
+            .add(V(0.4, 0.6, 1.6))
+        : LFE.clone().add(V(1.6, 4.2, 2.6)),
+    },
+  };
+  const boneOrigin = (bone: THREE.Bone) => (bone === tibia ? PIVOT : HIP);
+  const labelAnchors = Object.entries(LABELS).flatMap(([id, spec]) => {
+    const at = labelAt[id];
+    if (!at) return [];
+    const object = new THREE.Object3D();
+    object.name = `label-${id}`;
+    object.position.copy(at.world).sub(boneOrigin(at.bone));
+    at.bone.add(object);
+    byLayer[spec.layer].push(object);
+    return [{ id, object }];
+  });
+
   return {
     root,
+    labelAnchors,
     update(kneeDeg, hipDropDeg) {
       poseKey = `${kneeDeg}|${hipDropDeg}`;
       const pose = rigPose(kneeDeg, hipDropDeg);

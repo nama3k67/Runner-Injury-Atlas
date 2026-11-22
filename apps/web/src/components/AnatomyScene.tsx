@@ -6,7 +6,9 @@ import { PMREMGenerator, Raycaster, Vector2, type Vector3 } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 import { buildItbsRig, cameraPose, FOOT_Y, type ItbsRig } from '../scene/itbsRig';
+import { LABELS, labelShown } from '../scene/labels';
 import { isClick } from '../scene/picking';
 import { useSimStore } from '../simStore';
 
@@ -60,6 +62,7 @@ function Leg({ params, structures, onHover, onReady }: Props) {
   }, [rig, onReady]);
 
   usePicking(rig, onHover);
+  useLabels(rig);
 
   useFrame(({ clock }) => {
     const { knee, hip, layers, selected } = useSimStore.getState();
@@ -69,6 +72,58 @@ function Leg({ params, structures, onHover, onReady }: Props) {
   });
 
   return <primitive object={rig.root} />;
+}
+
+/** HTML labels pinned to the rig's anchors, drawn by three's CSS2DRenderer over the canvas (v0.3). */
+function useLabels(rig: ItbsRig) {
+  const gl = useThree((s) => s.gl);
+  const width = useThree((s) => s.size.width);
+  const height = useThree((s) => s.size.height);
+  const labels = useRef<{
+    renderer: CSS2DRenderer;
+    items: { object: CSS2DObject; near: boolean }[];
+  }>(null);
+
+  useEffect(() => {
+    const host = gl.domElement.parentElement;
+    if (!host) return;
+    const renderer = new CSS2DRenderer();
+    renderer.domElement.className = 'labels';
+    host.appendChild(renderer.domElement);
+    const items = rig.labelAnchors.flatMap(({ id, object: anchor }) => {
+      const spec = LABELS[id];
+      if (!spec) return [];
+      const el = document.createElement('div');
+      el.className = spec.near ? 'lbl lbl-near' : 'lbl';
+      el.textContent = spec.text;
+      const object = new CSS2DObject(el);
+      anchor.add(object);
+      return [{ object, near: spec.near }];
+    });
+    labels.current = { renderer, items };
+    return () => {
+      for (const { object } of items) {
+        object.removeFromParent();
+        object.element.remove();
+      }
+      renderer.domElement.remove();
+      labels.current = null;
+    };
+  }, [gl, rig]);
+
+  useEffect(() => {
+    labels.current?.renderer.setSize(width, height);
+  }, [width, height]);
+
+  useFrame(({ scene, camera, controls }) => {
+    const l = labels.current;
+    if (!l) return;
+    const target = (controls as OrbitControlsImpl | null)?.target;
+    const distance = target ? camera.position.distanceTo(target) : Infinity;
+    const on = useSimStore.getState().labels;
+    for (const item of l.items) item.object.visible = labelShown(item.near, distance, on);
+    l.renderer.render(scene, camera);
+  });
 }
 
 const HOVER_INTERVAL_MS = 90;

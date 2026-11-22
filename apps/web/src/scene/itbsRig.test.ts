@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import meta from '../../public/anatomy/leg-right.meta.json';
 import { buildItbsRig, CAMERA_PRESETS, cameraPose } from './itbsRig';
+import { LABELS } from './labels';
 
 const params = { peakDeg: 25, widthDeg: 7.5, baseline: 0.55, hipDropGain: 0.45, hipDropMaxDeg: 10 };
 const [lx = 0, ly = 0, lz = 0] = meta.lfe;
@@ -233,5 +234,41 @@ describe('cameraPose', () => {
     expect(cameraPose('knee', 30, 1).target.distanceTo(new THREE.Vector3(lx, ly, lz))).toBeLessThan(
       3,
     );
+  });
+});
+
+describe('buildItbsRig label anchors', () => {
+  it('has one anchor per label, hidden with the layer of its structure', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    expect(rig.labelAnchors.map((a) => a.id).sort()).toEqual(Object.keys(LABELS).sort());
+    const anchor = (id: string) => rig.labelAnchors.find((a) => a.id === id)?.object;
+
+    rig.showLayers({ ...ALL_ON, muscle: false });
+    expect([shown(anchor('vl')), shown(anchor('gmed')), shown(anchor('itb'))]).toEqual([
+      false,
+      false,
+      true,
+    ]);
+    rig.showLayers({ ...ALL_ON, bone: false, fat: false });
+    expect([shown(anchor('gerdy')), shown(anchor('fatpad')), shown(anchor('kaplan'))]).toEqual([
+      false,
+      false,
+      true,
+    ]);
+    rig.dispose();
+  });
+
+  it('moves the Gerdy label with the tibia when the knee bends', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    const gerdy = rig.labelAnchors.find((a) => a.id === 'gerdy')?.object;
+    const world = () => {
+      rig.root.updateMatrixWorld(true);
+      return gerdy?.getWorldPosition(new THREE.Vector3());
+    };
+    rig.update(0, 0);
+    const rest = world()?.clone();
+    rig.update(60, 0);
+    expect(rest && world()?.distanceTo(rest)).toBeGreaterThan(1);
+    rig.dispose();
   });
 });
