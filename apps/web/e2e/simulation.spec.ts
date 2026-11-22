@@ -199,4 +199,38 @@ test.describe('picking a structure in the 3D scene', () => {
     await expect(knee).toHaveAttribute('aria-pressed', 'true');
     await expect(lateral).toHaveAttribute('aria-pressed', 'false');
   });
+
+  test('labels name the structures, follow the zoom, the layers and the Nhãn toggle', async ({
+    page,
+  }, info) => {
+    const layers = page.getByRole('group', { name: 'Lớp hiển thị' });
+    const toggle = layers.getByRole('button', { name: 'Nhãn', exact: true });
+    const label = (text: string) => page.locator('.lbl', { hasText: text });
+
+    // Phones start without labels (v0.3); desktop starts with them.
+    if (info.project.name === 'mobile') {
+      await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+      await expect(label('Dải chậu chày')).toBeHidden();
+      await toggle.click();
+    }
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+    // From afar: big structures only.
+    await expect(label('Dải chậu chày')).toBeVisible();
+    await expect(label('Lớp mỡ')).toBeHidden();
+
+    // Up close: the landmarks appear.
+    await page
+      .getByRole('group', { name: 'Góc nhìn' })
+      .getByRole('button', { name: 'Cận gối' })
+      .click();
+    await expect(label('Lớp mỡ')).toBeVisible();
+
+    await layers.getByRole('button', { name: 'Lớp mỡ', exact: true }).click();
+    await expect(label('Lớp mỡ')).toBeHidden();
+    await expect(label('Dải chậu chày')).toBeVisible();
+
+    await toggle.click();
+    await expect(label('Dải chậu chày')).toBeHidden();
+  });
 });

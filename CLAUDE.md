@@ -73,7 +73,7 @@ Slash commands: `/feature`, `/verify`, `/add-injury`, `/adr`. Subagent: `content
 ## Known gaps (do not paper over them)
 
 See `docs/backlog.md`. Notably: the R3F scene has the rig, sliders, layer toggles, the
-illustrative structures, picking and camera presets only (tension colouring, labels, tour still
+illustrative structures, picking, camera presets and labels only (tension colouring, tour still
 live in the legacy page); long-form prose
 sections of ITBS live only in the legacy page; nothing has been reviewed by a clinician;
 the API has not been run against a real Postgres server yet (only PGlite).

@@ -16,6 +16,8 @@ interface SimState {
   knee: number;
   hip: number;
   layers: LayerVisibility;
+  /** Text labels on the model. */
+  labels: boolean;
   /** Id of the dictionary term open in the panel. */
   selected: string | null;
   /** Requested camera preset. `seq` counts requests, so asking for the same preset again moves the camera back. */
@@ -23,6 +25,7 @@ interface SimState {
   setKnee: (deg: number) => void;
   setHip: (deg: number) => void;
   toggleLayer: (layer: Layer) => void;
+  toggleLabels: () => void;
   select: (term: string | null) => void;
   setView: (name: CameraView) => void;
   /** Open a term and apply its scene hint (camera, knee angle, hip drop). */
@@ -34,6 +37,7 @@ const neutral = {
   knee: 0,
   hip: 0,
   layers: { bone: true, muscle: true, itb: true, fat: true },
+  labels: true,
   selected: null,
   view: { name: 'lateral' as CameraView, seq: 0 },
 };
@@ -43,6 +47,7 @@ export const useSimStore = create<SimState>()((set) => ({
   setKnee: (knee) => set({ knee }),
   setHip: (hip) => set({ hip }),
   toggleLayer: (layer) => set((s) => ({ layers: { ...s.layers, [layer]: !s.layers[layer] } })),
+  toggleLabels: () => set((s) => ({ labels: !s.labels })),
   select: (selected) => set({ selected }),
   setView: (name) => set((s) => ({ view: { name, seq: s.view.seq + 1 } })),
   openTerm: (selected, hint) =>

@@ -81,4 +81,13 @@ describe('useSimStore', () => {
     });
     reset();
   });
+
+  it('starts with labels on, toggles them, and reset turns them back on', () => {
+    const { toggleLabels, reset } = useSimStore.getState();
+    expect(useSimStore.getState().labels).toBe(true);
+    toggleLabels();
+    expect(useSimStore.getState().labels).toBe(false);
+    reset();
+    expect(useSimStore.getState().labels).toBe(true);
+  });
 });

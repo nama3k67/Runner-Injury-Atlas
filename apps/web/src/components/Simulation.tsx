@@ -56,6 +56,13 @@ interface Props {
 export function Simulation({ sim, terms, injury }: Props) {
   // Reset on unmount so the next injury page starts from the neutral pose without a flash.
   useEffect(() => useSimStore.getState().reset, []);
+  // Labels crowd a phone screen, so they start off there (v0.3). After mount: the prerendered
+  // HTML cannot know the screen width.
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 680px)').matches && useSimStore.getState().labels) {
+      useSimStore.getState().toggleLabels();
+    }
+  }, []);
 
   const termById = useMemo(() => new Map(terms.map((t) => [t.id, t])), [terms]);
   const structures = useMemo(() => {
@@ -126,8 +133,9 @@ function Side({ sim, terms, injury }: Omit<Props, 'terms'> & { terms: ReadonlyMa
 function Controls({ sim }: { sim: SimulationContent }) {
   const knee = useSimStore((s) => s.knee);
   const hip = useSimStore((s) => s.hip);
+  const labels = useSimStore((s) => s.labels);
   const layers = useSimStore((s) => s.layers);
-  const { setKnee, setHip, toggleLayer } = useSimStore.getState();
+  const { setKnee, setHip, toggleLayer, toggleLabels } = useSimStore.getState();
 
   const pressure = Math.round(compression(knee, hip, sim.compression) * 100);
   const { minDeg, maxDeg } = sim.impingementZone;
@@ -189,6 +197,10 @@ function Controls({ sim }: { sim: SimulationContent }) {
             {LAYER_UI[layer].label}
           </button>
         ))}
+        <button type="button" className="btn" aria-pressed={labels} onClick={toggleLabels}>
+          <i className="swatch" style={{ background: '#ffffff' }} aria-hidden />
+          Nhãn
+        </button>
       </fieldset>
       <div className="meter">
         <span id="sim-meter-label">Mức ép lớp mỡ (minh họa)</span>
