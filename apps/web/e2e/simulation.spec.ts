@@ -10,8 +10,10 @@ test('prerendered HTML ships a placeholder, not the 3D scene', async ({ request 
 test('ITBS page renders the R3F scene instead of the legacy iframe', async ({ page }) => {
   await page.goto('/itbs');
   const stage = page.getByTestId('sim-stage');
-  await expect(stage.locator('canvas')).toBeVisible();
+  // The first scene in a fresh browser blocks the main thread for seconds (cold shader compile,
+  // >5 s on CI's software GL), so wait for readiness before querying the DOM.
   await expect(stage).toHaveAttribute('data-state', 'ready', { timeout: 20_000 });
+  await expect(stage.locator('canvas')).toBeVisible();
   await expect(page.locator('#sim ~ iframe, section iframe')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Xem bản v0.3' })).toHaveAttribute(
     'href',
