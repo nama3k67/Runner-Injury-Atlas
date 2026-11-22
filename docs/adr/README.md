@@ -10,5 +10,6 @@
 | [6](0006-content-as-data-and-medical-review-gate.md)   | Content as data, medical review gate bound to a content hash      | Accepted |
 | [7](0007-agentic-development-lifecycle-and-harness.md) | Agentic development lifecycle with an engineered harness          | Accepted |
 | [8](0008-no-reader-health-data.md)                     | Store no health data or contact details about readers             | Accepted |
+| [9](0009-stacked-prs-with-gh-stack.md)                 | Stacked pull requests with `gh stack`                             | Proposed |
 
 New ADR: copy the shape of an existing one, next number, status "Proposed" until the maintainer accepts it.
