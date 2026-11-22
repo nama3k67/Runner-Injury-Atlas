@@ -195,6 +195,8 @@ export interface FatPadPlacement {
   center: Vec3;
   /** Half the gap between femur and ITB, clamped to a visible range (cm). */
   halfWidth: number;
+  /** Bases of the three compression arrows, just outside the ITB, bottom to top. */
+  arrowAnchors: Vec3[];
 }
 
 /**
@@ -233,9 +235,74 @@ export function fatPadPlacement(
   if (xf === -Infinity) xf = lfe.x;
 
   const gap = xi - xf;
+  const arrowX = Math.max(xi, xf) + 2.2;
   return {
     center: { x: gap > 0.3 ? (xi + xf) / 2 : xf + 0.18, y: lfe.y - 0.2, z: zc + 0.3 },
     halfWidth: clamp(gap / 2, 0.16, 0.42),
+    arrowAnchors: [-1, 0, 1].map((j) => ({
+      x: arrowX,
+      y: lfe.y + j * 1.1,
+      z: zc + 0.3 + j * 0.2,
+    })),
+  };
+}
+
+/** Compression arrows show only once the squeeze is noticeable, and grow with it. */
+export function compressionArrows(compression: number): { visible: boolean; scale: number } {
+  return { visible: compression > 0.18, scale: 0.45 + 0.55 * compression };
+}
+
+export interface LineSegment {
+  a: Vec3;
+  b: Vec3;
+}
+
+/** Heights above the lateral epicondyle (cm) of the illustrated Kaplan fibre bundles. */
+const KAPLAN_HEIGHTS = [2.4, 3.6, 4.8];
+
+/**
+ * Illustrative Kaplan fibres (not in BodyParts3D): at each height, a strand from the most
+ * lateral femur point to the most medial ITB point. A height with no vertices on either
+ * surface is skipped. Positions are flat xyz arrays; segments are in the same space.
+ */
+export function kaplanFibres(
+  femurPos: ArrayLike<number>,
+  itbPos: ArrayLike<number>,
+  lfe: Vec3,
+): LineSegment[] {
+  const extreme = (pos: ArrayLike<number>, y: number, minZ: number, sign: 1 | -1) => {
+    let best: Vec3 | null = null;
+    for (let i = 0; i < pos.length; i += 3) {
+      const x = pos[i] ?? 0;
+      const py = pos[i + 1] ?? Infinity;
+      const z = pos[i + 2] ?? -Infinity;
+      if (Math.abs(py - y) < 0.35 && z > minZ && (!best || sign * (x - best.x) > 0)) {
+        best = { x, y: py, z };
+      }
+    }
+    return best;
+  };
+
+  const fibres: LineSegment[] = [];
+  for (const dy of KAPLAN_HEIGHTS) {
+    const y = lfe.y + dy;
+    const femur = extreme(femurPos, y, lfe.z - 0.5, 1);
+    const itb = extreme(itbPos, y, lfe.z - 1.5, -1);
+    if (!femur || !itb) continue;
+    fibres.push({
+      a: femur,
+      b: { x: Math.max(itb.x, femur.x + 0.4) + 0.1, y: itb.y - 0.4, z: itb.z },
+    });
+  }
+  return fibres;
+}
+
+/** Bar across both iliac crests, mirrored about the sacrum midline, to show pelvic drop. */
+export function pelvicBar(crestTop: Vec3, midlineX: number): LineSegment {
+  const y = crestTop.y + 0.6;
+  return {
+    a: { x: crestTop.x + 0.6, y, z: crestTop.z },
+    b: { x: 2 * midlineX - crestTop.x - 0.6, y, z: crestTop.z },
   };
 }
 

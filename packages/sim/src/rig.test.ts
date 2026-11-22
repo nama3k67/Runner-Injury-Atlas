@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+  compressionArrows,
   fatPadPlacement,
   fatPadState,
   fitDistance,
   itbHeat,
   itbVertexFeatures,
+  kaplanFibres,
   partWeights,
+  pelvicBar,
   rigPose,
 } from './index';
 
@@ -91,6 +94,15 @@ describe('fatPadPlacement', () => {
     expect(pad.center.x).toBeCloseTo(4.18);
     expect(pad.halfWidth).toBeCloseTo(0.16);
   });
+  it('places three medially pointing arrows just outside the ITB, stacked around the epicondyle', () => {
+    const { arrowAnchors } = fatPadPlacement(strip(4.6), strip(4), LFE);
+    expect(arrowAnchors).toHaveLength(3);
+    arrowAnchors.forEach((p, j) => {
+      expect(p.x).toBeCloseTo(6.8);
+      expect(p.y).toBeCloseTo(LFE.y + (j - 1) * 1.1);
+      expect(p.z).toBeCloseTo(LFE.z + 0.3 + (j - 1) * 0.2);
+    });
+  });
   it('falls back to the landmark when no vertices are near it', () => {
     const pad = fatPadPlacement([0, 50, 0], [0, 50, 0], LFE);
     expect(pad.center.x).toBeCloseTo(LFE.x + 0.3);
@@ -119,5 +131,55 @@ describe('fitDistance', () => {
     const tf = Math.tan(Math.PI / 12);
     expect(fitDistance(100, 0.4, 30, 2)).toBeCloseTo((50 / tf) * 1.05);
     expect(fitDistance(100, 1, 30, 0.5)).toBeCloseTo((100 / tf) * 1.05);
+  });
+});
+
+describe('compressionArrows', () => {
+  it('stays hidden at low compression', () => {
+    expect(compressionArrows(0).visible).toBe(false);
+    expect(compressionArrows(0.18).visible).toBe(false);
+  });
+  it('appears above 0.18 and grows with compression', () => {
+    expect(compressionArrows(0.2)).toEqual({ visible: true, scale: 0.45 + 0.55 * 0.2 });
+    expect(compressionArrows(1).scale).toBeCloseTo(1);
+  });
+});
+
+describe('kaplanFibres', () => {
+  // Vertices at the three fibre heights above the epicondyle.
+  const at = (x: number, dys: number[], z = LFE.z): number[] =>
+    dys.flatMap((dy) => [x, LFE.y + dy, z]);
+  const ALL = [2.4, 3.6, 4.8];
+
+  it('joins the most lateral femur point to the most medial ITB point at each height', () => {
+    const femur = [...at(3, ALL), ...at(4, ALL), ...at(10, ALL, LFE.z - 1)];
+    const itb = [...at(6, ALL), ...at(5, ALL)];
+    const fibres = kaplanFibres(femur, itb, LFE);
+    expect(fibres).toHaveLength(3);
+    fibres.forEach((f, j) => {
+      const y = LFE.y + (ALL[j] ?? 0);
+      expect(f.a).toEqual({ x: 4, y, z: LFE.z });
+      expect(f.b.x).toBeCloseTo(5.1);
+      expect(f.b.y).toBeCloseTo(y - 0.4);
+      expect(f.b.z).toBeCloseTo(LFE.z);
+    });
+  });
+  it('keeps a minimum length when the ITB hugs the femur', () => {
+    const [f] = kaplanFibres(at(4, [2.4]), at(4.2, [2.4]), LFE);
+    expect(f?.b.x).toBeCloseTo(4.5);
+  });
+  it('skips a height where either surface has no vertices', () => {
+    expect(kaplanFibres(at(4, ALL), at(5, [2.4]), LFE)).toHaveLength(1);
+    expect(kaplanFibres([], [], LFE)).toEqual([]);
+  });
+});
+
+describe('pelvicBar', () => {
+  it('spans both iliac crests level and symmetric about the midline', () => {
+    const { a, b } = pelvicBar({ x: 2, y: 53, z: -0.8 }, -7.5);
+    expect(a).toEqual({ x: 2.6, y: 53.6, z: -0.8 });
+    expect((a.x + b.x) / 2).toBeCloseTo(-7.5);
+    expect(b.y).toBe(a.y);
+    expect(b.z).toBe(a.z);
   });
 });

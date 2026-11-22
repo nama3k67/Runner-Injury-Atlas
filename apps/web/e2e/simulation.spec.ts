@@ -57,3 +57,10 @@ test('layer buttons toggle and report their state', async ({ page }) => {
   await muscle.click();
   await expect(muscle).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('the page says which 3D parts are illustrations, even before the scene loads', async ({
+  request,
+}) => {
+  const html = await (await request.get('/itbs')).text();
+  expect(html).toContain('Lớp mỡ, sợi Kaplan và mũi tên là phần minh họa thêm');
+});
