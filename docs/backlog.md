@@ -23,6 +23,8 @@ picked up. Phases refer to the roadmap in the project plan.
 - [ ] **Visual regression snapshots** of the 3D scene at fixed camera/angle presets.
 - [ ] **Test on real phones** and record frame rate; decide on a reduced-detail mode.
       Start from the first-load stall in `docs/lessons.md` (2026-11-22).
+- [ ] **Load the fonts** (Be Vietnam Pro, JetBrains Mono). v0.3 pulled them from Google Fonts;
+      the app falls back to system fonts. Self-hosting avoids sending readers' IPs to Google.
 - [ ] **Port the anatomy pipeline to TypeScript** (gltf-transform, meshopt) so it runs in CI.
 - [ ] **Run the API against real Postgres** (docker compose) and add it to CI as a service.
       Only PGlite has been exercised so far.

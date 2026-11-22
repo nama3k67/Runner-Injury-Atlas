@@ -2,6 +2,15 @@ import type { Term } from '@atlas/content-schema';
 import { useSimStore } from '../simStore';
 import { Inline, RichText } from './RichText';
 
+// Category labels from legacy v0.3.
+const CATEGORY: Readonly<Record<Term['category'], string>> = {
+  structure: 'Cấu trúc',
+  muscle: 'Cơ',
+  bone: 'Xương',
+  concept: 'Khái niệm',
+  test: 'Test',
+};
+
 interface Props {
   /** Terms linked to this injury, by id. */
   terms: ReadonlyMap<string, Term>;
@@ -16,8 +25,8 @@ export function TermPanel({ terms, injury }: Props) {
 
   if (!term || !link) {
     return (
-      <p className="note" data-testid="term-hint">
-        Chạm vào một cấu trúc trên mô hình để xem giải thích.
+      <p className="empty" data-testid="term-hint">
+        Bấm vào một cấu trúc trên mô hình 3D để mở mục từ tại đây.
       </p>
     );
   }
@@ -25,38 +34,35 @@ export function TermPanel({ terms, injury }: Props) {
   const related = term.related.flatMap((id) => terms.get(id) ?? []);
 
   return (
-    <section
-      className="card term-panel"
-      aria-labelledby="term-panel-title"
-      data-testid="term-panel"
-    >
+    <article className="entry" aria-labelledby="term-panel-title" data-testid="term-panel">
       <button
         type="button"
-        className="term-close"
+        className="entry-close"
         aria-label="Bỏ chọn"
         onClick={() => select(null)}
       >
         ×
       </button>
+      <span className="entry-cat">{CATEGORY[term.category]}</span>
       <h3 id="term-panel-title">{term.vi}</h3>
-      <p className="en">{term.en}</p>
+      <p className="entry-en">{term.en}</p>
       <p>
         <Inline text={term.short} />
       </p>
       <RichText text={term.body} />
-      <p className="role">
-        <strong>Vai trò trong {injury.name}: </strong>
+      <div className="entry-role">
+        <strong>Vai trò trong {injury.name}</strong>
         <Inline text={link.role} />
-      </p>
+      </div>
       {related.length > 0 && (
-        <nav className="term-related" aria-label="Thuật ngữ liên quan">
+        <nav className="entry-related" aria-label="Thuật ngữ liên quan">
           {related.map((r) => (
-            <button key={r.id} type="button" onClick={() => select(r.id)}>
+            <button key={r.id} type="button" className="btn" onClick={() => select(r.id)}>
               {r.vi}
             </button>
           ))}
         </nav>
       )}
-    </section>
+    </article>
   );
 }
