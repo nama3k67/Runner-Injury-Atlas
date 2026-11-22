@@ -26,6 +26,8 @@ picked up. Phases refer to the roadmap in the project plan.
 - [ ] **Render on demand** (`frameloop="demand"`, invalidate on store, controls and highlight
       changes). Today the scene re-renders every frame; on CI that costs 1–1.7 s per e2e action.
       The pulsing highlight needs continuous frames, so decide how it should behave first.
+- [ ] **Load the fonts** (Be Vietnam Pro, JetBrains Mono). v0.3 pulled them from Google Fonts;
+      the app falls back to system fonts. Self-hosting avoids sending readers' IPs to Google.
 - [ ] **Port the anatomy pipeline to TypeScript** (gltf-transform, meshopt) so it runs in CI.
 - [ ] **Run the API against real Postgres** (docker compose) and add it to CI as a service.
       Only PGlite has been exercised so far.

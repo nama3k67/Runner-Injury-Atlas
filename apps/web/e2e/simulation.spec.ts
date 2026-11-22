@@ -82,15 +82,21 @@ test.describe('picking a structure in the 3D scene', () => {
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   };
 
-  test('a click opens the term, related terms open from the panel, and it can be cleared', async ({
+  const tab = (page: import('@playwright/test').Page, name: string) =>
+    page.getByRole('tablist', { name: 'Bảng mô phỏng' }).getByRole('tab', { name });
+
+  test('a click opens the term in the side panel, related terms open from it, and it can be cleared', async ({
     page,
-  }) => {
-    await expect(page.getByTestId('term-hint')).toBeVisible();
+  }, info) => {
+    await expect(tab(page, 'Điều khiển')).toHaveAttribute('aria-selected', 'true');
     const { x, y } = await centre(page);
     await page.mouse.click(x, y);
 
     const panel = page.getByTestId('term-panel');
+    await expect(tab(page, 'Mục từ')).toHaveAttribute('aria-selected', 'true');
     await expect(panel).toBeVisible();
+    // Side by side on desktop: the reader sees the term without scrolling (v0.3 stacks on phones).
+    if (info.project.name === 'desktop') await expect(panel.getByRole('heading')).toBeInViewport();
     const first = await panel.getByRole('heading').textContent();
     await expect(panel.getByText(/^Vai trò trong /)).toBeVisible();
 
@@ -105,13 +111,27 @@ test.describe('picking a structure in the 3D scene', () => {
     await panel.getByRole('button', { name: 'Bỏ chọn' }).click();
     await expect(panel).toHaveCount(0);
     await expect(page.getByTestId('term-hint')).toBeVisible();
+
+    await tab(page, 'Điều khiển').click();
+    await expect(page.getByLabel('Góc gập gối')).toBeVisible();
   });
 
-  test('the cursor turns into a pointer over a pickable structure', async ({ page }) => {
+  test('hovering names the structure where the pointer stops, with a pointer cursor', async ({
+    page,
+  }) => {
     const canvas = page.getByTestId('sim-stage').locator('canvas');
+    const tip = page.getByTestId('sim-tip');
     const { x, y } = await centre(page);
+    await page.mouse.click(x, y);
+    const name = await page.getByTestId('term-panel').getByRole('heading').textContent();
+    await expect(tip).toBeHidden();
+
+    // Let the click's own hover window (90 ms) close, then make two moves inside a fresh one:
+    // the tooltip must follow the second, where the pointer stops.
+    await page.waitForTimeout(200);
     await page.mouse.move(x - 5, y);
     await page.mouse.move(x, y);
+    await expect(tip).toHaveText(name ?? '');
     await expect(canvas).toHaveCSS('cursor', 'pointer');
   });
 
@@ -121,7 +141,7 @@ test.describe('picking a structure in the 3D scene', () => {
     await page.mouse.down();
     await page.mouse.move(x + 40, y + 10, { steps: 5 });
     await page.mouse.up();
-    await expect(page.getByTestId('term-hint')).toBeVisible();
+    await expect(tab(page, 'Điều khiển')).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByTestId('term-panel')).toHaveCount(0);
   });
 
@@ -132,7 +152,7 @@ test.describe('picking a structure in the 3D scene', () => {
     }
     const { x, y } = await centre(page);
     await page.mouse.click(x, y);
-    await expect(page.getByTestId('term-hint')).toBeVisible();
+    await expect(tab(page, 'Điều khiển')).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByTestId('term-panel')).toHaveCount(0);
   });
 });

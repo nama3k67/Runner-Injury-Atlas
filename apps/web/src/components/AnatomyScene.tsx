@@ -13,6 +13,8 @@ interface Props {
   params: CompressionParams;
   /** Term id -> the structure to highlight when that term is open. */
   structures: Readonly<Record<string, string>>;
+  /** Term under the mouse (null when none), at canvas-relative pixels. */
+  onHover: (term: string | null, x: number, y: number) => void;
   onReady: () => void;
 }
 
@@ -48,7 +50,7 @@ export default function AnatomyScene(props: Props) {
   );
 }
 
-function Leg({ params, structures, onReady }: Props) {
+function Leg({ params, structures, onHover, onReady }: Props) {
   const gltf = useLoader(GLTFLoader, GLB_URL);
   const rig = useMemo(() => buildItbsRig(gltf.scene, params), [gltf, params]);
 
@@ -57,7 +59,7 @@ function Leg({ params, structures, onReady }: Props) {
     return () => rig.dispose();
   }, [rig, onReady]);
 
-  usePicking(rig);
+  usePicking(rig, onHover);
 
   useFrame(({ clock }) => {
     const { knee, hip, layers, selected } = useSimStore.getState();
@@ -71,8 +73,8 @@ function Leg({ params, structures, onReady }: Props) {
 
 const HOVER_INTERVAL_MS = 90;
 
-/** Click or tap opens the term under the pointer; an orbit drag does not. Hover sets the cursor. */
-function usePicking(rig: ItbsRig) {
+/** Click or tap opens the term under the pointer; an orbit drag does not. Hover reports the term. */
+function usePicking(rig: ItbsRig, onHover: Props['onHover']) {
   const gl = useThree((s) => s.gl);
   const camera = useThree((s) => s.camera);
   useEffect(() => {
@@ -80,7 +82,8 @@ function usePicking(rig: ItbsRig) {
     const raycaster = new Raycaster();
     const ndc = new Vector2();
     let down: { x: number; y: number } | null = null;
-    let lastHover = 0;
+    let latest: PointerEvent | null = null;
+    let timer: number | undefined;
 
     const termUnder = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
@@ -90,8 +93,14 @@ function usePicking(rig: ItbsRig) {
       raycaster.setFromCamera(ndc, camera);
       return rig.pick(raycaster);
     };
+    const clearHover = () => {
+      latest = null;
+      el.style.cursor = '';
+      onHover(null, 0, 0);
+    };
     const onDown = (e: PointerEvent) => {
       down = { x: e.clientX, y: e.clientY };
+      clearHover();
     };
     const onUp = (e: PointerEvent) => {
       const click = down !== null && isClick(down, { x: e.clientX, y: e.clientY });
@@ -101,27 +110,36 @@ function usePicking(rig: ItbsRig) {
       if (term) useSimStore.getState().select(term);
     };
     // Raycasting skinned meshes walks every vertex, so hover is throttled and skipped mid-drag.
+    // The trailing call matters: without it a pointer that stops shows the term it left behind.
+    const flushHover = () => {
+      timer = undefined;
+      const e = latest;
+      if (!e) return;
+      latest = null;
+      const term = termUnder(e);
+      el.style.cursor = term ? 'pointer' : '';
+      const r = el.getBoundingClientRect();
+      onHover(term, e.clientX - r.left, e.clientY - r.top);
+      timer = window.setTimeout(flushHover, HOVER_INTERVAL_MS);
+    };
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse' || down) return;
-      if (e.timeStamp - lastHover < HOVER_INTERVAL_MS) return;
-      lastHover = e.timeStamp;
-      el.style.cursor = termUnder(e) ? 'pointer' : '';
-    };
-    const onLeave = () => {
-      el.style.cursor = '';
+      latest = e;
+      if (timer === undefined) flushHover();
     };
 
     el.addEventListener('pointerdown', onDown);
     el.addEventListener('pointerup', onUp);
     el.addEventListener('pointermove', onMove);
-    el.addEventListener('pointerleave', onLeave);
+    el.addEventListener('pointerleave', clearHover);
     return () => {
       el.removeEventListener('pointerdown', onDown);
       el.removeEventListener('pointerup', onUp);
       el.removeEventListener('pointermove', onMove);
-      el.removeEventListener('pointerleave', onLeave);
+      el.removeEventListener('pointerleave', clearHover);
+      window.clearTimeout(timer);
     };
-  }, [gl, camera, rig]);
+  }, [gl, camera, rig, onHover]);
 }
 
 function RoomLighting() {
