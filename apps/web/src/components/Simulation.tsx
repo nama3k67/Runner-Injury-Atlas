@@ -100,6 +100,9 @@ function Controls({ sim }: { sim: SimulationContent }) {
         <strong data-testid="sim-compression">{Math.round(c * 100)}%</strong>
       </p>
       <p className="note">{sim.note}</p>
+      <p className="note" data-testid="sim-illustration-note">
+        Lớp mỡ, sợi Kaplan và mũi tên là phần minh họa thêm, không có trong dữ liệu gốc.
+      </p>
       <a href="/legacy/v0.3/index.html">Xem bản v0.3</a>
     </div>
   );

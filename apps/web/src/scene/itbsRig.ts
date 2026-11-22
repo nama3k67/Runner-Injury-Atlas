@@ -1,13 +1,17 @@
 import {
   type CompressionParams,
   compression,
+  compressionArrows,
   fatPadPlacement,
   fatPadState,
   ITB_COMPRESSION_MORPH,
   itbHeat,
   itbVertexFeatures,
+  kaplanFibres,
   partWeights,
+  pelvicBar,
   rigPose,
+  type Vec3,
 } from '@atlas/sim';
 import * as THREE from 'three';
 import meta from '../../public/anatomy/leg-right.meta.json';
@@ -28,6 +32,7 @@ function vec(a: Triple | undefined): THREE.Vector3 {
 
 const bounds: Readonly<Record<string, readonly Triple[]>> = meta.bounds;
 const minY = (part: string): number => vec(bounds[part]?.[0]).y;
+const v3 = (p: Vec3): THREE.Vector3 => new THREE.Vector3(p.x, p.y, p.z);
 
 const HIP = vec(meta.hip);
 const PIVOT = vec(meta.pivot);
@@ -42,7 +47,9 @@ const D = THREE.MathUtils.degToRad;
 const FLEX_SIGN = new THREE.Vector3(0, -30, 0).applyAxisAngle(AXIS, 0.3).z > 0 ? 1 : -1;
 
 export const FOOT_Y = Math.min(minY('calcaneus'), minY('mt1'));
-const crestY = vec(meta.crestTop).y;
+const CREST = vec(meta.crestTop);
+const crestY = CREST.y;
+const SACRUM_MID_X = (vec(bounds.sacrum?.[0]).x + vec(bounds.sacrum?.[1]).x) / 2;
 
 /** Lateral camera preset from v0.3: the whole leg seen from the outside. */
 export const LATERAL_VIEW = {
@@ -101,6 +108,22 @@ function materialFor(part: string, group: string): THREE.Material {
     side: THREE.DoubleSide,
     emissive: 0x0a1a28,
   });
+}
+
+/** A cylinder from `a` to `b` (same space). Caller owns and disposes the geometry. */
+function cylinderBetween(
+  a: THREE.Vector3,
+  b: THREE.Vector3,
+  radius: number,
+  material: THREE.Material,
+  radialSegments = 8,
+): THREE.Mesh {
+  const d = b.clone().sub(a);
+  const geo = new THREE.CylinderGeometry(radius, radius, d.length(), radialSegments);
+  const mesh = new THREE.Mesh(geo, material);
+  mesh.position.copy(a).addScaledVector(d, 0.5);
+  mesh.quaternion.setFromUnitVectors(Y, d.normalize());
+  return mesh;
 }
 
 function applySkinWeights(geo: THREE.BufferGeometry, part: string): void {
@@ -221,6 +244,58 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   byLayer.fat.push(fat);
   disposables.push(fatGeo, fatMat);
 
+  // Illustrations, not in BodyParts3D (the page says so). Ported from legacy/v0.3.
+  const kaplanMat = new THREE.MeshStandardMaterial({
+    color: 0x9fd6fa,
+    roughness: 0.4,
+    emissive: 0x0d2233,
+  });
+  const kaplan = new THREE.Group();
+  kaplan.name = 'kaplan';
+  for (const f of kaplanFibres(femurPos ? femurPos.array : [], itbPos ? itbPos.array : [], LFE)) {
+    const strand = cylinderBetween(v3(f.a).sub(HIP), v3(f.b).sub(HIP), 0.11, kaplanMat);
+    kaplan.add(strand);
+    disposables.push(strand.geometry);
+  }
+  femur.add(kaplan);
+  byLayer.itb.push(kaplan);
+  disposables.push(kaplanMat);
+
+  // Outer group follows the fat layer; the inner one shows only under compression.
+  const arrowMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x5a0b0b });
+  const coneGeo = new THREE.ConeGeometry(0.42, 1.1, 14).rotateZ(Math.PI / 2).translate(-0.55, 0, 0);
+  const shaftGeo = new THREE.CylinderGeometry(0.13, 0.13, 1.4, 8)
+    .rotateZ(Math.PI / 2)
+    .translate(0.6, 0, 0);
+  const arrows = new THREE.Group();
+  arrows.name = 'compression-arrows';
+  for (const p of pad.arrowAnchors) {
+    const arrow = new THREE.Group();
+    arrow.add(new THREE.Mesh(coneGeo, arrowMat), new THREE.Mesh(shaftGeo, arrowMat));
+    arrow.position.copy(v3(p)).sub(HIP);
+    arrows.add(arrow);
+  }
+  const arrowsLayer = new THREE.Group();
+  arrowsLayer.add(arrows);
+  femur.add(arrowsLayer);
+  byLayer.fat.push(arrowsLayer);
+  disposables.push(arrowMat, coneGeo, shaftGeo);
+
+  // Bar on the pelvis tilts with hip drop; the dashed line stays level as the reference.
+  const crests = pelvicBar(CREST, SACRUM_MID_X);
+  const barMat = new THREE.MeshStandardMaterial({ color: 0xf5a524, emissive: 0x3a2600 });
+  const bar = cylinderBetween(v3(crests.a).sub(HIP), v3(crests.b).sub(HIP), 0.28, barMat, 10);
+  bar.name = 'pelvic-bar';
+  pelvis.add(bar);
+  const levelGeo = new THREE.BufferGeometry().setFromPoints([v3(crests.a), v3(crests.b)]);
+  const levelMat = new THREE.LineDashedMaterial({ color: 0x4b5f80, dashSize: 1.2, gapSize: 0.9 });
+  const level = new THREE.Line(levelGeo, levelMat);
+  level.name = 'pelvic-level';
+  level.computeLineDistances();
+  root.add(level);
+  byLayer.bone.push(bar, level);
+  disposables.push(barMat, bar.geometry, levelGeo, levelMat);
+
   const flex = new THREE.Quaternion();
   const screw = new THREE.Quaternion();
   const tmp = new THREE.Color();
@@ -265,6 +340,10 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
       fat.position.copy(padRest).addScaledVector(X, s.shiftX);
       fatMat.color.copy(FAT_REST).lerp(FAT_HOT, s.heat);
       fatMat.emissive.copy(BLACK).lerp(FAT_GLOW, c);
+
+      const a = compressionArrows(c);
+      arrows.visible = a.visible;
+      for (const arrow of arrows.children) arrow.scale.setScalar(a.scale);
     },
     showLayers(layers) {
       for (const layer of LAYERS) for (const o of byLayer[layer]) o.visible = layers[layer];
