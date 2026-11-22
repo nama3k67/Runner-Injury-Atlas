@@ -21,6 +21,9 @@
       "Read(./**/.env.local)",
       "Bash(git push --force:*)",
       "Bash(git reset --hard:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh stack merge:*)",
+      "Bash(gh stack unstack:*)",
       "Bash(rm -rf:*)"
     ]
   },

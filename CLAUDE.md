@@ -56,6 +56,8 @@ docs/lessons.md        Incidents and the rules they taught. Read before debuggin
 - TypeScript is strict with `noUncheckedIndexedAccess`. No `any`, no non-null `!`; narrow instead.
 - UI copy and content are Vietnamese; code, comments, docs and commit messages are English.
 - Small PRs: one concern each. If a change needs a new decision, write an ADR (`/adr`).
+- **Dependent PRs are stacked with `gh stack`** (ADR 0009, steps in `docs/process.md`). Stack
+  only when the change needs an unmerged branch; otherwise branch from `main`. Never merge.
 
 ## Workflow for any change
 

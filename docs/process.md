@@ -95,6 +95,23 @@ draft ──► PR (agent or human) ──► pnpm check ──► clinician rev
 | Publishes content, records clinical review | Yes                | Blocked        |
 | Handles secrets and production             | Yes                | Never          |
 
+## Dependent changes: stacked PRs
+
+A change that needs code from an open PR is stacked on that PR (ADR 0009). A change that does
+not branches from `main`.
+
+| Step                         | Command                                                        |
+| ---------------------------- | -------------------------------------------------------------- |
+| Start or adopt a stack       | `gh stack init <branch>` / `gh stack init <b1> <b2>`           |
+| Add the next layer           | `gh stack add <branch>` (from the top branch)                  |
+| Open or update the PRs       | `gh stack submit --auto`, then `gh pr edit` title and body     |
+| A lower layer changed/merged | `gh stack sync` (on conflict: `gh stack rebase`, `--continue`) |
+| See the stack                | `gh stack view`                                                |
+| Merge                        | Maintainer only, bottom up. Denied to the agent.               |
+
+Each layer is one concern, passes `pnpm check` on its own, and names the layer below it in the
+PR body.
+
 ## Traceability
 
 Issue → (ADR) → branch → commits (`type(scope): …`) → PR (template) → CI run → `main`.
