@@ -16,6 +16,7 @@ import {
 import * as THREE from 'three';
 import meta from '../../public/anatomy/leg-right.meta.json';
 import { LAYERS, type Layer, type LayerVisibility } from '../simStore';
+import { PART_TERM, termAt } from './picking';
 
 // Imperative three.js on purpose (ADR 0002): skinning and per-vertex colour run every
 // frame and must not go through React. Ported from legacy/v0.3 (updateRig, prepITB, paintITB).
@@ -38,6 +39,7 @@ const HIP = vec(meta.hip);
 const PIVOT = vec(meta.pivot);
 const AXIS = vec(meta.axis).normalize();
 const LFE = vec(meta.lfe);
+const GERDY = vec(meta.gerdy);
 const X = new THREE.Vector3(1, 0, 0);
 const Y = new THREE.Vector3(0, 1, 0);
 const Z = new THREE.Vector3(0, 0, 1);
@@ -71,7 +73,7 @@ const MUSCLE_COLOUR: Readonly<Record<string, number>> = {
 const DIM_BONES = new Set(['navicular', 'cuboid', 'talus', 'calcaneus', 'pelvisL', 'sacrum']);
 const CONTEXT_MUSCLES = new Set(['rf', 'bfl', 'bfs']);
 
-function materialFor(part: string, group: string): THREE.Material {
+function materialFor(part: string, group: string): THREE.MeshStandardMaterial {
   if (group === 'bone') {
     const dim = DIM_BONES.has(part) || part.startsWith('mt') || part.startsWith('cun');
     return new THREE.MeshStandardMaterial(
@@ -173,6 +175,7 @@ const FAT_REST = new THREE.Color(0xf2cf63);
 const FAT_HOT = new THREE.Color(0xef4444);
 const FAT_GLOW = new THREE.Color(0x7a0a0a);
 const BLACK = new THREE.Color(0x000000);
+const HIGHLIGHT = new THREE.Color(0x1f5f8f);
 
 export interface ItbsRig {
   root: THREE.Group;
@@ -180,6 +183,10 @@ export interface ItbsRig {
   update(kneeDeg: number, hipDropDeg: number): void;
   /** Show or hide whole layers. Cheap enough to call every frame. */
   showLayers(layers: LayerVisibility): void;
+  /** Term of the nearest visible structure under the ray, or null. */
+  pick(raycaster: THREE.Raycaster): string | null;
+  /** Pulse one structure (a term id), or none. Call every frame after `update`. */
+  highlight(structure: string | null, seconds: number): void;
   dispose(): void;
 }
 
@@ -205,6 +212,13 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
 
   const disposables: { dispose(): void }[] = [];
   const byLayer: Record<Layer, THREE.Object3D[]> = { bone: [], muscle: [], itb: [], fat: [] };
+  const skinned: THREE.SkinnedMesh[] = [];
+  const pickables: THREE.Object3D[] = [];
+  /** `rest` is null when `update` rewrites the emissive every frame anyway. */
+  const glows: { term: string; material: THREE.MeshStandardMaterial; rest: THREE.Color | null }[] =
+    [];
+  const glow = (term: string, material: THREE.MeshStandardMaterial, rest = true) =>
+    glows.push({ term, material, rest: rest ? material.emissive.clone() : null });
   let itbMesh: THREE.SkinnedMesh | null = null;
   let itbPaint: ItbPaint | null = null;
 
@@ -222,6 +236,13 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
     mesh.frustumCulled = false;
     root.add(mesh);
     mesh.bind(skeleton, new THREE.Matrix4());
+    skinned.push(mesh);
+    const term = PART_TERM[part];
+    if (term) {
+      mesh.userData.term = term;
+      pickables.push(mesh);
+      glow(term, material);
+    }
     if (group === 'bone' || group === 'muscle' || group === 'itb') byLayer[group].push(mesh);
     if (group === 'itb') {
       itbMesh = mesh;
@@ -242,6 +263,9 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   fat.position.copy(padRest);
   femur.add(fat);
   byLayer.fat.push(fat);
+  fat.userData.term = 'fatpad';
+  pickables.push(fat);
+  glow('fatpad', fatMat, false);
   disposables.push(fatGeo, fatMat);
 
   // Illustrations, not in BodyParts3D (the page says so). Ported from legacy/v0.3.
@@ -259,6 +283,33 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   }
   femur.add(kaplan);
   byLayer.itb.push(kaplan);
+  kaplan.userData.term = 'kaplan';
+  pickables.push(kaplan);
+  glow('kaplan', kaplanMat);
+
+  // Invisible pick targets for the bony landmarks; they fade in only while selected (v0.3).
+  const markers: { term: string; material: THREE.MeshStandardMaterial }[] = [];
+  for (const [term, bone, at, radius] of [
+    ['lfe', femur, LFE.clone().sub(HIP), 0.85],
+    ['gerdy', tibia, GERDY.clone().sub(PIVOT), 0.75],
+  ] as const) {
+    const geo = new THREE.SphereGeometry(radius, 20, 14);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xfff1c9,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    const marker = new THREE.Mesh(geo, material);
+    marker.name = `${term}-marker`;
+    marker.userData.term = term;
+    marker.position.copy(at);
+    bone.add(marker);
+    byLayer.bone.push(marker);
+    pickables.push(marker);
+    markers.push({ term, material });
+    disposables.push(geo, material);
+  }
   disposables.push(kaplanMat);
 
   // Outer group follows the fat layer; the inner one shows only under compression.
@@ -300,6 +351,8 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   const screw = new THREE.Quaternion();
   const tmp = new THREE.Color();
   let paintedKey = '';
+  let poseKey = '';
+  let boundsKey = '';
 
   function paintItb(hipDropDeg: number, c: number): void {
     if (!itbPaint) return;
@@ -323,6 +376,7 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   return {
     root,
     update(kneeDeg, hipDropDeg) {
+      poseKey = `${kneeDeg}|${hipDropDeg}`;
       const pose = rigPose(kneeDeg, hipDropDeg);
       flex.setFromAxisAngle(AXIS, FLEX_SIGN * D(pose.tibiaFlexDeg));
       screw.setFromAxisAngle(Y, D(pose.tibiaRotDeg));
@@ -347,6 +401,26 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
     },
     showLayers(layers) {
       for (const layer of LAYERS) for (const o of byLayer[layer]) o.visible = layers[layer];
+    },
+    pick(raycaster) {
+      root.updateMatrixWorld();
+      // three caches skinned bounds from the pose of the first raycast; stale bounds miss moved bones.
+      if (boundsKey !== poseKey) {
+        for (const m of skinned) {
+          m.computeBoundingSphere();
+          m.computeBoundingBox();
+        }
+        boundsKey = poseKey;
+      }
+      return termAt(raycaster.intersectObjects(pickables, true));
+    },
+    highlight(structure, seconds) {
+      const pulse = 0.5 + 0.5 * Math.sin(seconds * 5.5);
+      for (const g of glows) {
+        if (g.rest) g.material.emissive.copy(g.rest);
+        if (g.term === structure) g.material.emissive.lerp(HIGHLIGHT, 0.5 + 0.5 * pulse);
+      }
+      for (const m of markers) m.material.opacity = m.term === structure ? 0.35 + 0.35 * pulse : 0;
     },
     dispose() {
       for (const d of disposables) d.dispose();

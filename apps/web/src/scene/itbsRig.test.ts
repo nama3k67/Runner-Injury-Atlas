@@ -5,15 +5,18 @@ import { buildItbsRig } from './itbsRig';
 
 const params = { peakDeg: 25, widthDeg: 7.5, baseline: 0.55, hipDropGain: 0.45, hipDropMaxDeg: 10 };
 const [lx = 0, ly = 0, lz = 0] = meta.lfe;
+const [px = 0, py = 0, pz = 0] = meta.pivot;
 
 // Stand-in for the GLB: one part per layer, named as in leg-right.meta.json. Femur and ITB are
-// slabs beside the lateral epicondyle, finely sliced in y so Kaplan fibres find vertices.
+// slabs beside the lateral epicondyle, finely sliced in y so Kaplan fibres find vertices. The tibia
+// hangs below the knee pivot.
 function fakeGltf(): THREE.Group {
   const scene = new THREE.Group();
   const parts: [string, THREE.BufferGeometry][] = [
     ['femur', new THREE.BoxGeometry(2, 6, 2, 1, 30, 1).translate(lx - 1, ly + 3, lz)],
     ['itb', new THREE.BoxGeometry(0.5, 6, 2, 1, 30, 1).translate(lx + 1.25, ly + 3, lz)],
     ['vl', new THREE.BoxGeometry(1, 1, 1)],
+    ['tibia', new THREE.BoxGeometry(2, 10, 2, 1, 20, 1).translate(px, py - 6, pz)],
   ];
   for (const [name, geo] of parts) {
     const mesh = new THREE.Mesh(geo);
@@ -110,6 +113,96 @@ describe('buildItbsRig illustrative structures', () => {
     rig.update(0, 8);
     expect(barRest && worldQuat(bar)?.angleTo(barRest)).toBeGreaterThan(0.01);
     expect(levelRest && worldQuat(level)?.angleTo(levelRest)).toBeCloseTo(0);
+    rig.dispose();
+  });
+});
+
+/** A ray travelling in -x (from the lateral side) through `at`. */
+function lateralRay(at: THREE.Vector3): THREE.Raycaster {
+  return new THREE.Raycaster(
+    at.clone().add(new THREE.Vector3(50, 0, 0)),
+    new THREE.Vector3(-1, 0, 0),
+  );
+}
+
+describe('buildItbsRig picking', () => {
+  it('returns the term of the nearest visible structure', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    rig.update(0, 0);
+    const thigh = lateralRay(new THREE.Vector3(lx, ly + 5, lz));
+
+    rig.showLayers(ALL_ON);
+    expect(rig.pick(thigh)).toBe('itb');
+    rig.showLayers({ ...ALL_ON, itb: false });
+    expect(rig.pick(thigh)).toBe('femur');
+    rig.showLayers({ ...ALL_ON, itb: false, bone: false });
+    expect(rig.pick(thigh)).toBeNull();
+    rig.dispose();
+  });
+
+  it('picks the lateral epicondyle marker even though it is drawn transparent', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    rig.update(0, 0);
+    rig.showLayers({ ...ALL_ON, itb: false, fat: false });
+    expect(rig.pick(lateralRay(new THREE.Vector3(lx, ly, lz)))).toBe('lfe');
+    rig.dispose();
+  });
+
+  it('still hits the tibia after the knee bends, where three would use the rest-pose bounds', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    rig.showLayers(ALL_ON);
+    const tibia = rig.root.getObjectByName('tibia');
+    if (!(tibia instanceof THREE.SkinnedMesh)) throw new Error('tibia mesh missing');
+    const centroid = () => {
+      rig.root.updateMatrixWorld(true);
+      const sum = new THREE.Vector3();
+      const v = new THREE.Vector3();
+      const n = tibia.geometry.getAttribute('position').count;
+      for (let i = 0; i < n; i++) sum.add(tibia.getVertexPosition(i, v));
+      return tibia.localToWorld(sum.divideScalar(n));
+    };
+
+    rig.update(0, 0);
+    const rest = centroid();
+    expect(rig.pick(lateralRay(rest))).toBe('tibia');
+
+    rig.update(90, 0);
+    const bent = centroid();
+    expect(bent.distanceTo(rest)).toBeGreaterThan(3);
+    expect(rig.pick(lateralRay(bent))).toBe('tibia');
+    rig.dispose();
+  });
+});
+
+describe('buildItbsRig highlight', () => {
+  it('lights only the selected structure and restores it when cleared', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    const emissive = (name: string) => {
+      const o = rig.root.getObjectByName(name);
+      return o instanceof THREE.Mesh && o.material instanceof THREE.MeshStandardMaterial
+        ? o.material.emissive.getHex()
+        : undefined;
+    };
+    const markerOpacity = () => {
+      const o = rig.root.getObjectByName('lfe-marker');
+      return o instanceof THREE.Mesh && o.material instanceof THREE.MeshStandardMaterial
+        ? o.material.opacity
+        : undefined;
+    };
+    const femurRest = emissive('femur');
+    const vlRest = emissive('vl');
+
+    rig.highlight('femur', 0);
+    expect(emissive('femur')).not.toBe(femurRest);
+    expect(emissive('vl')).toBe(vlRest);
+    expect(markerOpacity()).toBe(0);
+
+    rig.highlight('lfe', 0);
+    expect(emissive('femur')).toBe(femurRest);
+    expect(markerOpacity()).toBeGreaterThan(0);
+
+    rig.highlight(null, 0);
+    expect(markerOpacity()).toBe(0);
     rig.dispose();
   });
 });

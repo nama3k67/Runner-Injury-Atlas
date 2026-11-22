@@ -1,8 +1,18 @@
-import type { Simulation as SimulationContent } from '@atlas/content-schema';
+import type { Simulation as SimulationContent, Term } from '@atlas/content-schema';
 import { compression, inZone } from '@atlas/sim';
 import { ClientOnly } from '@tanstack/react-router';
-import { Component, lazy, type ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
+import {
+  Component,
+  lazy,
+  type ReactNode,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { LAYERS, type Layer, useSimStore } from '../simStore';
+import { TermPanel } from './TermPanel';
 
 const AnatomyScene = lazy(() => import('./AnatomyScene'));
 
@@ -24,9 +34,26 @@ const hasWebGL = (): boolean => {
   }
 };
 
-export function Simulation({ sim }: { sim: SimulationContent }) {
+interface Props {
+  sim: SimulationContent;
+  /** Terms linked to this injury. */
+  terms: readonly Term[];
+  injury: { slug: string; name: string };
+}
+
+export function Simulation({ sim, terms, injury }: Props) {
   // Reset on unmount so the next injury page starts from the neutral pose without a flash.
   useEffect(() => useSimStore.getState().reset, []);
+
+  const termById = useMemo(() => new Map(terms.map((t) => [t.id, t])), [terms]);
+  const structures = useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const t of terms) {
+      const structure = t.injuries[injury.slug]?.scene?.structure;
+      if (structure) out[t.id] = structure;
+    }
+    return out;
+  }, [terms, injury.slug]);
 
   return (
     <div className="sim">
@@ -37,8 +64,9 @@ export function Simulation({ sim }: { sim: SimulationContent }) {
           </div>
         }
       >
-        <Stage sim={sim} />
+        <Stage sim={sim} structures={structures} />
       </ClientOnly>
+      <TermPanel terms={termById} injury={injury} />
       <Controls sim={sim} />
     </div>
   );
@@ -108,7 +136,13 @@ function Controls({ sim }: { sim: SimulationContent }) {
   );
 }
 
-function Stage({ sim }: { sim: SimulationContent }) {
+function Stage({
+  sim,
+  structures,
+}: {
+  sim: SimulationContent;
+  structures: Readonly<Record<string, string>>;
+}) {
   const [state, setState] = useState<StageState>('loading');
   const ready = useCallback(() => setState('ready'), []);
   const failed = useCallback(() => setState('error'), []);
@@ -122,7 +156,7 @@ function Stage({ sim }: { sim: SimulationContent }) {
       {state !== 'error' && (
         <SceneBoundary onError={failed}>
           <Suspense fallback={null}>
-            <AnatomyScene params={sim.compression} onReady={ready} />
+            <AnatomyScene params={sim.compression} structures={structures} onReady={ready} />
           </Suspense>
         </SceneBoundary>
       )}
