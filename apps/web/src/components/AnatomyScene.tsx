@@ -55,8 +55,9 @@ function Leg({ params, onReady }: Props) {
   }, [rig, onReady]);
 
   useFrame(() => {
-    const { knee, hip } = useSimStore.getState();
+    const { knee, hip, layers } = useSimStore.getState();
     rig.update(knee, hip);
+    rig.showLayers(layers);
   });
 
   return <primitive object={rig.root} />;

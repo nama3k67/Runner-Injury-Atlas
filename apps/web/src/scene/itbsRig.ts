@@ -11,6 +11,7 @@ import {
 } from '@atlas/sim';
 import * as THREE from 'three';
 import meta from '../../public/anatomy/leg-right.meta.json';
+import { LAYERS, type Layer, type LayerVisibility } from '../simStore';
 
 // Imperative three.js on purpose (ADR 0002): skinning and per-vertex colour run every
 // frame and must not go through React. Ported from legacy/v0.3 (updateRig, prepITB, paintITB).
@@ -154,6 +155,8 @@ export interface ItbsRig {
   root: THREE.Group;
   /** Pose the rig and recolour tissue. Call once per frame. */
   update(kneeDeg: number, hipDropDeg: number): void;
+  /** Show or hide whole layers. Cheap enough to call every frame. */
+  showLayers(layers: LayerVisibility): void;
   dispose(): void;
 }
 
@@ -178,6 +181,7 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   const skeleton = new THREE.Skeleton([pelvis, femur, tibia]);
 
   const disposables: { dispose(): void }[] = [];
+  const byLayer: Record<Layer, THREE.Object3D[]> = { bone: [], muscle: [], itb: [], fat: [] };
   let itbMesh: THREE.SkinnedMesh | null = null;
   let itbPaint: ItbPaint | null = null;
 
@@ -195,6 +199,7 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
     mesh.frustumCulled = false;
     root.add(mesh);
     mesh.bind(skeleton, new THREE.Matrix4());
+    if (group === 'bone' || group === 'muscle' || group === 'itb') byLayer[group].push(mesh);
     if (group === 'itb') {
       itbMesh = mesh;
       mesh.renderOrder = 3;
@@ -213,6 +218,7 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   fat.scale.set(pad.halfWidth, 1.05, 1.25);
   fat.position.copy(padRest);
   femur.add(fat);
+  byLayer.fat.push(fat);
   disposables.push(fatGeo, fatMat);
 
   const flex = new THREE.Quaternion();
@@ -259,6 +265,9 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
       fat.position.copy(padRest).addScaledVector(X, s.shiftX);
       fatMat.color.copy(FAT_REST).lerp(FAT_HOT, s.heat);
       fatMat.emissive.copy(BLACK).lerp(FAT_GLOW, c);
+    },
+    showLayers(layers) {
+      for (const layer of LAYERS) for (const o of byLayer[layer]) o.visible = layers[layer];
     },
     dispose() {
       for (const d of disposables) d.dispose();

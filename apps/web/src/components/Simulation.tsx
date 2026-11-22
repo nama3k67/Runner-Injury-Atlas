@@ -2,9 +2,17 @@ import type { Simulation as SimulationContent } from '@atlas/content-schema';
 import { compression, inZone } from '@atlas/sim';
 import { ClientOnly } from '@tanstack/react-router';
 import { Component, lazy, type ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
-import { useSimStore } from '../simStore';
+import { LAYERS, type Layer, useSimStore } from '../simStore';
 
 const AnatomyScene = lazy(() => import('./AnatomyScene'));
+
+// Labels and swatch colours from legacy v0.3.
+const LAYER_UI: Readonly<Record<Layer, { label: string; colour: string }>> = {
+  bone: { label: 'Xương', colour: '#e8dcc4' },
+  muscle: { label: 'Cơ', colour: '#d06a6a' },
+  itb: { label: 'Dải chậu chày', colour: '#7cc4f5' },
+  fat: { label: 'Lớp mỡ', colour: '#f2cf63' },
+};
 
 type StageState = 'loading' | 'ready' | 'error';
 
@@ -40,13 +48,28 @@ export function Simulation({ sim }: { sim: SimulationContent }) {
 function Controls({ sim }: { sim: SimulationContent }) {
   const knee = useSimStore((s) => s.knee);
   const hip = useSimStore((s) => s.hip);
-  const { setKnee, setHip } = useSimStore.getState();
+  const layers = useSimStore((s) => s.layers);
+  const { setKnee, setHip, toggleLayer } = useSimStore.getState();
 
   const c = compression(knee, hip, sim.compression);
   const hot = inZone(knee, sim.impingementZone);
 
   return (
     <div className="sim-controls">
+      <fieldset className="layers">
+        <legend>Lớp hiển thị</legend>
+        {LAYERS.map((layer) => (
+          <button
+            key={layer}
+            type="button"
+            aria-pressed={layers[layer]}
+            onClick={() => toggleLayer(layer)}
+          >
+            <i className="swatch" style={{ background: LAYER_UI[layer].colour }} aria-hidden />
+            {LAYER_UI[layer].label}
+          </button>
+        ))}
+      </fieldset>
       <label>
         Góc gập gối <span data-testid="sim-knee">{knee}°</span>
         <input
