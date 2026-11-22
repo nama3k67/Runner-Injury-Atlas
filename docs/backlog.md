@@ -21,6 +21,7 @@ picked up. Phases refer to the roadmap in the project plan.
       r10 and r14 are cited only there.
 - [ ] **Visual regression snapshots** of the 3D scene at fixed camera/angle presets.
 - [ ] **Test on real phones** and record frame rate; decide on a reduced-detail mode.
+      Start from the first-load stall in `docs/lessons.md` (2026-11-22).
 - [ ] **Port the anatomy pipeline to TypeScript** (gltf-transform, meshopt) so it runs in CI.
 - [ ] **Run the API against real Postgres** (docker compose) and add it to CI as a service.
       Only PGlite has been exercised so far.
