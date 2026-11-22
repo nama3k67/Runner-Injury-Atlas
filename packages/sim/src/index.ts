@@ -183,12 +183,54 @@ export function itbHeat(
   hipDropDeg: number,
   hipDropMaxDeg: number,
   compression: number,
+  /** From `fibreTension`, when the "Sợi căng" view is on. */
+  fibre = 0,
 ): { tense: number; hot: number } {
   const hip = clamp(hipDropDeg, 0, hipDropMaxDeg) / hipDropMaxDeg;
   return {
-    tense: Math.min(1, hip * (0.3 + 0.45 * f.distal)),
+    tense: Math.min(1, Math.max(fibre, hip * (0.3 + 0.45 * f.distal))),
     hot: Math.min(1, compression * f.knee * 1.15),
   };
+}
+
+/**
+ * Tension of one ITB fibre (0..1), as illustrated in v0.3: front fibres are taut with the knee
+ * straight and slacken by ~38°, back fibres take up tension from ~12° to ~55°. The swap is the
+ * "slide" illusion. Qualitative, not a measurement.
+ */
+export function fibreTension(anterior: number, distal: number, kneeDeg: number): number {
+  const front = smoothstep(0.35, 0.75, anterior) * clamp(1 - kneeDeg / 38, 0, 1);
+  const back = smoothstep(0.65, 0.25, anterior) * smoothstep(12, 55, kneeDeg);
+  return (front + back) * distal * 0.95;
+}
+
+const ANTERIORITY_BAND_CM = 0.6;
+
+/**
+ * How far forward each ITB vertex sits across the band's width at its height: 1 at the front
+ * (smallest z), 0 at the back. Positions are a flat xyz array.
+ */
+export function itbAnteriority(pos: ArrayLike<number>): Float32Array {
+  const n = Math.floor(pos.length / 3);
+  let yMin = Infinity;
+  for (let i = 0; i < n; i++) yMin = Math.min(yMin, pos[i * 3 + 1] ?? 0);
+  const band = (i: number) => Math.floor(((pos[i * 3 + 1] ?? 0) - yMin) / ANTERIORITY_BAND_CM);
+  const zMin = new Map<number, number>();
+  const zMax = new Map<number, number>();
+  for (let i = 0; i < n; i++) {
+    const b = band(i);
+    const z = pos[i * 3 + 2] ?? 0;
+    zMin.set(b, Math.min(zMin.get(b) ?? Infinity, z));
+    zMax.set(b, Math.max(zMax.get(b) ?? -Infinity, z));
+  }
+  const out = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const b = band(i);
+    const hi = zMax.get(b) ?? 0;
+    const width = Math.max(0.01, hi - (zMin.get(b) ?? 0));
+    out[i] = clamp((hi - (pos[i * 3 + 2] ?? 0)) / width, 0, 1);
+  }
+  return out;
 }
 
 export interface FatPadPlacement {
