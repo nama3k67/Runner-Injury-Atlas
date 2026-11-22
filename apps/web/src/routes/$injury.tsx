@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router';
 import { FeedbackForm } from '../components/FeedbackForm';
 import { ReviewBadge } from '../components/ReviewBadge';
 import { Inline, RichText } from '../components/RichText';
+import { ShowIn3D } from '../components/ShowIn3D';
 import { Simulation } from '../components/Simulation';
 import { content, findInjury, termsFor } from '../content';
 
@@ -97,6 +98,7 @@ function InjuryPage() {
                 <strong>Vai trò: </strong>
                 <Inline text={term.injuries[slug]?.role ?? ''} />
               </p>
+              <ShowIn3D term={term.id} hint={term.injuries[slug]?.scene} />
             </li>
           ))}
         </ul>
