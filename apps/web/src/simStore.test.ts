@@ -90,4 +90,13 @@ describe('useSimStore', () => {
     reset();
     expect(useSimStore.getState().labels).toBe(true);
   });
+
+  it('starts with the fibre tension view off, toggles it, and reset turns it off', () => {
+    const { toggleTension, reset } = useSimStore.getState();
+    expect(useSimStore.getState().tension).toBe(false);
+    toggleTension();
+    expect(useSimStore.getState().tension).toBe(true);
+    reset();
+    expect(useSimStore.getState().tension).toBe(false);
+  });
 });

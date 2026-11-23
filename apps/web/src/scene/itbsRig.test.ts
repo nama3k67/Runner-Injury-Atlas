@@ -272,3 +272,36 @@ describe('buildItbsRig label anchors', () => {
     rig.dispose();
   });
 });
+
+describe('buildItbsRig fibre tension', () => {
+  /** Colour of the ITB vertex that is most anterior (smallest z) at the distal end. */
+  function frontColour(rig: ReturnType<typeof buildItbsRig>): number[] {
+    const itb = rig.root.getObjectByName('itb');
+    if (!(itb instanceof THREE.Mesh)) throw new Error('itb mesh missing');
+    const pos = itb.geometry.getAttribute('position');
+    const col = itb.geometry.getAttribute('color');
+    let best = 0;
+    for (let i = 0; i < pos.count; i++) {
+      if (
+        pos.getZ(i) < pos.getZ(best) - 1e-6 ||
+        (pos.getZ(i) <= pos.getZ(best) && pos.getY(i) < pos.getY(best))
+      )
+        best = i;
+    }
+    return [col.getX(best), col.getY(best), col.getZ(best)];
+  }
+
+  it('colours the taut front fibres only while the Sợi căng view is on', () => {
+    const rig = buildItbsRig(fakeGltf(), params);
+    rig.update(0, 0, false);
+    const off = frontColour(rig);
+    rig.update(0, 0, true);
+    const on = frontColour(rig);
+    expect(on).not.toEqual(off);
+    // Amber: more red than blue.
+    expect((on[0] ?? 0) - (on[2] ?? 0)).toBeGreaterThan((off[0] ?? 0) - (off[2] ?? 0));
+    rig.update(0, 0, false);
+    expect(frontColour(rig)).toEqual(off);
+    rig.dispose();
+  });
+});

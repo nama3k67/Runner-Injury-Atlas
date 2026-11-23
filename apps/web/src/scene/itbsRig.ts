@@ -5,8 +5,10 @@ import {
   compressionArrows,
   fatPadPlacement,
   fatPadState,
+  fibreTension,
   fitDistance,
   ITB_COMPRESSION_MORPH,
+  itbAnteriority,
   itbHeat,
   itbVertexFeatures,
   kaplanFibres,
@@ -194,6 +196,7 @@ interface ItbPaint {
   colours: THREE.BufferAttribute;
   distal: Float32Array;
   knee: Float32Array;
+  anterior: Float32Array;
 }
 
 function prepareItb(geo: THREE.BufferGeometry): ItbPaint {
@@ -214,7 +217,7 @@ function prepareItb(geo: THREE.BufferGeometry): ItbPaint {
   geo.morphTargetsRelative = true;
   const colours = new THREE.BufferAttribute(new Float32Array(pos.count * 3), 3);
   geo.setAttribute('color', colours);
-  return { colours, distal, knee };
+  return { colours, distal, knee, anterior: itbAnteriority(pos.array) };
 }
 
 const ITB_BASE = new THREE.Color(0xc9dcea);
@@ -229,7 +232,7 @@ const HIGHLIGHT = new THREE.Color(0x1f5f8f);
 export interface ItbsRig {
   root: THREE.Group;
   /** Pose the rig and recolour tissue. Call once per frame. */
-  update(kneeDeg: number, hipDropDeg: number): void;
+  update(kneeDeg: number, hipDropDeg: number, fibreView?: boolean): void;
   /** Show or hide whole layers. Cheap enough to call every frame. */
   showLayers(layers: LayerVisibility): void;
   /** Where each label in LABELS sits; each anchor follows its bone and its layer. */
@@ -405,18 +408,21 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   let poseKey = '';
   let boundsKey = '';
 
-  function paintItb(hipDropDeg: number, c: number): void {
+  function paintItb(kneeDeg: number, hipDropDeg: number, c: number, fibreView: boolean): void {
     if (!itbPaint) return;
-    const key = `${hipDropDeg}|${c.toFixed(3)}`;
+    // Knee angle matters on its own only for the fibre view; otherwise it acts through `c`.
+    const key = `${fibreView ? kneeDeg : '-'}|${hipDropDeg}|${c.toFixed(3)}`;
     if (key === paintedKey) return;
     paintedKey = key;
-    const { colours, distal, knee } = itbPaint;
+    const { colours, distal, knee, anterior } = itbPaint;
     for (let i = 0; i < colours.count; i++) {
+      const d = distal[i] ?? 0;
       const heat = itbHeat(
-        { distal: distal[i] ?? 0, knee: knee[i] ?? 0 },
+        { distal: d, knee: knee[i] ?? 0 },
         hipDropDeg,
         params.hipDropMaxDeg,
         c,
+        fibreView ? fibreTension(anterior[i] ?? 0, d, kneeDeg) : 0,
       );
       tmp.copy(ITB_BASE).lerp(ITB_TENSE, heat.tense).lerp(ITB_HOT, heat.hot);
       colours.setXYZ(i, tmp.r, tmp.g, tmp.b);
@@ -498,7 +504,7 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
   return {
     root,
     labelAnchors,
-    update(kneeDeg, hipDropDeg) {
+    update(kneeDeg, hipDropDeg, fibreView = false) {
       poseKey = `${kneeDeg}|${hipDropDeg}`;
       const pose = rigPose(kneeDeg, hipDropDeg);
       flex.setFromAxisAngle(AXIS, FLEX_SIGN * D(pose.tibiaFlexDeg));
@@ -510,7 +516,7 @@ export function buildItbsRig(gltfScene: THREE.Object3D, params: CompressionParam
       const c = compression(kneeDeg, hipDropDeg, params);
       const influences = itbMesh?.morphTargetInfluences;
       if (influences) influences[0] = c;
-      paintItb(hipDropDeg, c);
+      paintItb(kneeDeg, hipDropDeg, c, fibreView);
 
       const s = fatPadState(c);
       fat.scale.x = pad.halfWidth * s.widthScale;

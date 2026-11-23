@@ -79,6 +79,17 @@ test('layer buttons toggle and report their state', async ({ page }) => {
   await expect(muscle).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('the fibre tension view starts off and toggles', async ({ page }) => {
+  await page.goto('/itbs');
+  await expect(page.getByTestId('sim-stage')).toBeVisible();
+  const toggle = page
+    .getByRole('group', { name: 'Lớp hiển thị' })
+    .getByRole('button', { name: 'Sợi căng', exact: true });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('the page says which 3D parts are illustrations, even before the scene loads', async ({
   request,
 }) => {
