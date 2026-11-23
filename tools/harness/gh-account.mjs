@@ -7,9 +7,16 @@
 // A command segment (after && ; | or newline) that starts with gh or git ... push.
 const SEGMENT = /(?:^|&&|\|\||[;|\n])\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*(gh|git)\b([^&;|\n]*)/g;
 
+// The block message names `gh auth switch` as the fix, so it must pass. Other `gh auth` commands
+// and anything chained after the switch stay guarded: segments are checked one by one.
+const AUTH_SWITCH = /^\s+auth\s+switch(\s|$)/;
+
 export function touchesGitHub(command) {
   for (const [, bin, rest] of command.matchAll(SEGMENT)) {
-    if (bin === 'gh') return true;
+    if (bin === 'gh') {
+      if (AUTH_SWITCH.test(rest)) continue;
+      return true;
+    }
     if (/(^|\s)push(\s|$)/.test(rest)) return true;
   }
   return false;

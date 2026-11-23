@@ -19,6 +19,19 @@ describe('touchesGitHub', () => {
     expect(touchesGitHub('pnpm check && gh pr view')).toBe(true);
     expect(touchesGitHub('FOO=1 gh api user')).toBe(true);
   });
+  it('lets `gh auth switch` through, since it is the fix the block message names', () => {
+    expect(touchesGitHub('gh auth switch')).toBe(false);
+    expect(touchesGitHub('gh auth switch -u me')).toBe(false);
+    expect(touchesGitHub('gh auth switch --hostname github.com -u me')).toBe(false);
+  });
+  it('still guards every other gh auth command and any gh or push chained after a switch', () => {
+    expect(touchesGitHub('gh auth login')).toBe(true);
+    expect(touchesGitHub('gh auth token')).toBe(true);
+    expect(touchesGitHub('gh auth status')).toBe(true);
+    expect(touchesGitHub('gh auth switcheroo')).toBe(true);
+    expect(touchesGitHub('gh auth switch -u me && gh pr merge 1')).toBe(true);
+    expect(touchesGitHub('gh auth switch -u me; git push origin main')).toBe(true);
+  });
   it('ignores everything else', () => {
     expect(touchesGitHub('pnpm check')).toBe(false);
     expect(touchesGitHub('git status')).toBe(false);
@@ -67,6 +80,9 @@ describe('ghAccountReason', () => {
     );
     expect(ghAccountReason({ ...base, status })).toBeNull();
     expect(ghAccountReason({ ...base, remoteUrl: 'git@github.com:ME/r.git', status })).toBeNull();
+  });
+  it('allows the account switch itself while the wrong account is active', () => {
+    expect(ghAccountReason({ ...base, command: 'gh auth switch -u me' })).toBeNull();
   });
   it('allows when the owner is not a logged-in account (org)', () => {
     expect(ghAccountReason({ ...base, remoteUrl: 'https://github.com/some-org/r.git' })).toBeNull();
