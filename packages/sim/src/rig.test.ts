@@ -4,7 +4,9 @@ import {
   compressionArrows,
   fatPadPlacement,
   fatPadState,
+  fibreTension,
   fitDistance,
+  itbAnteriority,
   itbHeat,
   itbVertexFeatures,
   kaplanFibres,
@@ -75,6 +77,34 @@ describe('itbHeat', () => {
     expect(distal).toBeCloseTo(0.75);
     expect(proximal).toBeCloseTo(0.3);
     expect(itbHeat({ distal: 1, knee: 1 }, 10, 10, 1).hot).toBe(1);
+  });
+  it('shows the stronger of fibre tension and hip-drop tension', () => {
+    expect(itbHeat({ distal: 1, knee: 0 }, 0, 10, 0, 0.6).tense).toBeCloseTo(0.6);
+    expect(itbHeat({ distal: 1, knee: 0 }, 10, 10, 0, 0.6).tense).toBeCloseTo(0.75);
+  });
+});
+
+describe('fibreTension', () => {
+  it('tenses the front fibres with the knee straight and the back fibres with it bent', () => {
+    expect(fibreTension(1, 1, 0)).toBeCloseTo(0.95);
+    expect(fibreTension(0, 1, 0)).toBe(0);
+    expect(fibreTension(1, 1, 60)).toBe(0);
+    expect(fibreTension(0, 1, 60)).toBeCloseTo(0.95);
+  });
+  it('fades towards the hip and is weak for the middle fibres', () => {
+    expect(fibreTension(1, 0, 0)).toBe(0);
+    expect(fibreTension(0.5, 1, 0)).toBeLessThan(0.5);
+  });
+});
+
+describe('itbAnteriority', () => {
+  it('is 1 at the front (smallest z) and 0 at the back of each height band', () => {
+    // Two bands of three vertices each: z = -1 (front), 0, 1 (back).
+    const pos = [0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 5, -3, 0, 5, -2, 0, 5, -1];
+    expect(Array.from(itbAnteriority(pos))).toEqual([1, 0.5, 0, 1, 0.5, 0]);
+  });
+  it('handles a flat band without dividing by zero', () => {
+    expect(Array.from(itbAnteriority([0, 0, 2, 1, 0, 2]))).toEqual([0, 0]);
   });
 });
 

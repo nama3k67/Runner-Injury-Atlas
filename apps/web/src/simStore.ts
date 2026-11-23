@@ -18,6 +18,8 @@ interface SimState {
   layers: LayerVisibility;
   /** Text labels on the model. */
   labels: boolean;
+  /** The "Sợi căng" view: ITB fibres coloured by tension. */
+  tension: boolean;
   /** Id of the dictionary term open in the panel. */
   selected: string | null;
   /** Requested camera preset. `seq` counts requests, so asking for the same preset again moves the camera back. */
@@ -26,6 +28,7 @@ interface SimState {
   setHip: (deg: number) => void;
   toggleLayer: (layer: Layer) => void;
   toggleLabels: () => void;
+  toggleTension: () => void;
   select: (term: string | null) => void;
   setView: (name: CameraView) => void;
   /** Open a term and apply its scene hint (camera, knee angle, hip drop). */
@@ -38,6 +41,7 @@ const neutral = {
   hip: 0,
   layers: { bone: true, muscle: true, itb: true, fat: true },
   labels: true,
+  tension: false,
   selected: null,
   view: { name: 'lateral' as CameraView, seq: 0 },
 };
@@ -48,6 +52,7 @@ export const useSimStore = create<SimState>()((set) => ({
   setHip: (hip) => set({ hip }),
   toggleLayer: (layer) => set((s) => ({ layers: { ...s.layers, [layer]: !s.layers[layer] } })),
   toggleLabels: () => set((s) => ({ labels: !s.labels })),
+  toggleTension: () => set((s) => ({ tension: !s.tension })),
   select: (selected) => set({ selected }),
   setView: (name) => set((s) => ({ view: { name, seq: s.view.seq + 1 } })),
   openTerm: (selected, hint) =>

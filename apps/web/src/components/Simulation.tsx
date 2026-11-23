@@ -134,8 +134,9 @@ function Controls({ sim }: { sim: SimulationContent }) {
   const knee = useSimStore((s) => s.knee);
   const hip = useSimStore((s) => s.hip);
   const labels = useSimStore((s) => s.labels);
+  const tension = useSimStore((s) => s.tension);
   const layers = useSimStore((s) => s.layers);
-  const { setKnee, setHip, toggleLayer, toggleLabels } = useSimStore.getState();
+  const { setKnee, setHip, toggleLayer, toggleLabels, toggleTension } = useSimStore.getState();
 
   const pressure = Math.round(compression(knee, hip, sim.compression) * 100);
   const { minDeg, maxDeg } = sim.impingementZone;
@@ -201,6 +202,10 @@ function Controls({ sim }: { sim: SimulationContent }) {
           <i className="swatch" style={{ background: '#ffffff' }} aria-hidden />
           Nhãn
         </button>
+        <button type="button" className="btn" aria-pressed={tension} onClick={toggleTension}>
+          <i className="swatch" style={{ background: '#f5a524' }} aria-hidden />
+          Sợi căng
+        </button>
       </fieldset>
       <div className="meter">
         <span id="sim-meter-label">Mức ép lớp mỡ (minh họa)</span>
@@ -209,7 +214,8 @@ function Controls({ sim }: { sim: SimulationContent }) {
       </div>
       <p className="note">{sim.note}</p>
       <p className="note" data-testid="sim-illustration-note">
-        Lớp mỡ, sợi Kaplan và mũi tên là phần minh họa thêm, không có trong dữ liệu gốc.
+        Lớp mỡ, sợi Kaplan và mũi tên là phần minh họa thêm, không có trong dữ liệu gốc. Màu "Sợi
+        căng" là minh họa định tính, không phải số đo.
       </p>
       <a className="note" href="/legacy/v0.3/index.html">
         Xem bản v0.3
