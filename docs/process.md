@@ -151,11 +151,16 @@ gh project item-edit --project-id PVT_kwHOA3J0o84Bs-MS --id "$item" \
 GitHub moves the other cards. These built-in workflows are turned on in the board's settings
 (Workflows), and are listed here because they are not versioned:
 
-- Auto-add to project: `is:issue` from `nama3k67/runner-injury-atlas`
+- Auto-add to project: `is:issue` from `nama3k67/runner-injury-atlas` (this covers sub-issues
+  too, so "Auto-add sub-issues to project" stays off)
 - Item added to project → Todo
+- Pull request linked to issue → In Progress (a PR saying `Closes #N` moves the card even if
+  the agent did not)
 - Item closed → Done
 - Pull request merged → Done
 - Item reopened → Todo
+- Auto-close issue: moving a card to Done closes the issue, so move it there only when the work
+  is finished
 
 ## What this process deliberately leaves out (for now)
 

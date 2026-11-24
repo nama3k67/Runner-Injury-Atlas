@@ -1,6 +1,6 @@
 # 11. A Kanban board over the issues
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-24
 - Amends: ADR 0010 (its "Not adopted: Projects board")
 
