@@ -56,15 +56,17 @@ docs/lessons.md        Incidents and the rules they taught. Read before debuggin
 - TypeScript is strict with `noUncheckedIndexedAccess`. No `any`, no non-null `!`; narrow instead.
 - UI copy and content are Vietnamese; code, comments, docs and commit messages are English.
 - Small PRs: one concern each. If a change needs a new decision, write an ADR (`/adr`).
-- **Dependent PRs are stacked with `gh stack`** (ADR 0009, steps in `docs/process.md`). Stack
-  only when the change needs an unmerged branch; otherwise branch from `main`. Never merge.
+- **Dependent PRs are stacked**: with `gh stack` when `gh stack --version` works, by hand
+  otherwise (ADR 0013, steps in `docs/process.md`). Stack only when the change needs an
+  unmerged branch; otherwise branch from `main`. Never merge.
 
 ## Workflow for any change
 
-1. Read the issue (`gh issue view <n>`). Do not build on an issue labelled `draft` or without
-   acceptance criteria: draft the criteria and wait for the maintainer to remove `draft`
-   (ADR 0010). Housekeeping PRs (`chore`, `ci`, `docs`, …) found while doing other work may skip
-   the issue.
+1. Read the issue (`gh issue view <n>`). Do not build on an issue without acceptance criteria,
+   or while it or its parent is labelled `draft`: draft the criteria and wait for the maintainer
+   to remove the label. If the work needs an ADR, it must also be Accepted on `main`
+   (ADR 0010, 0013). Planned work always has an issue, whatever its commit type; only a small
+   fix found while doing other work may skip it.
 2. Plan in a few lines: files to touch, tests to add, risks.
 3. Write the failing test, then the code.
 4. `pnpm check` (and `pnpm e2e` if UI/API changed). Fix until green; do not weaken a test or a

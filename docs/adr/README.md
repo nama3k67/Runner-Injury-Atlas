@@ -14,5 +14,6 @@
 | [10](0010-github-issues-for-open-work.md)              | GitHub Issues as the record of open work                          | Accepted |
 | [11](0011-kanban-board-over-issues.md)                 | A Kanban board over the issues                                    | Accepted |
 | [12](0012-layered-context-with-docs-sensors.md)        | Layered agent context, checked by sensors                         | Proposed |
+| [13](0013-leaner-gates-for-a-solo-maintainer.md)       | Leaner gates for a solo maintainer                                | Proposed |
 
 New ADR: copy the shape of an existing one, next number, status "Proposed" until the maintainer accepts it.

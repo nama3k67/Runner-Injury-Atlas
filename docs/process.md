@@ -82,8 +82,8 @@ draft ──► PR (agent or human) ──► pnpm check ──► clinician rev
 - `pnpm check` green; `pnpm e2e` green if UI, API or contracts changed.
 - No new `any`, no skipped tests, no weakened rule.
 - Docs touched if behaviour, commands or decisions changed (README, CLAUDE.md, ADR).
-- PR links its issue with `Closes #N` (or `Refs #N` for part of it). Housekeeping PRs found
-  while doing other work may go without an issue.
+- PR links its issue with `Closes #N` (or `Refs #N` for part of it). Only a small fix found
+  while doing other work may go without an issue (ADR 0013).
 - PR description lists what was **not** verified.
 
 ## Roles
@@ -99,17 +99,19 @@ draft ──► PR (agent or human) ──► pnpm check ──► clinician rev
 
 ## Dependent changes: stacked PRs
 
-A change that needs code from an open PR is stacked on that PR (ADR 0009). A change that does
-not branches from `main`.
+A change that needs code from an open PR is stacked on that PR. A change that does not branches
+from `main`. Use `gh stack` when `gh stack --version` works (gh 2.90 or later, GraphQL
+reachable); otherwise stack by hand (ADR 0013). ADR 0009 stays Proposed until a `gh stack`
+trial.
 
-| Step                         | Command                                                        |
-| ---------------------------- | -------------------------------------------------------------- |
-| Start or adopt a stack       | `gh stack init <branch>` / `gh stack init <b1> <b2>`           |
-| Add the next layer           | `gh stack add <branch>` (from the top branch)                  |
-| Open or update the PRs       | `gh stack submit --auto`, then `gh pr edit` title and body     |
-| A lower layer changed/merged | `gh stack sync` (on conflict: `gh stack rebase`, `--continue`) |
-| See the stack                | `gh stack view`                                                |
-| Merge                        | Maintainer only, bottom up. Denied to the agent.               |
+| Step                         | With `gh stack`                                                | By hand                                           |
+| ---------------------------- | -------------------------------------------------------------- | ------------------------------------------------- |
+| Start or adopt a stack       | `gh stack init <branch>` / `gh stack init <b1> <b2>`           | Branch from the lower branch                      |
+| Add the next layer           | `gh stack add <branch>` (from the top branch)                  | Branch from the top branch                        |
+| Open or update the PRs       | `gh stack submit --auto`, then `gh pr edit` title and body     | `gh pr create --base <lower branch>`              |
+| A lower layer changed/merged | `gh stack sync` (on conflict: `gh stack rebase`, `--continue`) | Rebase the layers above; `gh pr edit --base main` |
+| See the stack                | `gh stack view`                                                | The "Stacked on" line in each PR body             |
+| Merge                        | Maintainer only, bottom up. Denied to the agent.               | Same                                              |
 
 Each layer is one concern, passes `pnpm check` on its own, and names the layer below it in the
 PR body.
@@ -124,31 +126,24 @@ milestone of its phase, and `docs/backlog.md` is the roadmap.
 
 Open work lives in GitHub issues (ADR 0010).
 
-| What               | How                                                                                           |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| Write one          | Use a template (`Feature or fix`, `Content change`); acceptance criteria are required         |
-| Approve criteria   | An agent's issue starts with the `draft` label; the maintainer removes it to approve          |
-| Phase              | One milestone per phase: `Phase 1`, `Phase 2`, `Phase 3`                                      |
-| Area               | `area:web`, `area:api`, `area:content`, `area:sim`, `area:harness`, `area:pipeline`           |
-| Waiting on someone | `needs-clinician`                                                                             |
-| Too big for one PR | A parent issue with sub-issues                                                                |
-| Close              | The PR says `Closes #N`; merging closes it                                                    |
-| Find work          | `gh issue list --milestone "Phase 1"`, then `gh issue view <n>`                               |
-| See progress       | The [board](https://github.com/users/nama3k67/projects/2): Todo, In Progress, Done (ADR 0011) |
-| Start work         | The agent moves the issue's card to In Progress (commands below)                              |
-| Jot down an idea   | A draft item on the board; convert it to an issue to work on it. Agents never build from one  |
-| Reader feedback    | Summarise it; never copy text that could identify the reader, nor their health details        |
+| What               | How                                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| Write one          | Use a template (`Feature or fix`, `Content change`); acceptance criteria are required           |
+| Approve criteria   | An agent's issue starts with the `draft` label; the maintainer removes it to approve            |
+| Work under an ADR  | A parent issue for the ADR carries `draft`; its sub-issues do not. One approval (ADR 0013)      |
+| Needs an issue?    | Planned work always does, whatever its commit type. Not a small fix found during other work     |
+| Phase              | One milestone per phase: `Phase 1`, `Phase 2`, `Phase 3`                                        |
+| Area               | `area:web`, `area:api`, `area:content`, `area:sim`, `area:harness`, `area:pipeline`             |
+| Waiting on someone | `needs-clinician`                                                                               |
+| Too big for one PR | A parent issue with sub-issues                                                                  |
+| Close              | The PR says `Closes #N`; merging closes it                                                      |
+| Find work          | `gh issue list --milestone "Phase 1"`, then `gh issue view <n>`                                 |
+| See progress       | The [board](https://github.com/users/nama3k67/projects/2): Todo, In Progress, Done (ADR 0011)   |
+| Start work         | GitHub moves the card to In Progress when a PR links the issue; open a draft PR early if needed |
+| Jot down an idea   | A draft item on the board; convert it to an issue to work on it. Agents never build from one    |
+| Reader feedback    | Summarise it; never copy text that could identify the reader, nor their health details          |
 
-Move issue `N` to In Progress (the IDs belong to the board above):
-
-```bash
-item=$(gh project item-list 2 --owner nama3k67 --limit 500 --format json \
-  --jq ".items[] | select(.content.number==$N) | .id")
-gh project item-edit --project-id PVT_kwHOA3J0o84Bs-MS --id "$item" \
-  --field-id PVTSSF_lAHOA3J0o84Bs-MSzhrJzB8 --single-select-option-id 47fc9ee4
-```
-
-GitHub moves the other cards. These built-in workflows are turned on in the board's settings
+GitHub moves the cards. These built-in workflows are turned on in the board's settings
 (Workflows), and are listed here because they are not versioned:
 
 - Auto-add to project: `is:issue` from `nama3k67/runner-injury-atlas` (this covers sub-issues
