@@ -7,7 +7,21 @@ Each entry: what happened, why, what we changed, and the rule from now on. If a 
 to matter a lot, move it down the harness table in `docs/process.md` (a helper, a lint rule,
 a test) instead of leaving it here as advice.
 
+The first line of each entry is checked by `pnpm lint:docs` (ADR 0012):
+
+```text
+ID: L<n> · Status: active · Scope: <paths the rule is about, comma-separated>
+```
+
+- `active`: the rule is advice; read it when you work in its scope.
+- `promoted`: the rule is now a check. Add `· Enforced by: <path of the test or lint>`.
+- `retired`: no longer true. Keep the entry as a record and say why in one line.
+
+Edit one entry at a time. Do not rewrite or summarise the whole file.
+
 ## 2026-11-22 — Multi-step 3D e2e tests run out of the 30 s budget on CI
+
+ID: L2 · Status: active · Scope: apps/web/e2e/
 
 **What happened.** PR #8 (picking) passed e2e locally but failed CI: three picking tests timed
 out on desktop and mobile, on retry too. The errors looked like a hang ("Received: ''",
@@ -39,6 +53,8 @@ the battery use on phones. See
 [#22](https://github.com/nama3k67/runner-injury-atlas/issues/22).
 
 ## 2026-11-22 — The first 3D scene load stalls the main thread; e2e must wait for readiness
+
+ID: L1 · Status: active · Scope: apps/web/e2e/
 
 **What happened.** PR #4 failed CI. The test _ITBS page renders the R3F scene_ could not find
 `<canvas>` within the default 5 s (desktop failed twice, mobile was flaky). The same test had

@@ -8,7 +8,7 @@ with AI agents; the process in `docs/process.md` is part of the product.
 
 | Command                                | What it does                                                                                                                                                                      |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm check`                           | **The gate.** lint + typecheck + unit/integration tests + content validation. Run before saying work is done.                                                                     |
+| `pnpm check`                           | **The gate.** lint + docs lint + typecheck + unit/integration tests + content validation. Run before saying work is done.                                                         |
 | `pnpm e2e`                             | Playwright against the real stack (API on in-process Postgres + prerendered web). Run when you touch UI, API routes or contracts. Set `CHROME_PATH` to reuse an installed Chrome. |
 | `pnpm format`                          | Auto-fix lint and formatting.                                                                                                                                                     |
 | `pnpm dev:web` / `pnpm dev:api:pglite` | Web on :3000, API on :3001 with in-process Postgres (no Docker).                                                                                                                  |
