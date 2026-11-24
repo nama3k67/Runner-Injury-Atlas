@@ -136,6 +136,7 @@ Open work lives in GitHub issues (ADR 0010).
 | Find work          | `gh issue list --milestone "Phase 1"`, then `gh issue view <n>`                               |
 | See progress       | The [board](https://github.com/users/nama3k67/projects/2): Todo, In Progress, Done (ADR 0011) |
 | Start work         | The agent moves the issue's card to In Progress (commands below)                              |
+| Jot down an idea   | A draft item on the board; convert it to an issue to work on it. Agents never build from one  |
 | Reader feedback    | Summarise it; never copy text that could identify the reader, nor their health details        |
 
 Move issue `N` to In Progress (the IDs belong to the board above):

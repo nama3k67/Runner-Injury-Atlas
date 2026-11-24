@@ -43,7 +43,14 @@ Options considered:
    because `gh` lacks the `project` scope, it says so in its report.
 4. **Approval stays on the label.** Cards show the `draft` label, and a second board view
    filtered on `label:draft` lists what is waiting for the maintainer.
-5. **Only issues are cards.** Pull requests are not added; an issue's card shows its linked PR.
+5. **Cards are issues, or draft items for ideas.** Pull requests are not added; an issue's card
+   shows its linked PR. A draft item (GitHub calls it a "draft issue"; it has nothing to do
+   with the `draft` label) records an idea that is not specified yet. It has no number, labels,
+   milestone or criteria, and no PR can close it.
+   - The maintainer creates draft items. An agent creates one only when asked.
+   - To work on an idea, convert the draft item to an issue and write criteria, using the
+     templates. The new issue starts with the `draft` label, as in ADR 0010.
+   - Agents never build from a draft item.
 
 ## Consequences
 
@@ -54,4 +61,8 @@ Options considered:
   account, not only this one.
 - The workflows are configured in the GitHub UI and are not versioned. `docs/process.md` lists
   them so the board can be rebuilt.
+- Ideas can be written down in seconds without an issue template, and the issue list keeps only
+  work that is specified. Draft items live only on the board: they are not in git, and readers
+  of the repository see them only if the project is public. `docs/backlog.md` stays the in-repo
+  description of each phase.
 - A user-owned project has its own visibility. It must be made public when the repository is.
