@@ -35,7 +35,8 @@ did not change.
   through. Add up the action durations in the trace before you suspect the app.
 
 **Open.** Rendering on demand (`frameloop="demand"`) would cut the per-frame cost on CI and
-the battery use on phones. See `docs/backlog.md`.
+the battery use on phones. See
+[#22](https://github.com/nama3k67/runner-injury-atlas/issues/22).
 
 ## 2026-11-22 — The first 3D scene load stalls the main thread; e2e must wait for readiness
 
@@ -73,5 +74,5 @@ asserting the canvas. The assertions are the same; only the order changed (`e9d4
   GPU or software GL, cold or warm). A number from SwiftShader says nothing about a real GPU.
   The first write-up of this incident called the 2.5 s "on the Mac" and had to be corrected.
 
-**Open.** Real-GPU and real-phone numbers are not measured yet. See "Test on real phones" in
-`docs/backlog.md`.
+**Open.** Real-GPU and real-phone numbers are not measured yet. See
+[#21](https://github.com/nama3k67/runner-injury-atlas/issues/21).

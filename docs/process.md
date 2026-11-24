@@ -15,7 +15,7 @@ Two ideas carry it:
 
 | Stage      | Input                                                     | Who                         | Output                                       | Gate to leave the stage                             |
 | ---------- | --------------------------------------------------------- | --------------------------- | -------------------------------------------- | --------------------------------------------------- |
-| 1. Specify | Idea, feedback item, backlog entry                        | Human (agent may draft)     | Issue with acceptance criteria               | Criteria are testable; scope fits one PR            |
+| 1. Specify | Idea, feedback item, roadmap goal                         | Human (agent may draft)     | Issue with acceptance criteria               | Criteria are testable; scope fits one PR            |
 | 2. Decide  | Issue that changes architecture, data, privacy or process | Human decides, agent drafts | ADR in `docs/adr/`                           | ADR accepted by the human                           |
 | 3. Plan    | Issue (+ ADR)                                             | Agent                       | Short plan: files, tests, risks              | Human skims the plan for anything surprising        |
 | 4. Build   | Plan                                                      | Agent                       | Tests first, then code, on a branch          | Guard hooks never tripped, or tripped and respected |
@@ -81,7 +81,9 @@ draft ──► PR (agent or human) ──► pnpm check ──► clinician rev
 - Acceptance criteria met, each one covered by a test or an explicit manual check.
 - `pnpm check` green; `pnpm e2e` green if UI, API or contracts changed.
 - No new `any`, no skipped tests, no weakened rule.
-- Docs touched if behaviour, commands or decisions changed (README, CLAUDE.md, ADR, backlog).
+- Docs touched if behaviour, commands or decisions changed (README, CLAUDE.md, ADR).
+- PR links its issue with `Closes #N` (or `Refs #N` for part of it). Housekeeping PRs found
+  while doing other work may go without an issue.
 - PR description lists what was **not** verified.
 
 ## Roles
@@ -115,10 +117,27 @@ PR body.
 ## Traceability
 
 Issue → (ADR) → branch → commits (`type(scope): …`) → PR (template) → CI run → `main`.
-Every decision that outlives a PR is an ADR; everything known to be missing is in
-`docs/backlog.md`.
+Every decision that outlives a PR is an ADR. Everything known to be missing is an issue in the
+milestone of its phase, and `docs/backlog.md` is the roadmap.
+
+## Issues
+
+Open work lives in GitHub issues (ADR 0010).
+
+| What               | How                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| Write one          | Use a template (`Feature or fix`, `Content change`); acceptance criteria are required  |
+| Approve criteria   | An agent's issue starts with the `draft` label; the maintainer removes it to approve   |
+| Phase              | One milestone per phase: `Phase 1`, `Phase 2`, `Phase 3`                               |
+| Area               | `area:web`, `area:api`, `area:content`, `area:sim`, `area:harness`, `area:pipeline`    |
+| Waiting on someone | `needs-clinician`                                                                      |
+| Too big for one PR | A parent issue with sub-issues                                                         |
+| Close              | The PR says `Closes #N`; merging closes it                                             |
+| Find work          | `gh issue list --milestone "Phase 1"`, then `gh issue view <n>`                        |
+| Reader feedback    | Summarise it; never copy text that could identify the reader, nor their health details |
 
 ## What this process deliberately leaves out (for now)
 
-Sprint ceremonies, coverage thresholds, multi-agent orchestration, a separate eval
-framework, release branches. They are added when a real problem asks for them (ADR 0007).
+Sprint ceremonies, project boards, estimates, coverage thresholds, multi-agent orchestration,
+a separate eval framework, release branches. They are added when a real problem asks for them
+(ADR 0007).

@@ -58,7 +58,7 @@ packages/sim (pure maths) ──► 3D scene                                    
 | `content/`                | Injuries, dictionary terms, guided-tour script, sources                            |
 | `tools/harness`           | Agent guard hooks and commit checks                                                |
 | `tools/anatomy-pipeline`  | BodyParts3D meshes to web-ready GLB                                                |
-| `docs/`                   | [Process](docs/process.md), [ADRs](docs/adr/README.md), [backlog](docs/backlog.md) |
+| `docs/`                   | [Process](docs/process.md), [ADRs](docs/adr/README.md), [roadmap](docs/backlog.md) |
 
 ## What works today, and what does not
 
@@ -70,7 +70,8 @@ fat pad). The full v0.3 simulation stays reachable as a frozen legacy page.
 Not yet: the rest of the 3D port (layers, picking, labels, camera presets, run modes, gait
 chart, guided tour), long-form ITBS sections as data,
 recorded narration audio, clinician review, deployment, real authentication for reviewers.
-Details in [docs/backlog.md](docs/backlog.md).
+Open work is tracked in [issues](https://github.com/nama3k67/runner-injury-atlas/issues), one
+milestone per phase of the [roadmap](docs/backlog.md).
 
 ## Licences and attribution
 
