@@ -21,6 +21,14 @@ body:
       description: Links to the studies or guidance that support the change. Required for any claim.
     validations:
       required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      description: Testable statements, for example "pnpm validate:content shows no warning for this term".
+      placeholder: "- [ ] Every claim in terms/vl.json cites a source"
+    validations:
+      required: true
   - type: checkboxes
     id: gate
     attributes:

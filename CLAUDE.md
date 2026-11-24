@@ -61,19 +61,27 @@ docs/lessons.md        Incidents and the rules they taught. Read before debuggin
 
 ## Workflow for any change
 
-1. Read the issue's acceptance criteria. If there are none, write them first and confirm.
+1. Read the issue (`gh issue view <n>`). Do not build on an issue labelled `draft` or without
+   acceptance criteria: draft the criteria and wait for the maintainer to remove `draft`
+   (ADR 0010). Housekeeping PRs (`chore`, `ci`, `docs`, …) found while doing other work may skip
+   the issue.
 2. Plan in a few lines: files to touch, tests to add, risks.
 3. Write the failing test, then the code.
 4. `pnpm check` (and `pnpm e2e` if UI/API changed). Fix until green; do not weaken a test or a
    rule to get there.
 5. Summarise in the PR template: what changed, how it was verified, what was NOT verified.
+   Link the issue with `Closes #N`, or `Refs #N` when the PR covers only part of it.
 
 Slash commands: `/feature`, `/verify`, `/add-injury`, `/adr`. Subagent: `content-auditor`.
 
 ## Known gaps (do not paper over them)
 
-See `docs/backlog.md`. Notably: the R3F scene has the rig, sliders, layer toggles, the
-illustrative structures, picking, camera presets, labels and fibre tension (the tour still
-lives in the legacy page); long-form prose
-sections of ITBS live only in the legacy page; nothing has been reviewed by a clinician;
-the API has not been run against a real Postgres server yet (only PGlite).
+Open work is in GitHub issues, one milestone per phase: `gh issue list --milestone "Phase 1"`.
+`docs/backlog.md` is the roadmap. The gaps that change how you work:
+
+- The guided tour, the gait chart and the long-form ITBS sections live only in the legacy page
+  (#16).
+- Nothing has been reviewed by a clinician (#32).
+- The API has only run on PGlite, never on a real Postgres server (#25).
+
+Edit this list only when a gap appears or disappears, not on every PR.

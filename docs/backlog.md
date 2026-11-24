@@ -1,58 +1,35 @@
-# Backlog
+# Roadmap
 
-Known gaps, in rough priority order. Each becomes an issue with acceptance criteria when
-picked up. Phases refer to the roadmap in the project plan.
+Open work is tracked as GitHub issues, one milestone per phase (ADR 0010). This page describes
+what each phase is for and the gate that ends it. To see what is left in a phase, run
+`gh issue list --milestone "Phase 1"` or open the milestone.
 
-## Phase 1 — reach parity with v0.3 inside the repo (gate 1)
+## Phase 1: reach parity with v0.3 inside the repo (gate 1)
 
-- [x] **Port the 3D rig to React Three Fiber.** GLB + meta, 3-bone skeleton, skin weights,
-      ITB colour/morph and fat pad from `@atlas/sim`, knee and hip-drop sliders.
-- [ ] **Finish the R3F scene.** Everything in the scene is ported: Kaplan fibres, arrows and
-      pelvic bar; layer toggles; picking that opens the dictionary term; camera presets (refit
-      on resize, a related term applies its `scene` hint); labels; fibre tension colouring
-      ("Sợi căng"); "Xem trên 3D" buttons in the dictionary section. Still to do: remove the
-      "Xem bản v0.3" link, once the tour runner, gait chart and long-form sections below have
-      landed.
-- [x] **Zustand store for simulation state** (`apps/web/src/simStore.ts`, knee angle and hip
-      drop). Selection joined with picking; run mode and tour state join in the PRs that add the gait
-      chart and the tour runner.
-- [ ] **Guided tour runner driven by `tour.json`**, using the browser voice until recorded
-      audio exists.
-- [ ] **Gait chart** from `simulation.json` (currently only in the legacy page).
-- [ ] **Move long-form ITBS sections to content** (mechanism, causes, symptoms and
-      differential, clinical tests). They exist only in `legacy/v0.3/index.html`. Sources
-      r10 and r14 are cited only there.
-- [ ] **Visual regression snapshots** of the 3D scene at fixed camera/angle presets.
-- [ ] **Test on real phones** and record frame rate; decide on a reduced-detail mode.
-      Start from the first-load stall in `docs/lessons.md` (2026-11-22).
-- [ ] **Render on demand** (`frameloop="demand"`, invalidate on store, controls and highlight
-      changes). Today the scene re-renders every frame; on CI that costs 1–1.7 s per e2e action.
-      The pulsing highlight needs continuous frames, so decide how it should behave first.
-- [ ] **Load the fonts** (Be Vietnam Pro, JetBrains Mono). v0.3 pulled them from Google Fonts;
-      the app falls back to system fonts. Self-hosting avoids sending readers' IPs to Google.
-- [ ] **Port the anatomy pipeline to TypeScript** (gltf-transform, meshopt) so it runs in CI.
-- [ ] **Run the API against real Postgres** (docker compose) and add it to CI as a service.
-      Only PGlite has been exercised so far.
-- [ ] **OpenAPI document** generated from `packages/contracts`.
+[Milestone](https://github.com/nama3k67/runner-injury-atlas/milestone/1)
 
-## Phase 2 — content as data, narration, clinical review (gate 2: publish)
+Everything the frozen v0.3 prototype does runs in the app itself. That covers the 3D scene and
+its controls, the guided tour, the gait chart and the long-form ITBS sections. The scene is
+fast enough on real phones, and the stack is proven outside PGlite. **Gate:** the "Xem bản
+v0.3" link is gone ([#16](https://github.com/nama3k67/runner-injury-atlas/issues/16)).
 
-- [ ] Recorded Vietnamese narration, one file per tour line (service still to be chosen).
-- [ ] Reviewer authentication to replace the shared admin key (ADR 0005).
-- [ ] Reviewer UI: read the content, see the hash, approve or request changes.
-- [ ] CI check that a `published` injury's stamp matches an approved review in the API.
-- [ ] Find a physiotherapist or sports-medicine doctor to review ITBS.
-- [ ] Deployment (web static host, API host, managed Postgres) and a release workflow.
-- [ ] Choose a licence for the code; choose the product name and domain.
+## Phase 2: content as data, narration, clinical review (gate 2: publish)
+
+[Milestone](https://github.com/nama3k67/runner-injury-atlas/milestone/2)
+
+Content can be reviewed and published for real. Individual reviewers record decisions in a
+reviewer UI, CI checks that published content matches an approved review, and the tour has
+recorded Vietnamese narration. The app is deployed, and the licence and name are settled.
+**Gate:** a clinician approves the ITBS content hash and the maintainer publishes it.
 
 ## Phase 3 and later
 
-- [ ] Second and third injuries (patellofemoral pain, Achilles tendinopathy) via `/add-injury`.
-- [ ] Shared dictionary route `/tu-dien`.
-- [ ] Gait analysis from phone video, on device (pose estimation), feeding the simulation.
-- [ ] English translation.
+[Milestone](https://github.com/nama3k67/runner-injury-atlas/milestone/3)
 
-## Content warnings to resolve
+Goals, not yet specified as issues. Each one becomes an issue with acceptance criteria when it
+is picked up.
 
-`pnpm validate:content` currently warns: terms `bf`, `rf`, `vl` make claims without a
-source; sources `r10` and `r14` are not cited from structured content.
+- More injuries through `/add-injury`: patellofemoral pain, Achilles tendinopathy.
+- A shared dictionary route, `/tu-dien`.
+- Gait analysis from phone video, on the device (pose estimation), feeding the simulation.
+- An English translation.

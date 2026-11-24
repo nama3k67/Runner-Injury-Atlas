@@ -1,6 +1,7 @@
 ## What and why
 
-<!-- One or two sentences. Link the issue: Closes #… -->
+<!-- One or two sentences. Link the issue: Closes #… (Refs #… if this covers only part of it).
+     Housekeeping found while doing other work may go without an issue (ADR 0010). -->
 
 ## Acceptance criteria
 

@@ -4,7 +4,8 @@ Turns BodyParts3D STL meshes into the web-ready model in
 `apps/web/public/anatomy/leg-right.glb` and its landmark file `leg-right.meta.json`.
 
 Run by hand when the set of structures changes. Not part of `pnpm check` yet; porting it
-to TypeScript (gltf-transform + meshopt) is on the backlog so it can run in CI.
+to TypeScript (gltf-transform + meshopt) so it can run in CI is
+[#24](https://github.com/nama3k67/runner-injury-atlas/issues/24).
 
 ```bash
 # 1. Fetch only the STL files listed in PARTS (sparse checkout keeps this small)
