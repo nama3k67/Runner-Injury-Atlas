@@ -21,8 +21,9 @@ Follow docs/process.md stages 1 to 5. Do not skip a step.
 2. **Decide.** If the change touches architecture, data model, privacy or the process, check
    docs/adr/. If no ADR covers it, draft one with status "Proposed" and stop for acceptance.
 3. **Plan.** List files to change, tests to add, and risks, in under 15 lines.
-4. **Build.** Contracts first, then failing tests, then code. Keep controllers and components
-   thin; put logic in packages.
+4. **Build.** Move the issue's card to In Progress on the board (commands in docs/process.md,
+   "Issues"); if that fails, say so in the report. Contracts first, then failing tests, then
+   code. Keep controllers and components thin; put logic in packages.
 5. **Verify.** Run `pnpm check`. Run `pnpm e2e` if UI, API routes or contracts changed. Fix
    until green without weakening any test, schema or guard rule.
 6. **Report** using .github/pull_request_template.md: what changed, how each criterion was

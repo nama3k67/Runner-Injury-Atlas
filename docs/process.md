@@ -124,20 +124,41 @@ milestone of its phase, and `docs/backlog.md` is the roadmap.
 
 Open work lives in GitHub issues (ADR 0010).
 
-| What               | How                                                                                    |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| Write one          | Use a template (`Feature or fix`, `Content change`); acceptance criteria are required  |
-| Approve criteria   | An agent's issue starts with the `draft` label; the maintainer removes it to approve   |
-| Phase              | One milestone per phase: `Phase 1`, `Phase 2`, `Phase 3`                               |
-| Area               | `area:web`, `area:api`, `area:content`, `area:sim`, `area:harness`, `area:pipeline`    |
-| Waiting on someone | `needs-clinician`                                                                      |
-| Too big for one PR | A parent issue with sub-issues                                                         |
-| Close              | The PR says `Closes #N`; merging closes it                                             |
-| Find work          | `gh issue list --milestone "Phase 1"`, then `gh issue view <n>`                        |
-| Reader feedback    | Summarise it; never copy text that could identify the reader, nor their health details |
+| What               | How                                                                                           |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| Write one          | Use a template (`Feature or fix`, `Content change`); acceptance criteria are required         |
+| Approve criteria   | An agent's issue starts with the `draft` label; the maintainer removes it to approve          |
+| Phase              | One milestone per phase: `Phase 1`, `Phase 2`, `Phase 3`                                      |
+| Area               | `area:web`, `area:api`, `area:content`, `area:sim`, `area:harness`, `area:pipeline`           |
+| Waiting on someone | `needs-clinician`                                                                             |
+| Too big for one PR | A parent issue with sub-issues                                                                |
+| Close              | The PR says `Closes #N`; merging closes it                                                    |
+| Find work          | `gh issue list --milestone "Phase 1"`, then `gh issue view <n>`                               |
+| See progress       | The [board](https://github.com/users/nama3k67/projects/2): Todo, In Progress, Done (ADR 0011) |
+| Start work         | The agent moves the issue's card to In Progress (commands below)                              |
+| Jot down an idea   | A draft item on the board; convert it to an issue to work on it. Agents never build from one  |
+| Reader feedback    | Summarise it; never copy text that could identify the reader, nor their health details        |
+
+Move issue `N` to In Progress (the IDs belong to the board above):
+
+```bash
+item=$(gh project item-list 2 --owner nama3k67 --limit 500 --format json \
+  --jq ".items[] | select(.content.number==$N) | .id")
+gh project item-edit --project-id PVT_kwHOA3J0o84Bs-MS --id "$item" \
+  --field-id PVTSSF_lAHOA3J0o84Bs-MSzhrJzB8 --single-select-option-id 47fc9ee4
+```
+
+GitHub moves the other cards. These built-in workflows are turned on in the board's settings
+(Workflows), and are listed here because they are not versioned:
+
+- Auto-add to project: `is:issue` from `nama3k67/runner-injury-atlas`
+- Item added to project → Todo
+- Item closed → Done
+- Pull request merged → Done
+- Item reopened → Todo
 
 ## What this process deliberately leaves out (for now)
 
-Sprint ceremonies, project boards, estimates, coverage thresholds, multi-agent orchestration,
+Sprint ceremonies, estimates, coverage thresholds, multi-agent orchestration,
 a separate eval framework, release branches. They are added when a real problem asks for them
 (ADR 0007).

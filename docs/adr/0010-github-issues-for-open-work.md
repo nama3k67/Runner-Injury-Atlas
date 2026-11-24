@@ -1,6 +1,6 @@
 # 10. GitHub Issues as the record of open work
 
-- Status: Accepted
+- Status: Accepted, amended by ADR 0011 (project board)
 - Date: 2026-11-24
 
 ## Context
