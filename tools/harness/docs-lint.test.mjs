@@ -148,6 +148,12 @@ describe('rules files', () => {
     ]);
   });
 
+  it('reads the list after Biome has formatted it flush left', () => {
+    const formatted =
+      '---\n\npaths:\n\n- "apps/api/**"\n- "packages/contracts/**"\n\n---\n\n# Rule\n';
+    expect(rulePaths(formatted)).toEqual(['apps/api/**', 'packages/contracts/**']);
+  });
+
   it('flags a glob that matches nothing and a rule with no paths', () => {
     const matches = (g) => g === 'apps/api/**';
     expect(checkRule(rule(['apps/api/**', 'apps/old/**']), matches)).toEqual([

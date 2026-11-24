@@ -167,8 +167,9 @@ export function checkLessons(markdown, exists) {
 /** The `paths:` globs in a rules file's frontmatter. */
 export function rulePaths(markdown) {
   const front = /^---\n([\s\S]*?)\n---/.exec(markdown)?.[1] ?? '';
-  const block = /^paths:\s*\n((?:\s+-.*\n?)*)/m.exec(front)?.[1] ?? '';
-  return [...block.matchAll(/^\s+-\s*["']?([^"'\n]+?)["']?\s*$/gm)].map((m) => m[1] ?? '');
+  // Indented or not: Biome formats the list flush left with blank lines around it.
+  const block = /^paths:[ \t]*\n((?:[ \t]*-.*\n?|[ \t]*\n)*)/m.exec(front)?.[1] ?? '';
+  return [...block.matchAll(/^[ \t]*-[ \t]*["']?([^"'\n]+?)["']?[ \t]*$/gm)].map((m) => m[1] ?? '');
 }
 
 /**

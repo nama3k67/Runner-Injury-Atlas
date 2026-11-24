@@ -33,6 +33,7 @@ What the agent works inside. Each layer exists because the previous one is not e
 | Layer               | Where                                         | What it does                                                                                       | Enforced?           |
 | ------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------- |
 | Context             | `CLAUDE.md`, `docs/adr/`                      | Tells the agent the map, the commands, the rules and why                                           | No — advice         |
+| Area rules          | `.claude/rules/*.md`                          | Rules for one area, loaded only when the agent touches a matching path (ADR 0012)                  | No — advice         |
 | Workflows           | `.claude/commands/`                           | `/feature`, `/verify`, `/add-injury`, `/adr` turn the lifecycle into repeatable prompts            | No — convenience    |
 | Specialist          | `.claude/agents/content-auditor.md`           | Independent read of content claims against sources                                                 | No — second opinion |
 | Permissions         | `.claude/settings.json`                       | Allow-list of routine commands; deny secrets, force-push, `rm -rf`                                 | Yes                 |
