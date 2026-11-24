@@ -1,6 +1,6 @@
 # 13. Leaner gates for a solo maintainer
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-24
 - Amends: ADR 0009 (how stacking is described), ADR 0010 (decisions 1 and 3), ADR 0011
   (decision 3)
