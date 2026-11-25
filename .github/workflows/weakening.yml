@@ -1,0 +1,24 @@
+name: Weakened checks
+
+# Harness rule 5 (docs/process.md, ADR 0012): a PR that switches a test or a
+# rule off, or changes a line of a check, passes only with the `weakens-checks`
+# label. Re-runs when labels change, without re-running the main CI.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  weakening:
+    name: No check weakened without a label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The PR merge commit and both parents, so HEAD^1 is the base.
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: node tools/harness/check-weakening.mjs HEAD^1 HEAD
+        env:
+          ALLOW_WEAKENING: ${{ contains(github.event.pull_request.labels.*.name, 'weakens-checks') }}

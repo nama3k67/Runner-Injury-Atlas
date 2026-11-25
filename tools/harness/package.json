@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "node --check guard.mjs && node --check commit-msg.mjs && node --check hook-guard.mjs && node --check gh-account.mjs && node --check hook-gh-account.mjs && node --check hook-format.mjs && node --check docs-lint.mjs && node --check lint-docs.mjs && node --check stop-gate.mjs && node --check hook-stop.mjs"
+    "typecheck": "node --check guard.mjs && node --check commit-msg.mjs && node --check hook-guard.mjs && node --check gh-account.mjs && node --check hook-gh-account.mjs && node --check hook-format.mjs && node --check docs-lint.mjs && node --check lint-docs.mjs && node --check stop-gate.mjs && node --check hook-stop.mjs && node --check weakening.mjs && node --check check-weakening.mjs"
   }
 }
