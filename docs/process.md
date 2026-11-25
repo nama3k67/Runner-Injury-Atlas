@@ -38,6 +38,7 @@ What the agent works inside. Each layer exists because the previous one is not e
 | Permissions         | `.claude/settings.json`                       | Allow-list of routine commands; deny secrets, force-push, `rm -rf`                                 | Yes                 |
 | Guard hook          | `tools/harness/guard.mjs` (PreToolUse)        | Blocks edits to frozen files and blocks an agent from publishing content or writing a review stamp | Yes, unit-tested    |
 | Format hook         | `tools/harness/hook-format.mjs` (PostToolUse) | Formats every file the agent writes                                                                | Yes                 |
+| Stop hook           | `tools/harness/hook-stop.mjs` (Stop)          | Runs the gate when the tree changed; a red gate sends the failure back instead of ending the turn  | Yes, unit-tested    |
 | Docs sensors        | `tools/harness/docs-lint.mjs`                 | Fails `pnpm check` when the docs the agent reads drift from the repo (ADR 0012)                    | Yes, unit-tested    |
 | Feedback loop       | `pnpm check`                                  | One command, under a minute, same locally and in CI                                                | Yes                 |
 | Types and contracts | `packages/contracts`, strict TS               | API drift fails at compile time or at the parse boundary                                           | Yes                 |
