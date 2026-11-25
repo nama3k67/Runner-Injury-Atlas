@@ -45,6 +45,7 @@ What the agent works inside. Each layer exists because the previous one is not e
 | Content rules       | `packages/content-schema`                     | Unknown sources, broken references, unreviewed "published" content fail the build                  | Yes                 |
 | Real-stack tests    | PGlite + Playwright                           | Real Postgres semantics and a real browser with no Docker, so the agent can run them itself        | Yes                 |
 | Git hooks           | `.githooks/`                                  | pre-commit lint, commit-msg convention, pre-push full check                                        | Yes (local)         |
+| Weakening sensor    | `tools/harness/weakening.mjs` (CI)            | Flags a PR that switches a test or rule off or edits a check; passes only with `weakens-checks`    | Yes, unit-tested    |
 | CI                  | `.github/workflows/ci.yml`                    | Same gate on every PR, plus build and e2e                                                          | Yes                 |
 
 Design rules for the harness itself:
@@ -56,7 +57,8 @@ Design rules for the harness itself:
 3. **Fast or it is not run.** `pnpm check` stays under a minute; slower checks get their own command.
 4. **Failures explain themselves.** Hook and validator messages say what to do instead.
 5. **Never weaken a check to pass it.** Changing a test, a schema or a guard rule to get
-   green needs its own PR and a reason.
+   green needs its own PR and a reason. CI flags such a PR until the maintainer adds the `weakens-checks`
+   label (ADR 0012).
 
 ## Medical review gate
 
