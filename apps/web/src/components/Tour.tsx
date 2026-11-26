@@ -32,16 +32,6 @@ export function TourPlayer({ tour }: { tour: Tour }) {
   const status = state?.status;
   const [noVoiceNote, setNoVoiceNote] = useState(false);
 
-  // Tweens run on their own frame loop, so they work without WebGL too.
-  useEffect(() => {
-    if (!on) return;
-    let id = requestAnimationFrame(function frame(now) {
-      useSimStore.getState().tick(now);
-      id = requestAnimationFrame(frame);
-    });
-    return () => cancelAnimationFrame(id);
-  }, [on]);
-
   useEffect(() => {
     if (!on || vietnameseVoice()) return;
     setNoVoiceNote(true);

@@ -1,5 +1,17 @@
+import { gaitAngle } from '@atlas/sim';
 import { describe, expect, it } from 'vitest';
 import { useSimStore } from './simStore';
+
+const flat = [
+  { phase: 0, deg: 21 },
+  { phase: 0.5, deg: 90 },
+  { phase: 1, deg: 21 },
+];
+const GAIT = {
+  flat: { stanceEnd: 0.36, keyframes: flat, explanation: '' },
+  down: { stanceEnd: 0.38, keyframes: flat, explanation: '' },
+  fast: { stanceEnd: 0.28, keyframes: flat, explanation: '' },
+};
 
 const allOn = { bone: true, muscle: true, itb: true, fat: true };
 
@@ -89,6 +101,54 @@ describe('useSimStore', () => {
     expect(useSimStore.getState().labels).toBe(false);
     reset();
     expect(useSimStore.getState().labels).toBe(true);
+  });
+
+  describe('run mode', () => {
+    it('a run mode drives the knee along its curve from the start of the stride', () => {
+      const { setMode, advanceGait, reset } = useSimStore.getState();
+      expect(useSimStore.getState().mode).toBe('manual');
+      setMode('flat');
+      expect(useSimStore.getState()).toMatchObject({ mode: 'flat', phase: 0 });
+      advanceGait(0.026, GAIT);
+      const { phase, knee } = useSimStore.getState();
+      expect(phase).toBeCloseTo(0.01);
+      expect(knee).toBeCloseTo(gaitAngle(flat, phase));
+      reset();
+      expect(useSimStore.getState()).toMatchObject({ mode: 'manual', phase: 0 });
+    });
+
+    it('manual mode stops the stride and leaves the knee where it was', () => {
+      const { setMode, advanceGait, reset } = useSimStore.getState();
+      setMode('flat');
+      advanceGait(0.05, GAIT);
+      setMode('manual');
+      const { knee, phase } = useSimStore.getState();
+      advanceGait(0.05, GAIT);
+      expect(useSimStore.getState()).toMatchObject({ knee, phase });
+      reset();
+    });
+
+    it('opening a term with a knee angle returns to manual mode', () => {
+      const { setMode, openTerm, reset } = useSimStore.getState();
+      setMode('down');
+      openTerm('fatpad', { kneeAngle: 25 });
+      expect(useSimStore.getState()).toMatchObject({ mode: 'manual', knee: 25 });
+      setMode('down');
+      openTerm('gmed', { camera: 'hip' });
+      expect(useSimStore.getState().mode).toBe('down');
+      reset();
+    });
+
+    it('a tour step sets its mode, and tweens the knee only in manual mode (v0.3)', () => {
+      const { enterTourStep, reset } = useSimStore.getState();
+      enterTourStep(8, { mode: 'flat', kneeAngle: 10, hipDrop: 2 }, 0);
+      expect(useSimStore.getState().mode).toBe('flat');
+      expect(Object.keys(useSimStore.getState().tweens)).toEqual(['hip']);
+      enterTourStep(11, { mode: 'manual', kneeAngle: 0 }, 0);
+      expect(useSimStore.getState().mode).toBe('manual');
+      expect(Object.keys(useSimStore.getState().tweens)).toContain('knee');
+      reset();
+    });
   });
 
   describe('tour', () => {

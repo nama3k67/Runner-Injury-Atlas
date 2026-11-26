@@ -68,6 +68,19 @@ export function gaitAngle(keyframes: readonly GaitKeyframe[], phase: number): nu
   return first.deg;
 }
 
+/** `n + 1` evenly spaced points of a stride, phase 0 to 1, for drawing the curve. */
+export const sampleGait = (keyframes: readonly GaitKeyframe[], n: number): GaitKeyframe[] =>
+  Array.from({ length: n + 1 }, (_, i) => ({ phase: i / n, deg: gaitAngle(keyframes, i / n) }));
+
+/** One stride takes this long on screen: slow motion, as v0.3. */
+const STRIDE_SECONDS = 2.6;
+/** Longest frame step, so a hidden tab or a stall does not jump the stride. */
+const MAX_FRAME_SECONDS = 0.05;
+
+/** Stride phase after `dtSec` of animation, wrapped to 0..1. */
+export const advancePhase = (phase: number, dtSec: number): number =>
+  (phase + Math.min(MAX_FRAME_SECONDS, Math.max(0, dtSec)) / STRIDE_SECONDS) % 1;
+
 /** Fraction of the stance phase (0..stanceEnd) spent inside the zone. */
 export function stanceShareInZone(
   keyframes: readonly GaitKeyframe[],

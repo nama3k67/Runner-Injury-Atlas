@@ -5,7 +5,7 @@ import { expect, type Page, test } from '@playwright/test';
 interface TourFile {
   steps: {
     title: string;
-    enter: { camera?: string; kneeAngle?: number };
+    enter: { camera?: string; kneeAngle?: number; mode?: string };
     lines: { text: string }[];
   }[];
 }
@@ -60,6 +60,32 @@ const openStage = async (page: Page) => {
 const startButton = (page: Page) =>
   page.getByRole('button', { name: /^(▶ Nghe|■ Dừng) thuyết minh/ });
 
+// A Vietnamese voice that never finishes a line, so the tour only moves when told to.
+const stubVietnameseVoice = (page: Page) =>
+  page.addInitScript(() => {
+    const spoken: { text: string; lang: string }[] = [];
+    Object.assign(window, { __spoken: spoken });
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      value: class {
+        lang = '';
+        voice: unknown = null;
+        onend: unknown = null;
+        onerror: unknown = null;
+        constructor(public text: string) {}
+      },
+    });
+    Object.defineProperty(window, 'speechSynthesis', {
+      value: {
+        getVoices: () => [
+          { lang: 'en-US', name: 'English' },
+          { lang: 'vi-VN', name: 'Test Tiếng Việt' },
+        ],
+        speak: (u: { text: string; lang: string }) => spoken.push({ text: u.text, lang: u.lang }),
+        cancel: () => {},
+      },
+    });
+  });
+
 test.describe('guided tour', () => {
   // Several scene actions, each about 1.5 s on CI's software GL (lessons.md).
   test.slow();
@@ -67,30 +93,7 @@ test.describe('guided tour', () => {
   test('reads with a Vietnamese voice, steps with the keyboard, pauses for the reader and stops cleanly', async ({
     page,
   }) => {
-    // A Vietnamese voice that never finishes a line, so the tour only moves when told to.
-    await page.addInitScript(() => {
-      const spoken: { text: string; lang: string }[] = [];
-      Object.assign(window, { __spoken: spoken });
-      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
-        value: class {
-          lang = '';
-          voice: unknown = null;
-          onend: unknown = null;
-          onerror: unknown = null;
-          constructor(public text: string) {}
-        },
-      });
-      Object.defineProperty(window, 'speechSynthesis', {
-        value: {
-          getVoices: () => [
-            { lang: 'en-US', name: 'English' },
-            { lang: 'vi-VN', name: 'Test Tiếng Việt' },
-          ],
-          speak: (u: { text: string; lang: string }) => spoken.push({ text: u.text, lang: u.lang }),
-          cancel: () => {},
-        },
-      });
-    });
+    await stubVietnameseVoice(page);
     await openStage(page);
     const knee = page.getByLabel('Góc gập gối');
     await knee.fill('30');
@@ -126,6 +129,23 @@ test.describe('guided tour', () => {
     await expect(startButton(page)).toHaveText(/Nghe thuyết minh/);
     await knee.fill('25');
     await expect(page.getByTestId('sim-zone')).toHaveText('TRONG VÙNG ÉP');
+  });
+
+  test('steps with a run mode start that mode and its gait chart', async ({ page }) => {
+    await stubVietnameseVoice(page);
+    await openStage(page);
+    await startButton(page).click();
+    const first = steps.findIndex((s) => s.enter.mode && s.enter.mode !== 'manual');
+    if (first < 0) throw new Error('tour.json has no run-mode step');
+    const next = page.getByRole('region', { name: 'Thuyết minh' }).getByRole('button', {
+      name: 'Đoạn sau',
+    });
+    for (let i = 0; i < first; i++) await next.click();
+    await expect(page.getByTestId('tour-title')).toHaveText(new RegExp(`^${first + 1}/`));
+    await expect(page.getByTestId('gait-chart')).toHaveAttribute(
+      'data-mode',
+      step(first).enter.mode ?? '',
+    );
   });
 
   test('without speech synthesis the captions still show and the reader can advance', async ({

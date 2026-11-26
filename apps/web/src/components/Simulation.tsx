@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 import { type CameraView, LAYERS, type Layer, useSimStore } from '../simStore';
+import { GaitChart, RUN_MODES } from './GaitChart';
 import { TermPanel } from './TermPanel';
 import { goToStep, TourPlayer } from './Tour';
 
@@ -77,19 +78,44 @@ export function Simulation({ sim, tour, terms, injury }: Props) {
   }, [terms, injury.slug]);
 
   return (
-    <div className="viewer">
-      <ClientOnly
-        fallback={
-          <div className="stage" data-testid="sim-placeholder">
-            <p className="stage-msg">Đang chuẩn bị mô phỏng 3D…</p>
-          </div>
-        }
-      >
-        <Stage sim={sim} tour={tour} structures={structures} terms={termById} />
-      </ClientOnly>
-      <Side sim={sim} tour={tour} terms={termById} injury={injury} />
-    </div>
+    <>
+      <div className="viewer">
+        <ClientOnly
+          fallback={
+            <div className="stage" data-testid="sim-placeholder">
+              <p className="stage-msg">Đang chuẩn bị mô phỏng 3D…</p>
+            </div>
+          }
+        >
+          <Stage sim={sim} tour={tour} structures={structures} terms={termById} />
+          <Ticker gait={sim.gait} />
+        </ClientOnly>
+        <Side sim={sim} tour={tour} terms={termById} injury={injury} />
+      </div>
+      <GaitChart sim={sim} />
+    </>
   );
+}
+
+/**
+ * One frame loop for the stride and the tour's tweens, outside the canvas so both run without
+ * WebGL. It runs only while something moves.
+ */
+function Ticker({ gait }: { gait: SimulationContent['gait'] }) {
+  const moving = useSimStore((s) => s.mode !== 'manual' || s.tour !== null);
+  useEffect(() => {
+    if (!moving) return;
+    let last = performance.now();
+    let id = requestAnimationFrame(function frame(now) {
+      const sim = useSimStore.getState();
+      sim.advanceGait((now - last) / 1000, gait);
+      sim.tick(now);
+      last = now;
+      id = requestAnimationFrame(frame);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [moving, gait]);
+  return null;
 }
 
 function Side({
@@ -139,13 +165,22 @@ function Side({
 // Only this subtree subscribes to the pose, so dragging a slider never re-renders the stage.
 function Controls({ sim, tour }: { sim: SimulationContent; tour: Tour }) {
   const touring = useSimStore((s) => s.tour !== null);
-  const knee = useSimStore((s) => s.knee);
+  const knee = useSimStore((s) => Math.round(s.knee));
   const hip = useSimStore((s) => s.hip);
+  const mode = useSimStore((s) => s.mode);
   const labels = useSimStore((s) => s.labels);
   const tension = useSimStore((s) => s.tension);
   const layers = useSimStore((s) => s.layers);
-  const { setKnee, setHip, toggleLayer, toggleLabels, toggleTension, userPause, stopTour } =
-    useSimStore.getState();
+  const {
+    setKnee,
+    setHip,
+    setMode,
+    toggleLayer,
+    toggleLabels,
+    toggleTension,
+    userPause,
+    stopTour,
+  } = useSimStore.getState();
 
   const pressure = Math.round(compression(knee, hip, sim.compression) * 100);
   const { minDeg, maxDeg } = sim.impingementZone;
@@ -178,6 +213,7 @@ function Controls({ sim, tour }: { sim: SimulationContent; tour: Tour }) {
             value={knee}
             onChange={(e) => {
               userPause('knee');
+              if (mode !== 'manual') setMode('manual');
               setKnee(e.target.valueAsNumber);
             }}
           />
@@ -212,6 +248,23 @@ function Controls({ sim, tour }: { sim: SimulationContent; tour: Tour }) {
           />
         </label>
       </div>
+      <fieldset className="ctl layers">
+        <legend>Chế độ chạy</legend>
+        {RUN_MODES.map((m) => (
+          <button
+            key={m.mode}
+            type="button"
+            className="btn"
+            aria-pressed={mode === m.mode}
+            onClick={() => {
+              userPause('knee');
+              setMode(m.mode);
+            }}
+          >
+            {m.label}
+          </button>
+        ))}
+      </fieldset>
       <fieldset className="ctl layers">
         <legend>Lớp hiển thị</legend>
         {LAYERS.map((layer) => (
@@ -282,7 +335,7 @@ function Readout({ sim }: { sim: SimulationContent }) {
   const hot = inZone(knee, sim.impingementZone);
   return (
     <div className="readout">
-      <div className="readout-angle">{knee}°</div>
+      <div className="readout-angle">{Math.round(knee)}°</div>
       <div className={hot ? 'readout-zone hot' : 'readout-zone'} data-testid="sim-zone">
         {hot ? 'TRONG VÙNG ÉP' : 'Ngoài vùng ép'}
       </div>

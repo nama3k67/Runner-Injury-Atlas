@@ -165,7 +165,14 @@ export const simulationSchema = z
       .strict(),
     gait: z.record(
       z.enum(['flat', 'down', 'fast']),
-      z.object({ stanceEnd: z.number().min(0).max(1), keyframes: z.array(keyframe).min(2) }),
+      z
+        .object({
+          stanceEnd: z.number().min(0).max(1),
+          keyframes: z.array(keyframe).min(2),
+          /** What the reader should notice in this mode. Cites its sources. */
+          explanation: z.string().min(20),
+        })
+        .strict(),
     ),
   })
   .strict();
