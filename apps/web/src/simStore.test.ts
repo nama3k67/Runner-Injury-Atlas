@@ -91,6 +91,82 @@ describe('useSimStore', () => {
     expect(useSimStore.getState().labels).toBe(true);
   });
 
+  describe('tour', () => {
+    it('entering a step applies its camera, highlight and tension, and tweens only the pose it sets', () => {
+      const { setKnee, setHip, select, enterTourStep, tick, reset } = useSimStore.getState();
+      setKnee(30);
+      setHip(3);
+      select('femur');
+
+      enterTourStep(2, { camera: 'knee', kneeAngle: 0, highlight: 'kaplan', showTension: true }, 0);
+      expect(useSimStore.getState()).toMatchObject({
+        tour: { step: 2, line: 0, status: 'playing' },
+        view: { name: 'knee', seq: 1 },
+        highlight: 'kaplan',
+        selected: null,
+        tension: true,
+        knee: 30,
+        hip: 3,
+      });
+      tick(450);
+      expect(useSimStore.getState().knee).toBe(15);
+      tick(900);
+      expect(useSimStore.getState()).toMatchObject({ knee: 0, hip: 3, tweens: {} });
+
+      // A step without a highlight key keeps the current one; null clears it.
+      enterTourStep(3, {}, 1000);
+      expect(useSimStore.getState()).toMatchObject({ highlight: 'kaplan', view: { seq: 1 } });
+      enterTourStep(4, { highlight: null }, 1000);
+      expect(useSimStore.getState().highlight).toBeNull();
+      reset();
+    });
+
+    it('rounds tweened values to the slider steps', () => {
+      const { addTween, tick, reset } = useSimStore.getState();
+      addTween('kneeAngle', 25, 1000, 0);
+      addTween('hipDrop', 8, 1000, 0);
+      tick(333);
+      const { knee, hip } = useSimStore.getState();
+      expect(Number.isInteger(knee)).toBe(true);
+      expect(Number.isInteger(hip * 2)).toBe(true);
+      reset();
+    });
+
+    it('a reader control pauses a playing tour and cancels the tween it fights', () => {
+      const { enterTourStep, addTween, userPause, reset } = useSimStore.getState();
+      enterTourStep(0, {}, 0);
+      addTween('kneeAngle', 60, 1000, 0);
+      addTween('hipDrop', 6, 1000, 0);
+
+      userPause('knee');
+      expect(useSimStore.getState().tour?.status).toBe('userPaused');
+      expect(Object.keys(useSimStore.getState().tweens)).toEqual(['hip']);
+
+      // Paused or not touring: nothing to pause.
+      useSimStore.getState().setTourStatus('paused');
+      userPause();
+      expect(useSimStore.getState().tour?.status).toBe('paused');
+      reset();
+      userPause();
+      expect(useSimStore.getState().tour).toBeNull();
+    });
+
+    it('stopping clears the tour, its highlight and its tweens, and keeps the pose', () => {
+      const { enterTourStep, addTween, setKnee, stopTour, reset } = useSimStore.getState();
+      enterTourStep(1, { highlight: 'itb' }, 0);
+      addTween('hipDrop', 6, 1000, 0);
+      setKnee(40);
+      stopTour();
+      expect(useSimStore.getState()).toMatchObject({
+        tour: null,
+        highlight: null,
+        tweens: {},
+        knee: 40,
+      });
+      reset();
+    });
+  });
+
   it('starts with the fibre tension view off, toggles it, and reset turns it off', () => {
     const { toggleTension, reset } = useSimStore.getState();
     expect(useSimStore.getState().tension).toBe(false);

@@ -449,6 +449,91 @@ h2 {
   font-size: 14px;
   color: var(--dim);
 }
+/* Guided tour (v0.3 layout). */
+.cta {
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-color: var(--accent);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+.stage[data-touring] .stage-hint {
+  display: none;
+}
+.tour {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tour-cap {
+  align-self: center;
+  max-width: 760px;
+  min-height: 52px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(6, 10, 18, 0.86);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+}
+.tour-note {
+  align-self: center;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(60, 40, 0, 0.75);
+  color: #fbd38d;
+  font-size: 12px;
+}
+.tour-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(9, 15, 27, 0.9);
+}
+.tour-bar .btn {
+  min-width: 36px;
+  padding: 5px 10px;
+}
+.tour-dots {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tour-dots li {
+  width: 18px;
+  height: 5px;
+  border-radius: 3px;
+  background: #2a3b58;
+}
+.tour-dots .done {
+  background: #4f7aa8;
+}
+.tour-dots .cur {
+  background: var(--warn);
+}
+.tour-title {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
 @media (max-width: 1080px) {
   .viewer {
     grid-template-columns: 1fr;
@@ -477,6 +562,16 @@ h2 {
   .hud .btn {
     padding: 5px 8px;
     font-size: 12px;
+  }
+  /* The readout sits where the tour bar goes on phones. */
+  .stage[data-touring] .readout {
+    display: none;
+  }
+  .tour-cap {
+    font-size: 14px;
+  }
+  .tour-title {
+    display: none;
   }
 }
 .feedback {

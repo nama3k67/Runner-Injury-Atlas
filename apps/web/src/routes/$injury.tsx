@@ -24,7 +24,7 @@ function InjuryPage() {
   const { slug } = Route.useLoaderData();
   const bundle = findInjury(slug);
   if (!bundle) return null;
-  const { injury, rehab, myths, simulation, contentHash } = bundle;
+  const { injury, rehab, myths, tour, simulation, contentHash } = bundle;
   const terms = termsFor(slug);
 
   return (
@@ -36,7 +36,12 @@ function InjuryPage() {
 
       <section aria-labelledby="sim">
         <h2 id="sim">Mô phỏng 3D</h2>
-        <Simulation sim={simulation} terms={terms} injury={{ slug, name: injury.title.vi }} />
+        <Simulation
+          sim={simulation}
+          tour={tour}
+          terms={terms}
+          injury={{ slug, name: injury.title.vi }}
+        />
       </section>
 
       <section aria-labelledby="rehab">

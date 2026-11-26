@@ -65,10 +65,11 @@ function Leg({ params, structures, onHover, onReady }: Props) {
   useLabels(rig);
 
   useFrame(({ clock }) => {
-    const { knee, hip, layers, selected, tension } = useSimStore.getState();
+    const { knee, hip, layers, selected, highlight, tension } = useSimStore.getState();
     rig.update(knee, hip, tension);
     rig.showLayers(layers);
-    rig.highlight(selected === null ? null : (structures[selected] ?? null), clock.elapsedTime);
+    const term = selected ?? highlight;
+    rig.highlight(term === null ? null : (structures[term] ?? null), clock.elapsedTime);
   });
 
   return <primitive object={rig.root} />;

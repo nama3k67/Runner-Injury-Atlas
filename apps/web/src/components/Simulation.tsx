@@ -1,4 +1,4 @@
-import type { Simulation as SimulationContent, Term } from '@atlas/content-schema';
+import type { Simulation as SimulationContent, Term, Tour } from '@atlas/content-schema';
 import { compression, inZone } from '@atlas/sim';
 import { ClientOnly } from '@tanstack/react-router';
 import {
@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { type CameraView, LAYERS, type Layer, useSimStore } from '../simStore';
 import { TermPanel } from './TermPanel';
+import { goToStep, TourPlayer } from './Tour';
 
 const AnatomyScene = lazy(() => import('./AnatomyScene'));
 
@@ -48,12 +49,13 @@ const hasWebGL = (): boolean => {
 
 interface Props {
   sim: SimulationContent;
+  tour: Tour;
   /** Terms linked to this injury. */
   terms: readonly Term[];
   injury: { slug: string; name: string };
 }
 
-export function Simulation({ sim, terms, injury }: Props) {
+export function Simulation({ sim, tour, terms, injury }: Props) {
   // Reset on unmount so the next injury page starts from the neutral pose without a flash.
   useEffect(() => useSimStore.getState().reset, []);
   // Labels crowd a phone screen, so they start off there (v0.3). After mount: the prerendered
@@ -83,14 +85,19 @@ export function Simulation({ sim, terms, injury }: Props) {
           </div>
         }
       >
-        <Stage sim={sim} structures={structures} terms={termById} />
+        <Stage sim={sim} tour={tour} structures={structures} terms={termById} />
       </ClientOnly>
-      <Side sim={sim} terms={termById} injury={injury} />
+      <Side sim={sim} tour={tour} terms={termById} injury={injury} />
     </div>
   );
 }
 
-function Side({ sim, terms, injury }: Omit<Props, 'terms'> & { terms: ReadonlyMap<string, Term> }) {
+function Side({
+  sim,
+  tour,
+  terms,
+  injury,
+}: Omit<Props, 'terms'> & { terms: ReadonlyMap<string, Term> }) {
   const [tab, setTab] = useState<Tab>('controls');
   const selected = useSimStore((s) => s.selected);
   useEffect(() => {
@@ -120,7 +127,7 @@ function Side({ sim, terms, injury }: Omit<Props, 'terms'> & { terms: ReadonlyMa
         <button {...tabProps('entry')}>Mục từ</button>
       </div>
       <div {...paneProps('controls')}>
-        <Controls sim={sim} />
+        <Controls sim={sim} tour={tour} />
       </div>
       <div {...paneProps('entry')}>
         <TermPanel terms={terms} injury={injury} />
@@ -130,19 +137,34 @@ function Side({ sim, terms, injury }: Omit<Props, 'terms'> & { terms: ReadonlyMa
 }
 
 // Only this subtree subscribes to the pose, so dragging a slider never re-renders the stage.
-function Controls({ sim }: { sim: SimulationContent }) {
+function Controls({ sim, tour }: { sim: SimulationContent; tour: Tour }) {
+  const touring = useSimStore((s) => s.tour !== null);
   const knee = useSimStore((s) => s.knee);
   const hip = useSimStore((s) => s.hip);
   const labels = useSimStore((s) => s.labels);
   const tension = useSimStore((s) => s.tension);
   const layers = useSimStore((s) => s.layers);
-  const { setKnee, setHip, toggleLayer, toggleLabels, toggleTension } = useSimStore.getState();
+  const { setKnee, setHip, toggleLayer, toggleLabels, toggleTension, userPause, stopTour } =
+    useSimStore.getState();
 
   const pressure = Math.round(compression(knee, hip, sim.compression) * 100);
   const { minDeg, maxDeg } = sim.impingementZone;
 
   return (
     <>
+      <button
+        type="button"
+        className="btn cta"
+        onClick={() => {
+          if (touring) return stopTour();
+          goToStep(tour, 0);
+          document
+            .querySelector('.stage')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }}
+      >
+        {touring ? '■ Dừng thuyết minh' : '▶ Nghe thuyết minh · 3 phút'}
+      </button>
       <div className="ctl">
         <label>
           <span className="ctl-head">
@@ -154,7 +176,10 @@ function Controls({ sim }: { sim: SimulationContent }) {
             max={KNEE_MAX_DEG}
             step={1}
             value={knee}
-            onChange={(e) => setKnee(e.target.valueAsNumber)}
+            onChange={(e) => {
+              userPause('knee');
+              setKnee(e.target.valueAsNumber);
+            }}
           />
         </label>
         <div className="zonebar" aria-hidden>
@@ -180,7 +205,10 @@ function Controls({ sim }: { sim: SimulationContent }) {
             max={sim.compression.hipDropMaxDeg}
             step={0.5}
             value={hip}
-            onChange={(e) => setHip(e.target.valueAsNumber)}
+            onChange={(e) => {
+              userPause('hip');
+              setHip(e.target.valueAsNumber);
+            }}
           />
         </label>
       </div>
@@ -227,7 +255,7 @@ function Controls({ sim }: { sim: SimulationContent }) {
 /** Camera presets over the scene. Choosing one again brings the camera back after orbiting. */
 function ViewButtons() {
   const view = useSimStore((s) => s.view.name);
-  const { setView } = useSimStore.getState();
+  const { setView, userPause } = useSimStore.getState();
   return (
     <fieldset className="hud" aria-label="Góc nhìn">
       {VIEWS.map((v) => (
@@ -236,7 +264,10 @@ function ViewButtons() {
           type="button"
           className="btn"
           aria-pressed={view === v.name}
-          onClick={() => setView(v.name)}
+          onClick={() => {
+            userPause();
+            setView(v.name);
+          }}
         >
           {v.label}
         </button>
@@ -261,10 +292,12 @@ function Readout({ sim }: { sim: SimulationContent }) {
 
 function Stage({
   sim,
+  tour,
   structures,
   terms,
 }: {
   sim: SimulationContent;
+  tour: Tour;
   structures: Readonly<Record<string, string>>;
   terms: ReadonlyMap<string, Term>;
 }) {
@@ -272,6 +305,7 @@ function Stage({
   const ready = useCallback(() => setState('ready'), []);
   const failed = useCallback(() => setState('error'), []);
   const tip = useRef<HTMLDivElement>(null);
+  const touring = useSimStore((s) => s.tour !== null);
 
   // Written straight to the DOM: hover fires many times a second and must not re-render the canvas.
   const hover = useCallback(
@@ -292,7 +326,12 @@ function Stage({
   }, [failed]);
 
   return (
-    <div className="stage" data-testid="sim-stage" data-state={state}>
+    <div
+      className="stage"
+      data-testid="sim-stage"
+      data-state={state}
+      data-touring={touring || undefined}
+    >
       {state !== 'error' && (
         <SceneBoundary onError={failed}>
           <Suspense fallback={null}>
@@ -312,6 +351,7 @@ function Stage({
         trúc để xem mục từ
       </p>
       <div className="tip" ref={tip} role="tooltip" data-testid="sim-tip" hidden />
+      <TourPlayer tour={tour} />
       {state === 'loading' && <p className="stage-msg">Đang tải mô hình giải phẫu…</p>}
       {state === 'error' && (
         <p className="stage-msg" role="alert">
