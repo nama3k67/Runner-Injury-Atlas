@@ -61,52 +61,60 @@ test('knee angle drives the impingement readout', async ({ page }) => {
   await expect(pressure).toHaveText('0%');
 });
 
-test('a run mode drives the knee along its curve, and Tay stops it', async ({ page }) => {
-  await page.goto('/itbs');
-  await expect(page.getByTestId('sim-stage')).toBeVisible();
-  const modes = page.getByRole('group', { name: 'Chế độ chạy' });
-  const manual = modes.getByRole('button', { name: 'Tay', exact: true });
-  const knee = page.getByTestId('sim-knee');
-  const chart = page.getByTestId('gait-chart');
-  await expect(manual).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByTestId('gait-now')).toHaveCount(0);
+test.describe('run modes', () => {
+  // A dozen scene actions while the stride animates: about 1.5 s each on CI's software GL, plus
+  // the first-load stall (lessons.md L1, L2).
+  test.slow();
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/itbs');
+    await expect(page.getByTestId('sim-stage')).toHaveAttribute('data-state', 'ready', {
+      timeout: 20_000,
+    });
+  });
 
-  await modes.getByRole('button', { name: 'Xuống dốc', exact: true }).click();
-  await expect(chart).toHaveAttribute('data-mode', 'down');
-  await expect(chart.locator('path[data-active]')).toHaveAttribute('data-mode', 'down');
-  await expect(page.getByTestId('gait-stance')).toHaveCount(1);
-  await expect(page.getByTestId('gait-now')).toBeVisible();
-  await expect(page.getByTestId('gait-msg')).toContainText('Xuống dốc');
-  // The knee keeps moving through the stride.
-  const seen = new Set<string>();
-  await expect
-    .poll(async () => seen.add((await knee.textContent()) ?? '').size, { timeout: 10_000 })
-    .toBeGreaterThan(3);
+  test('a run mode drives the knee along its curve, and Tay stops it', async ({ page }) => {
+    const modes = page.getByRole('group', { name: 'Chế độ chạy' });
+    const manual = modes.getByRole('button', { name: 'Tay', exact: true });
+    const knee = page.getByTestId('sim-knee');
+    const chart = page.getByTestId('gait-chart');
+    await expect(manual).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('gait-now')).toHaveCount(0);
 
-  await manual.click();
-  await expect(manual).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByTestId('gait-now')).toHaveCount(0);
-  const stopped = await knee.textContent();
-  // Nothing should change, so there is no event to wait for: watch for half a second.
-  await page.waitForTimeout(500);
-  await expect(knee).toHaveText(stopped ?? '');
+    await modes.getByRole('button', { name: 'Xuống dốc', exact: true }).click();
+    await expect(chart).toHaveAttribute('data-mode', 'down');
+    await expect(chart.locator('path[data-active]')).toHaveAttribute('data-mode', 'down');
+    await expect(page.getByTestId('gait-stance')).toHaveCount(1);
+    await expect(page.getByTestId('gait-now')).toBeVisible();
+    await expect(page.getByTestId('gait-msg')).toContainText('Xuống dốc');
+    // The knee keeps moving through the stride.
+    const seen = new Set<string>();
+    await expect
+      .poll(async () => seen.add((await knee.textContent()) ?? '').size, { timeout: 10_000 })
+      .toBeGreaterThan(3);
 
-  // The slider has control again.
-  await page.getByLabel('Góc gập gối').fill('25');
-  await expect(knee).toHaveText('25°');
-});
+    await manual.click();
+    await expect(manual).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('gait-now')).toHaveCount(0);
+    const stopped = await knee.textContent();
+    // Nothing should change, so there is no event to wait for: watch for half a second.
+    await page.waitForTimeout(500);
+    await expect(knee).toHaveText(stopped ?? '');
 
-test('moving the knee slider during a run mode returns to Tay', async ({ page }) => {
-  await page.goto('/itbs');
-  await expect(page.getByTestId('sim-stage')).toBeVisible();
-  const modes = page.getByRole('group', { name: 'Chế độ chạy' });
-  await modes.getByRole('button', { name: 'Chạy nhanh', exact: true }).click();
-  await page.getByLabel('Góc gập gối').fill('10');
-  await expect(modes.getByRole('button', { name: 'Tay', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await expect(page.getByTestId('sim-knee')).toHaveText('10°');
+    // The slider has control again.
+    await page.getByLabel('Góc gập gối').fill('25');
+    await expect(knee).toHaveText('25°');
+  });
+
+  test('moving the knee slider during a run mode returns to Tay', async ({ page }) => {
+    const modes = page.getByRole('group', { name: 'Chế độ chạy' });
+    await modes.getByRole('button', { name: 'Chạy nhanh', exact: true }).click();
+    await page.getByLabel('Góc gập gối').fill('10');
+    await expect(modes.getByRole('button', { name: 'Tay', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(page.getByTestId('sim-knee')).toHaveText('10°');
+  });
 });
 
 test('layer buttons toggle and report their state', async ({ page }) => {

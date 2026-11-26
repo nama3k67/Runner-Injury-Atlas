@@ -331,11 +331,12 @@ function ViewButtons() {
 
 /** Knee angle and zone over the scene. Its own subscriber, so the canvas does not re-render. */
 function Readout({ sim }: { sim: SimulationContent }) {
-  const knee = useSimStore((s) => s.knee);
+  // Rounded in the selector: a run mode changes the knee every frame, the readout only per degree.
+  const knee = useSimStore((s) => Math.round(s.knee));
   const hot = inZone(knee, sim.impingementZone);
   return (
     <div className="readout">
-      <div className="readout-angle">{Math.round(knee)}°</div>
+      <div className="readout-angle">{knee}°</div>
       <div className={hot ? 'readout-zone hot' : 'readout-zone'} data-testid="sim-zone">
         {hot ? 'TRONG VÙNG ÉP' : 'Ngoài vùng ép'}
       </div>
