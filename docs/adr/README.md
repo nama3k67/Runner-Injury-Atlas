@@ -15,6 +15,6 @@
 | [11](0011-kanban-board-over-issues.md)                 | A Kanban board over the issues                                    | Accepted |
 | [12](0012-layered-context-with-docs-sensors.md)        | Layered agent context, checked by sensors                         | Accepted |
 | [13](0013-leaner-gates-for-a-solo-maintainer.md)       | Leaner gates for a solo maintainer                                | Accepted |
-| [14](0014-tour-narration-with-vieneu-tts.md)           | Tour narration pre-generated with VieNeu-TTS, several voices      | Proposed |
+| [14](0014-tour-narration-with-vieneu-tts.md)           | Tour narration pre-generated with VieNeu-TTS, several voices      | Accepted |
 
 New ADR: copy the shape of an existing one, next number, status "Proposed" until the maintainer accepts it.
