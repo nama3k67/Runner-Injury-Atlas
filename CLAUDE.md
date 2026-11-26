@@ -43,16 +43,16 @@ docs/lessons.md        Incidents and the rules they taught. Read before debuggin
 
 ## Rules that rely on you
 
+Area rules load by path: `.claude/rules/api.md` (API, contracts, NestJS DI),
+`.claude/rules/content.md`, `.claude/rules/e2e-3d.md` (browser tests around the 3D scene).
+These apply everywhere:
+
 - **Content honesty.** Do not invent medical facts, numbers, or citations. If a source is
   needed and you cannot verify it, leave a `TODO(source)` in the PR description, not in content.
   Simulation numbers are qualitative illustrations; never present them as measurements.
 - **Privacy (ADR 0008).** No user accounts, no contact fields, no health data about readers in
   any API contract or table. If a feature seems to need them, stop and ask.
-- **Contracts first.** Changing an API shape starts in `packages/contracts`, then API, then web.
 - **Pure logic goes in packages** with tests; React components and Nest controllers stay thin.
-- **NestJS DI uses explicit tokens**: `constructor(@Inject(FeedbackService) private readonly s: FeedbackService)`.
-  There is no `emitDecoratorMetadata` (the code runs through esbuild/tsx/oxc), so implicit
-  constructor injection silently yields `undefined`.
 - TypeScript is strict with `noUncheckedIndexedAccess`. No `any`, no non-null `!`; narrow instead.
 - UI copy and content are Vietnamese; code, comments, docs and commit messages are English.
 - Small PRs: one concern each. If a change needs a new decision, write an ADR (`/adr`).
