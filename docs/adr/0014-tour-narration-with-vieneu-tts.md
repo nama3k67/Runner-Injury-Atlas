@@ -1,6 +1,6 @@
 # 14. Tour narration: pre-generated with VieNeu-TTS, several voices, browser voice as fallback
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-26
 - Issue: #28
 
