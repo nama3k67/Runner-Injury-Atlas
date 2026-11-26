@@ -143,6 +143,12 @@ export function validateContent(content: Content): ValidationReport {
         message: 'compression: baseline + hipDropGain must be <= 1',
       });
     for (const [mode, curve] of Object.entries(simulation.gait)) {
+      checkRefs(`${dir}/simulation.json`, `gait.${mode}.explanation`, curve.explanation);
+      if (sourceRefs(curve.explanation).length === 0)
+        errors.push({
+          file: `${dir}/simulation.json`,
+          message: `gait.${mode}.explanation: must cite a source`,
+        });
       const kf = curve.keyframes;
       const first = kf[0];
       const last = kf[kf.length - 1];

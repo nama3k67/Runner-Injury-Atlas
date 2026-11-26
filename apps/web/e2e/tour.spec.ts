@@ -60,37 +60,39 @@ const openStage = async (page: Page) => {
 const startButton = (page: Page) =>
   page.getByRole('button', { name: /^(▶ Nghe|■ Dừng) thuyết minh/ });
 
+// A Vietnamese voice that never finishes a line, so the tour only moves when told to.
+const stubVietnameseVoice = (page: Page) =>
+  page.addInitScript(() => {
+    const spoken: { text: string; lang: string }[] = [];
+    Object.assign(window, { __spoken: spoken });
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+      value: class {
+        lang = '';
+        voice: unknown = null;
+        onend: unknown = null;
+        onerror: unknown = null;
+        constructor(public text: string) {}
+      },
+    });
+    Object.defineProperty(window, 'speechSynthesis', {
+      value: {
+        getVoices: () => [
+          { lang: 'en-US', name: 'English' },
+          { lang: 'vi-VN', name: 'Test Tiếng Việt' },
+        ],
+        speak: (u: { text: string; lang: string }) => spoken.push({ text: u.text, lang: u.lang }),
+        cancel: () => {},
+      },
+    });
+  });
+
 test.describe('guided tour', () => {
-  // Several scene actions, each about 1.5 s on CI's software GL (lessons.md).
+  // Each action takes about 2 s on CI's mobile software GL, fills about 5 s (lessons.md L2). Keep
+  // every test well under 40 actions: one test doing all of this ran out of the 90 s budget.
   test.slow();
 
-  test('reads with a Vietnamese voice, steps with the keyboard, pauses for the reader and stops cleanly', async ({
-    page,
-  }) => {
-    // A Vietnamese voice that never finishes a line, so the tour only moves when told to.
-    await page.addInitScript(() => {
-      const spoken: { text: string; lang: string }[] = [];
-      Object.assign(window, { __spoken: spoken });
-      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
-        value: class {
-          lang = '';
-          voice: unknown = null;
-          onend: unknown = null;
-          onerror: unknown = null;
-          constructor(public text: string) {}
-        },
-      });
-      Object.defineProperty(window, 'speechSynthesis', {
-        value: {
-          getVoices: () => [
-            { lang: 'en-US', name: 'English' },
-            { lang: 'vi-VN', name: 'Test Tiếng Việt' },
-          ],
-          speak: (u: { text: string; lang: string }) => spoken.push({ text: u.text, lang: u.lang }),
-          cancel: () => {},
-        },
-      });
-    });
+  test('reads with a Vietnamese voice and steps with the keyboard', async ({ page }) => {
+    await stubVietnameseVoice(page);
     await openStage(page);
     const knee = page.getByLabel('Góc gập gối');
     await knee.fill('30');
@@ -110,11 +112,25 @@ test.describe('guided tour', () => {
     await expectStep(page, 1);
     await page.keyboard.press('Enter');
     await expectStep(page, 2);
+    // "Previous" goes back a step only from a step's first line; later it restarts the step (v0.3).
+    // The app's safety timer moves a line on after ~11 s even if the voice never ends, and CI spends
+    // ~1.5 s per action, so press it straight after entering a step, with no checks in between.
+    await page.keyboard.press('Enter');
     await tour.getByRole('button', { name: 'Đoạn trước' }).focus();
     await page.keyboard.press('Enter');
-    await expectStep(page, 1);
+    await expectStep(page, 2);
+  });
 
-    // A slider the reader moves pauses the tour.
+  test('a slider the reader moves pauses the tour, and stopping leaves the scene usable', async ({
+    page,
+  }) => {
+    await stubVietnameseVoice(page);
+    await openStage(page);
+    const knee = page.getByLabel('Góc gập gối');
+    await startButton(page).click();
+    const tour = page.getByRole('region', { name: 'Thuyết minh' });
+    await expect(tour).toBeVisible();
+
     await knee.fill('40');
     await expect(page.getByTestId('tour-caption')).toContainText('tạm dừng');
     await expect(tour.getByRole('button', { name: 'Tiếp tục' })).toBeVisible();

@@ -83,6 +83,19 @@ describe('medical content gate', () => {
     const { errors } = validateContent(parseContent(files));
     expect(errors.some((e) => e.message.includes('must cite a source'))).toBe(true);
   });
+
+  it('requires every run mode explanation to cite a source', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    const sim = files['injuries/itbs/simulation.json'] as {
+      gait: Record<string, { explanation: string }>;
+    };
+    if (!sim.gait.down) throw new Error('fixture missing');
+    sim.gait.down.explanation = 'Một giải thích dài nhưng không có nguồn nào cả.';
+    const { errors } = validateContent(parseContent(files));
+    expect(errors.some((e) => e.message === 'gait.down.explanation: must cite a source')).toBe(
+      true,
+    );
+  });
 });
 
 describe('schema errors', () => {

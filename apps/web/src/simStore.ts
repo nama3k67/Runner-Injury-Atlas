@@ -1,9 +1,9 @@
-import type { Term, Tour } from '@atlas/content-schema';
+import type { Simulation, Term, Tour } from '@atlas/content-schema';
+import { advancePhase, gaitAngle } from '@atlas/sim';
 import { create } from 'zustand';
 import { type Tween, tweenAt } from './tour';
 
 // The scene reads this with getState() in useFrame, so pose changes never re-render the canvas.
-// ponytail: run mode joins with #18; until then a tour step's `mode` is ignored.
 
 /** Toggleable groups of the anatomy scene. Lives here, not in the rig, so the page bundle skips three.js. */
 export const LAYERS = ['bone', 'muscle', 'itb', 'fat'] as const;
@@ -14,6 +14,8 @@ export type SceneHint = NonNullable<Term['injuries'][string]['scene']>;
 export type CameraView = NonNullable<SceneHint['camera']>;
 
 export type TourEnter = Tour['steps'][number]['enter'];
+export type RunMode = NonNullable<TourEnter['mode']>;
+type Gait = Simulation['gait'];
 type PoseKey = 'knee' | 'hip';
 type TweenParam = 'kneeAngle' | 'hipDrop';
 const POSE_KEY: Readonly<Record<TweenParam, PoseKey>> = { kneeAngle: 'knee', hipDrop: 'hip' };
@@ -33,6 +35,7 @@ export interface TourState {
 }
 
 interface SimState {
+  /** Knee flexion (deg). A run mode sets it every frame, so it is not always a whole number. */
   knee: number;
   hip: number;
   layers: LayerVisibility;
@@ -46,6 +49,10 @@ interface SimState {
   highlight: string | null;
   /** Requested camera preset. `seq` counts requests, so asking for the same preset again moves the camera back. */
   view: { name: CameraView; seq: number };
+  /** `manual`: the slider sets the knee. Otherwise the knee follows that mode's gait curve. */
+  mode: RunMode;
+  /** Position in the stride, 0..1. */
+  phase: number;
   tour: TourState | null;
   tweens: Partial<Record<PoseKey, Tween>>;
   setKnee: (deg: number) => void;
@@ -57,6 +64,10 @@ interface SimState {
   setView: (name: CameraView) => void;
   /** Open a term and apply its scene hint (camera, knee angle, hip drop). */
   openTerm: (term: string, hint: SceneHint | undefined) => void;
+  /** Choosing a run mode starts its stride from foot strike; `manual` stops it. */
+  setMode: (mode: RunMode) => void;
+  /** Move the stride on by `dtSec` and put the knee on the curve. No-op in manual mode. */
+  advanceGait: (dtSec: number, gait: Gait) => void;
   /** Start playing a step from its first line and apply its `enter` state. */
   enterTourStep: (step: number, enter: TourEnter, now: number) => void;
   setTourLine: (line: number) => void;
@@ -80,6 +91,8 @@ const neutral = {
   selected: null,
   highlight: null,
   view: { name: 'lateral' as CameraView, seq: 0 },
+  mode: 'manual' as RunMode,
+  phase: 0,
   tour: null,
   tweens: {},
 };
@@ -97,10 +110,23 @@ export const useSimStore = create<SimState>()((set, get) => ({
     set((s) => ({
       selected,
       ...(hint?.camera && { view: { name: hint.camera, seq: s.view.seq + 1 } }),
-      ...(hint?.kneeAngle !== undefined && { knee: hint.kneeAngle }),
+      ...(hint?.kneeAngle !== undefined && { knee: hint.kneeAngle, mode: 'manual' }),
       ...(hint?.hipDrop !== undefined && { hip: hint.hipDrop }),
     })),
+  // A knee tween would fight the stride, and a stopped stride leaves the knee where it is.
+  setMode: (mode) =>
+    set((s) => {
+      const { knee: _, ...tweens } = s.tweens;
+      return { mode, phase: 0, tweens };
+    }),
+  advanceGait: (dtSec, gait) => {
+    const { mode, phase } = get();
+    if (mode === 'manual') return;
+    const next = advancePhase(phase, dtSec);
+    set({ phase: next, knee: gaitAngle(gait[mode].keyframes, next) });
+  },
   enterTourStep: (step, enter, now) => {
+    if (enter.mode) get().setMode(enter.mode);
     set((s) => ({
       tour: { step, line: 0, status: 'playing' },
       selected: null,
@@ -109,7 +135,8 @@ export const useSimStore = create<SimState>()((set, get) => ({
       ...(enter.showTension !== undefined && { tension: enter.showTension }),
     }));
     const { addTween } = get();
-    if (enter.kneeAngle !== undefined) addTween('kneeAngle', enter.kneeAngle, ENTER_MS, now);
+    if (enter.kneeAngle !== undefined && get().mode === 'manual')
+      addTween('kneeAngle', enter.kneeAngle, ENTER_MS, now);
     if (enter.hipDrop !== undefined) addTween('hipDrop', enter.hipDrop, ENTER_MS, now);
   },
   setTourLine: (line) => set((s) => (s.tour ? { tour: { ...s.tour, line } } : {})),

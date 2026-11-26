@@ -81,8 +81,7 @@ Slash commands: `/feature`, `/verify`, `/add-injury`, `/adr`. Subagent: `content
 Open work is in GitHub issues, one milestone per phase: `gh issue list --milestone "Phase 1"`.
 `docs/backlog.md` is the roadmap. The gaps that change how you work:
 
-- The gait chart, run modes and the long-form ITBS sections live only in the legacy page (#16).
-  Tour steps that set a run mode play without it until #18.
+- The long-form ITBS sections live only in the legacy page (#16).
 - Nothing has been reviewed by a clinician (#32).
 - The API has only run on PGlite, never on a real Postgres server (#25).
 

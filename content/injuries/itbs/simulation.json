@@ -44,7 +44,8 @@
           "phase": 1,
           "deg": 21
         }
-      ]
+      ],
+      "explanation": "**Đường phẳng, pace dễ:** ở người chạy bị ITBS, gối tiếp đất ở khoảng 21°, nằm ngay trong vùng ép.[^r3]"
     },
     "down": {
       "stanceEnd": 0.38,
@@ -77,7 +78,8 @@
           "phase": 1,
           "deg": 9
         }
-      ]
+      ],
+      "explanation": "**Xuống dốc:** gối tiếp đất duỗi hơn (góc gập lúc tiếp đất nhỏ hơn), nên xuống dốc dễ gây hoặc làm nặng thêm ITBS.[^r3]"
     },
     "fast": {
       "stanceEnd": 0.28,
@@ -110,7 +112,8 @@
           "phase": 1,
           "deg": 33
         }
-      ]
+      ],
+      "explanation": "**Chạy nhanh:** lúc tiếp đất gối đã gập quá vùng ép (khoảng 30°). Vì vậy chạy nhanh và sprint thường ít gây đau hơn.[^r3]"
     }
   }
 }

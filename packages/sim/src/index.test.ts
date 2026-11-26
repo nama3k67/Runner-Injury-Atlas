@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  advancePhase,
   type CompressionParams,
   compression,
   type GaitKeyframe,
   gaitAngle,
   inZone,
+  sampleGait,
   smoothstep,
   softTissueWeights,
   stanceShareInZone,
@@ -89,6 +91,26 @@ describe('gaitAngle', () => {
   });
   it('rejects empty keyframes', () => {
     expect(() => gaitAngle([], 0)).toThrow();
+  });
+  it('sampleGait returns n + 1 evenly spaced points from phase 0 to 1', () => {
+    const pts = sampleGait(flat, 4);
+    expect(pts.map((p) => p.phase)).toEqual([0, 0.25, 0.5, 0.75, 1]);
+    expect(pts[0]?.deg).toBeCloseTo(21);
+    expect(pts[4]?.deg).toBeCloseTo(21);
+  });
+});
+
+describe('advancePhase', () => {
+  it('moves one stride every 2.6 s (v0.3 slow motion)', () => {
+    let phase = 0;
+    for (let i = 0; i < 50; i++) phase = advancePhase(phase, 0.026);
+    expect(phase).toBeCloseTo(0.5, 5);
+  });
+  it('caps a long frame at 50 ms, so a hidden tab does not jump the stride', () => {
+    expect(advancePhase(0, 10)).toBeCloseTo(0.05 / 2.6, 5);
+  });
+  it('wraps past the end of the stride', () => {
+    expect(advancePhase(0.99, 0.05)).toBeCloseTo(0.99 + 0.05 / 2.6 - 1, 5);
   });
 });
 
