@@ -87,12 +87,11 @@ const stubVietnameseVoice = (page: Page) =>
   });
 
 test.describe('guided tour', () => {
-  // Several scene actions, each about 1.5 s on CI's software GL (lessons.md).
+  // Each action takes about 2 s on CI's mobile software GL, fills about 5 s (lessons.md L2). Keep
+  // every test well under 40 actions: one test doing all of this ran out of the 90 s budget.
   test.slow();
 
-  test('reads with a Vietnamese voice, steps with the keyboard, pauses for the reader and stops cleanly', async ({
-    page,
-  }) => {
+  test('reads with a Vietnamese voice and steps with the keyboard', async ({ page }) => {
     await stubVietnameseVoice(page);
     await openStage(page);
     const knee = page.getByLabel('Góc gập gối');
@@ -120,8 +119,18 @@ test.describe('guided tour', () => {
     await tour.getByRole('button', { name: 'Đoạn trước' }).focus();
     await page.keyboard.press('Enter');
     await expectStep(page, 2);
+  });
 
-    // A slider the reader moves pauses the tour.
+  test('a slider the reader moves pauses the tour, and stopping leaves the scene usable', async ({
+    page,
+  }) => {
+    await stubVietnameseVoice(page);
+    await openStage(page);
+    const knee = page.getByLabel('Góc gập gối');
+    await startButton(page).click();
+    const tour = page.getByRole('region', { name: 'Thuyết minh' });
+    await expect(tour).toBeVisible();
+
     await knee.fill('40');
     await expect(page.getByTestId('tour-caption')).toContainText('tạm dừng');
     await expect(tour.getByRole('button', { name: 'Tiếp tục' })).toBeVisible();
