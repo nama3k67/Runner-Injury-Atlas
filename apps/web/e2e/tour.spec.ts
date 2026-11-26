@@ -5,7 +5,7 @@ import { expect, type Page, test } from '@playwright/test';
 interface TourFile {
   steps: {
     title: string;
-    enter: { camera?: string; kneeAngle?: number; mode?: string };
+    enter: { camera?: string; kneeAngle?: number };
     lines: { text: string }[];
   }[];
 }
@@ -113,9 +113,13 @@ test.describe('guided tour', () => {
     await expectStep(page, 1);
     await page.keyboard.press('Enter');
     await expectStep(page, 2);
+    // "Previous" goes back a step only from a step's first line; later it restarts the step (v0.3).
+    // The app's safety timer moves a line on after ~11 s even if the voice never ends, and CI spends
+    // ~1.5 s per action, so press it straight after entering a step, with no checks in between.
+    await page.keyboard.press('Enter');
     await tour.getByRole('button', { name: 'Đoạn trước' }).focus();
     await page.keyboard.press('Enter');
-    await expectStep(page, 1);
+    await expectStep(page, 2);
 
     // A slider the reader moves pauses the tour.
     await knee.fill('40');
@@ -129,23 +133,6 @@ test.describe('guided tour', () => {
     await expect(startButton(page)).toHaveText(/Nghe thuyết minh/);
     await knee.fill('25');
     await expect(page.getByTestId('sim-zone')).toHaveText('TRONG VÙNG ÉP');
-  });
-
-  test('steps with a run mode start that mode and its gait chart', async ({ page }) => {
-    await stubVietnameseVoice(page);
-    await openStage(page);
-    await startButton(page).click();
-    const first = steps.findIndex((s) => s.enter.mode && s.enter.mode !== 'manual');
-    if (first < 0) throw new Error('tour.json has no run-mode step');
-    const next = page.getByRole('region', { name: 'Thuyết minh' }).getByRole('button', {
-      name: 'Đoạn sau',
-    });
-    for (let i = 0; i < first; i++) await next.click();
-    await expect(page.getByTestId('tour-title')).toHaveText(new RegExp(`^${first + 1}/`));
-    await expect(page.getByTestId('gait-chart')).toHaveAttribute(
-      'data-mode',
-      step(first).enter.mode ?? '',
-    );
   });
 
   test('without speech synthesis the captions still show and the reader can advance', async ({
