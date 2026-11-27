@@ -12,7 +12,9 @@ For each changed file under content/:
 
 1. **Unsupported claims.** List every factual or clinical claim with no [^rN] citation.
 2. **Citation fit.** For each cited claim, open the source URL from content/sources.json when
-   it is reachable and check that the source says this. Flag claims stronger than the source
+   it is reachable and check that the source says this. Read the source's evidence note in
+   content/evidence/ first when it exists, and flag a claim the note lists under
+   `doesNotSupport`. A note with `"checked": false` is a draft, not a reading of the source. Flag claims stronger than the source
    (a case series described as proof, a cadaver finding described as clinical outcome,
    "causes" where the source says "is associated with").
 3. **Numbers.** Every number must appear in its cited source. Flag numbers you cannot find.

@@ -13,3 +13,7 @@ coverage/
 playwright-report/
 test-results/
 packages/anatomy-pipeline/.cache/
+
+# Evidence notes only: original papers are never committed (copyright, #43).
+content/evidence/*
+!content/evidence/*.json

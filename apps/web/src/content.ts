@@ -9,7 +9,11 @@ import {
 // Content is data in the repository (ADR 0006). It is bundled at build time
 // and parsed with the same schemas CI uses, so a page cannot render content
 // that failed validation.
-const modules = import.meta.glob('../../../content/**/*.json', { eager: true, import: 'default' });
+// Evidence notes are for whoever checks claims, not for readers: keep them out of the bundle.
+const modules = import.meta.glob(['../../../content/**/*.json', '!../../../content/evidence/**'], {
+  eager: true,
+  import: 'default',
+});
 
 const files: Record<string, unknown> = {};
 for (const [path, value] of Object.entries(modules)) {

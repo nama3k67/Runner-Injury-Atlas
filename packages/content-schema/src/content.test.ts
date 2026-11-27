@@ -130,6 +130,50 @@ describe('medical content gate', () => {
   });
 });
 
+describe('evidence notes', () => {
+  const note = (source: string) => ({
+    source,
+    studyType: 'Nghiên cứu giải phẫu trên tử thi',
+    supports: ['Dải chậu chày bám vào lồi cầu ngoài xương đùi.'],
+    doesNotSupport: ['Kết quả điều trị trên người chạy.'],
+    limits: ['Mẫu nhỏ.'],
+    checked: false,
+  });
+
+  it('warns about a source without a note, and not about one with a note', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    files['evidence/r1.json'] = note('r1');
+    const { errors, warnings } = validateContent(parseContent(files));
+    expect(errors).toEqual([]);
+    const missing = warnings.filter((w) => w.message.includes('no evidence note'));
+    expect(missing.some((w) => w.message.startsWith('r1 '))).toBe(false);
+    expect(missing.some((w) => w.message.startsWith('r2 '))).toBe(true);
+  });
+
+  it('rejects a note for a source that does not exist', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    files['evidence/r999.json'] = note('r999');
+    const { errors } = validateContent(parseContent(files));
+    expect(errors).toContainEqual({
+      file: 'evidence/r999.json',
+      message: 'note for unknown source "r999"',
+    });
+  });
+
+  it('requires the note to be named after its source', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    files['evidence/r2.json'] = note('r1');
+    expect(() => parseContent(files)).toThrow(/must match the file name/);
+  });
+
+  it('keeps notes out of the content hash', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    const before = parseContent(files).injuries[0]?.contentHash;
+    files['evidence/r1.json'] = note('r1');
+    expect(parseContent(files).injuries[0]?.contentHash).toBe(before);
+  });
+});
+
 describe('schema errors', () => {
   it('reports unknown fields and bad values with their file', () => {
     const files = clone(readContentFiles(ROOT)) as Record<string, Record<string, unknown>>;
