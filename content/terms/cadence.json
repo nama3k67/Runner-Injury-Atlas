@@ -3,8 +3,8 @@
   "vi": "Nhịp bước",
   "en": "Cadence (steps/min)",
   "category": "concept",
-  "short": "Số bước mỗi phút. Tăng khoảng 5–10% giúp giảm tải lên gối.",
-  "body": "Tăng nhịp bước khoảng 5–10% (ví dụ chạy theo máy đếm nhịp) giúp rút ngắn sải chân, giảm tải đỉnh lên gối và giảm khép háng[^r9]. Đây không phải cách chữa cho mọi người: chỉ có ích khi bạn đang sải chân quá dài hoặc khép háng nhiều.",
+  "short": "Số bước mỗi phút. Tăng khoảng 5–10% có thể giảm tải đỉnh lên gối ở một số người[^r9].",
+  "body": "Tăng nhịp bước khoảng 5–10% (ví dụ chạy theo máy đánh nhịp) giúp giảm tải đỉnh lên gối và giảm góc khép háng tối đa[^r9]. Đây không phải cách chữa cho mọi người: thay đổi kiểu chạy cần hợp với từng người[^r9].",
   "related": ["crossover"],
   "injuries": {
     "itbs": {
