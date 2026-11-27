@@ -8,6 +8,7 @@ import {
   mythsSchema,
   rehabSchema,
   type Source,
+  sectionsSchema,
   simulationSchema,
   sourceSchema,
   type Term,
@@ -41,7 +42,7 @@ export function stableStringify(value: unknown): string {
   return JSON.stringify(value) ?? 'null';
 }
 
-const INJURY_FILES = ['injury', 'rehab', 'myths', 'tour', 'simulation'] as const;
+const INJURY_FILES = ['injury', 'rehab', 'myths', 'tour', 'simulation', 'sections'] as const;
 
 /**
  * Build typed content from raw JSON keyed by path relative to the content root
@@ -90,7 +91,8 @@ export function parseContent(files: Record<string, unknown>): Content {
     const myths = parse(`${dir}/myths.json`, mythsSchema);
     const tour = parse(`${dir}/tour.json`, tourSchema);
     const simulation = parse(`${dir}/simulation.json`, simulationSchema);
-    if (!injury || !rehab || !myths || !tour || !simulation) continue;
+    const sections = parse(`${dir}/sections.json`, sectionsSchema);
+    if (!injury || !rehab || !myths || !tour || !simulation || !sections) continue;
     if (injury.slug !== slug)
       issues.push({
         file: `${dir}/injury.json`,
@@ -108,13 +110,14 @@ export function parseContent(files: Record<string, unknown>): Content {
             myths,
             tour,
             simulation,
+            sections,
             terms: terms.filter((t) => slug in t.injuries),
             sources,
           }),
         ),
       ),
     );
-    injuries.push({ injury, rehab, myths, tour, simulation, contentHash });
+    injuries.push({ injury, rehab, myths, tour, simulation, sections, contentHash });
   }
 
   if (issues.length > 0) throw new ContentParseError(issues);

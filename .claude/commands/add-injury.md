@@ -12,8 +12,8 @@ Add the injury: $ARGUMENTS
    guidance. Open each source; a search snippet is not a source. Add them to
    content/sources.json with the next free ids.
 3. **Draft.** Create content/injuries/<slug>/ with injury.json (status "draft", review null),
-   rehab.json, myths.json, tour.json, simulation.json, and terms under content/terms/. Every
-   claim cites [^rN]. Rehab phases advance by criteria, never by dates.
+   rehab.json, myths.json, tour.json, simulation.json, sections.json, and terms under
+   content/terms/. Every claim cites [^rN]. Rehab phases advance by criteria, never by dates.
 4. **Simulate.** If the scene needs code beyond data, list it as separate issues; do not mix
    it into the content PR.
 5. **Validate.** `pnpm check`, then run the `content-auditor` subagent and address findings.

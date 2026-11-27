@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { FeedbackForm } from '../components/FeedbackForm';
+import { LongForm } from '../components/LongForm';
 import { ReviewBadge } from '../components/ReviewBadge';
 import { Inline, RichText } from '../components/RichText';
 import { ShowIn3D } from '../components/ShowIn3D';
@@ -24,7 +25,7 @@ function InjuryPage() {
   const { slug } = Route.useLoaderData();
   const bundle = findInjury(slug);
   if (!bundle) return null;
-  const { injury, rehab, myths, tour, simulation, contentHash } = bundle;
+  const { injury, rehab, myths, tour, simulation, sections, contentHash } = bundle;
   const terms = termsFor(slug);
 
   return (
@@ -43,6 +44,8 @@ function InjuryPage() {
           injury={{ slug, name: injury.title.vi }}
         />
       </section>
+
+      <LongForm sections={sections} terms={terms} slug={slug} />
 
       <section aria-labelledby="rehab">
         <h2 id="rehab">Phục hồi theo giai đoạn</h2>

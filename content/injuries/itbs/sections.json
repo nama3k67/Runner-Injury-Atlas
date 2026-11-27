@@ -1,0 +1,112 @@
+{
+  "mechanism": {
+    "title": "Cơ chế: ép hay cọ xát?",
+    "evidence": {
+      "label": "Bằng chứng giải phẫu & MRI",
+      "title": "Ép lớp mỡ giàu thần kinh",
+      "points": [
+        "Ở cả 15 xác được phẫu tích, dải chậu chày đều **neo vào đầu dưới xương đùi** bằng các sợi xơ, bên dưới là một lớp mỡ có nhiều mạch máu và thần kinh. Không thấy túi hoạt dịch ở bất kỳ ai[^r1].",
+        "MRI ở 6 người khỏe mạnh cho thấy khi gối gập khoảng **30°**, xương chày **xoay trong** làm dải ép vào mỏm lồi cầu. Khi duỗi, dải dịch ra ngoài[^r1].",
+        "Ở 2 vận động viên bị ITBS cấp, tín hiệu bất thường trên MRI nằm ở vùng **lớp mỡ** dưới dải[^r1].",
+        "Cảm giác dải \"trượt\" qua xương là **ảo giác**, do sợi trước và sợi sau thay nhau căng khi gập/duỗi gối. Bật lớp \"Sợi căng\" trên mô phỏng để xem minh họa điều này[^r1]."
+      ]
+    },
+    "whyItMatters": {
+      "title": "Vì sao điều này quan trọng với bạn",
+      "text": "Nếu thủ phạm là **lực ép** lên một mô nhạy cảm, mục tiêu phục hồi là: (1) tạm giảm số lần và cường độ ép (quản lý tải), (2) giảm lực căng dồn xuống dải từ hông (cơ dạng hông, kiểu chạy), và (3) tăng dần khả năng chịu tải của mô. Ấn mạnh thêm vào vùng đau, ví dụ lăn foam roller thật mạnh ở gối ngoài, không nằm trong logic đó[^r2][^r9]."
+    },
+    "intro": "Tên cũ \"hội chứng cọ xát dải chậu chày\" (ITB friction syndrome) phản ánh giả thuyết cọ xát. Các nghiên cứu giải phẫu và MRI đã thách thức giả thuyết này[^r1][^r2].",
+    "oldHypothesis": {
+      "label": "Giả thuyết cũ",
+      "title": "Cọ xát qua lại",
+      "text": "Mỗi lần gập/duỗi gối, dải chậu chày \"lăn\" qua lại trên mỏm lồi cầu ngoài, cọ xát làm viêm dải hoặc một túi hoạt dịch bên dưới[^r2]."
+    }
+  },
+  "causes": {
+    "title": "Vì sao runner bị",
+    "intro": "ITBS là chấn thương do quá tải[^r10]. Các yếu tố dưới đây làm tăng lực ép, hoặc làm tăng số lần ép.",
+    "items": [
+      {
+        "title": "Tăng khối lượng quá nhanh",
+        "text": "Tăng quãng đường mỗi tuần quá nhanh, hoặc chạy xuống dốc nhiều, là những yếu tố tập luyện liên quan đến ITBS[^r10][^r9]."
+      },
+      {
+        "title": "Xuống dốc",
+        "text": "Khi xuống dốc, gối tiếp đất ở tư thế **duỗi hơn** (góc gập lúc tiếp đất nhỏ hơn)[^r3]. Thử chế độ \"Xuống dốc\" trên mô phỏng."
+      },
+      {
+        "title": "Cơ dạng hông yếu",
+        "text": "Ở runner đường dài bị ITBS, cơ dạng hông bên đau yếu hơn bên lành và yếu hơn nhóm khỏe mạnh. Hết đau song hành với việc sức cơ cải thiện[^r5]. Tuy vậy, bằng chứng chung về vai trò của cơ dạng hông còn hạn chế hoặc trái chiều[^r6]."
+      },
+      {
+        "title": "Bước hẹp",
+        "text": "Bước chạy hẹp (chân đáp gần đường giữa, kiểu \"bắt chéo\") làm dải chậu chày chịu căng nhiều hơn[^r9]."
+      },
+      {
+        "title": "Chạy một chiều trên sân",
+        "text": "Chạy vòng một chiều quá nhiều trên sân điền kinh là một yếu tố tập luyện được ghi nhận[^r10]."
+      },
+      {
+        "title": "Tốc độ chạy",
+        "text": "Chạy nhanh và sprint ít có khả năng gây ITBS hơn. Theo giải thích của nhóm tác giả, lúc tiếp đất gối đã gập quá vùng ép[^r3]."
+      }
+    ]
+  },
+  "symptoms": {
+    "title": "Triệu chứng & phân biệt",
+    "typical": [
+      "Đau ở **mặt ngoài gối**, ngay chỗ mỏm lồi cầu ngoài[^r8].",
+      "Thường xuất hiện sau **một quãng chạy nhất định** rồi tăng dần nếu chạy tiếp. Lúc đầu nghỉ thì hết, chạy lại thì quay lại[^r10].",
+      "Nặng hơn khi chạy xuống dốc[^r9]. Đi xuống cầu thang cũng có thể đau[^r8][^r9].",
+      "ITBS là chấn thương do quá tải[^r10], thường xuất hiện sau khi tăng khối lượng tập đột ngột[^r9]."
+    ],
+    "redFlags": [],
+    "seeExpert": "bác sĩ y học thể thao hoặc chuyên viên vật lý trị liệu. Chẩn đoán ITBS dựa vào bệnh sử và khám trực tiếp, thường không cần chụp phim; chụp khi triệu chứng kéo dài hoặc cần loại trừ bệnh khác[^r8].",
+    "differential": [
+      {
+        "condition": "Đau khớp chè đùi (PFPS)",
+        "difference": "Đau khi gập gối có tải, đi cầu thang hoặc sau khi ngồi lâu[^r9]. Nhiều yếu tố cơ sinh học giống ITBS, và hai tình trạng có thể đi cùng nhau[^r8]."
+      },
+      {
+        "condition": "Sụn chêm ngoài hoặc thoái hóa khớp sớm",
+        "difference": "Đau khi ngồi xổm sâu hoặc xoay vặn gối, hay gặp hơn sau tuổi 40[^r9]. ITBS thường không ấn đau ở khe khớp ngoài[^r8]."
+      },
+      {
+        "condition": "Bệnh lý gân cơ nhị đầu đùi đoạn xa",
+        "difference": "Đau phía sau-ngoài gối, nặng hơn khi chạy lên dốc hoặc chạy nhanh, đỡ khi đã khởi động[^r9]."
+      }
+    ]
+  },
+  "tests": {
+    "title": "Các bài test lâm sàng",
+    "intro": "Ba test hay được dùng. Cần biết: **chưa test nào được kiểm chứng đầy đủ về độ chính xác**[^r8][^r6], nên chúng chỉ hỗ trợ cho việc hỏi bệnh sử và khám. Phần này để bạn hiểu khi được khám, không thay cho việc khám.",
+    "items": [
+      {
+        "id": "noble",
+        "name": "Test ép Noble",
+        "en": "Noble compression test",
+        "text": "Người khám ấn nhẹ lên mỏm lồi cầu ngoài, rồi gập và duỗi gối trong khoảng 0–90°. Dương tính khi đau ở mỏm lồi cầu ngoài, hoặc sờ thấy lạo xạo[^r8].",
+        "scene": {
+          "term": "lfe",
+          "kneeAngle": 30
+        }
+      },
+      {
+        "id": "renne",
+        "name": "Test Renne",
+        "en": "Renne test",
+        "text": "Đứng một chân bên đau, gập gối khoảng 30–40°. Dương tính khi đau ở mỏm lồi cầu ngoài[^r8].",
+        "scene": {
+          "term": "fatpad",
+          "kneeAngle": 32
+        }
+      },
+      {
+        "id": "ober",
+        "name": "Test Ober (cẩn trọng)",
+        "en": "Ober test",
+        "text": "Nằm nghiêng, để chân trên hạ xuống. Hay được dùng để đo \"dải chậu chày căng\", nhưng theo một nghiên cứu, test này không đo được độ ngắn của dải mà phản ánh độ ngắn của bao khớp háng nhiều hơn[^r9]."
+      }
+    ]
+  }
+}

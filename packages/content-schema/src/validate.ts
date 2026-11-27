@@ -1,5 +1,5 @@
 import type { Issue } from './parse';
-import type { Content } from './schemas';
+import { type Content, sectionClaims } from './schemas';
 
 export interface ValidationReport {
   errors: Issue[];
@@ -74,7 +74,7 @@ export function validateContent(content: Content): ValidationReport {
   }
 
   for (const bundle of content.injuries) {
-    const { injury, rehab, myths, tour, simulation } = bundle;
+    const { injury, rehab, myths, tour, simulation, sections } = bundle;
     const dir = `injuries/${injury.slug}`;
 
     for (const ref of injury.summarySources)
@@ -115,6 +115,14 @@ export function validateContent(content: Content): ValidationReport {
           message: `${myth.id}: a "fact" must cite a source`,
         });
     }
+
+    for (const [where, text] of sectionClaims(sections)) {
+      checkRefs(`${dir}/sections.json`, where, text);
+      if (sourceRefs(text).length === 0)
+        errors.push({ file: `${dir}/sections.json`, message: `${where}: must cite a source` });
+    }
+    for (const t of sections.tests.items)
+      if (t.scene) checkTerm(`${dir}/sections.json`, `tests.${t.id}.scene.term`, t.scene.term);
 
     const lineIds = new Set<string>();
     for (const step of tour.steps) {
