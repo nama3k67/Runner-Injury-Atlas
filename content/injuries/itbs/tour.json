@@ -248,11 +248,11 @@
         },
         {
           "id": "s9-l2",
-          "text": "Nhìn biểu đồ ngay bên dưới. Đường màu xanh là góc gối trong một bước chạy, còn dải đỏ là vùng ép."
+          "text": "Nhìn biểu đồ ngay bên dưới. Đường màu xanh là góc gối minh họa trong một bước chạy, còn dải đỏ là vùng ép."
         },
         {
           "id": "s9-l3",
-          "text": "Lúc tiếp đất, gối gập khoảng hai mươi mốt độ, nằm ngay trong vùng ép, đúng lúc cơ đang hãm chân."
+          "text": "Ở người chạy bị chấn thương này, lúc tiếp đất gối gập khoảng hai mươi mốt độ, nằm ngay trong vùng ép."
         }
       ]
     },
@@ -266,15 +266,11 @@
       "lines": [
         {
           "id": "s10-l1",
-          "text": "Còn khi chạy xuống dốc, gối tiếp đất ở tư thế duỗi hơn, rồi gập sâu để hãm người lại."
+          "text": "Còn khi chạy xuống dốc, gối tiếp đất ở tư thế duỗi hơn, tức là góc gập lúc tiếp đất nhỏ hơn."
         },
         {
           "id": "s10-l2",
-          "text": "Gối đi xuyên qua vùng ép, đúng lúc lực hãm lớn nhất."
-        },
-        {
-          "id": "s10-l3",
-          "text": "Đây là lý do những người chạy trail, với nhiều đoạn đổ dốc dài, rất hay bị chấn thương này."
+          "text": "Theo nghiên cứu của Orchard, đó là lý do chạy xuống dốc dễ gây chấn thương này."
         }
       ]
     },
@@ -288,11 +284,11 @@
       "lines": [
         {
           "id": "s11-l1",
-          "text": "Ngược lại, khi chạy nhanh, lúc tiếp đất gối đã gập quá ba mươi độ, tức là đã vượt qua vùng ép."
+          "text": "Ngược lại, khi chạy nhanh, lúc tiếp đất gối đã gập quá vùng ép."
         },
         {
           "id": "s11-l2",
-          "text": "Vì vậy, nhiều người thấy chạy nhanh lại đỡ đau hơn chạy chậm."
+          "text": "Vì vậy, chạy nhanh trên đường phẳng ít có khả năng gây đau hơn."
         }
       ]
     },
