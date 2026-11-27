@@ -1,15 +1,25 @@
 import { type SceneHint, useSimStore } from '../simStore';
 
-/** Dictionary-card button: scroll up to the simulation and open the term there. */
-export function ShowIn3D({ term, hint }: { term: string; hint: SceneHint | undefined }) {
+/** Dictionary-card button: jump up to the simulation and open the term there. */
+export function ShowIn3D({
+  term,
+  hint,
+  label = 'Xem trên 3D',
+}: {
+  term: string;
+  hint: SceneHint | undefined;
+  label?: string;
+}) {
   const open = () => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.getElementById('sim')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    // Jump, do not smooth-scroll: the simulation is several screens of text away, and a smooth
+    // scroll has to paint every one of them. On CI's software rendering that stalled the page
+    // for ~5 s (PR #62); weak phones pay the same cost.
+    document.getElementById('sim')?.scrollIntoView();
     useSimStore.getState().openTerm(term, hint);
   };
   return (
     <button type="button" className="btn" onClick={open}>
-      Xem trên 3D
+      {label}
     </button>
   );
 }

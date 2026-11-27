@@ -710,3 +710,70 @@ h2 {
   padding-top: 20px;
   padding-bottom: 40px;
 }
+/* Long-form sections (v0.3 layout). */
+.intro {
+  color: var(--muted);
+  max-width: 860px;
+}
+.vs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.vs .card.old {
+  border-color: #3a2a2a;
+  opacity: 0.92;
+}
+.vs .card.old h3 {
+  color: #f3a2a2;
+}
+.vs .card.new h3 {
+  color: var(--ok);
+}
+.tag {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag.old {
+  background: #3a1f22;
+  color: #f3a2a2;
+}
+.tag.new {
+  background: #11352b;
+  color: var(--ok);
+}
+.flag {
+  border-left: 3px solid var(--press);
+  padding-left: 10px;
+}
+table.diff {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+table.diff th,
+table.diff td {
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+table.diff thead th {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--panel2);
+}
+@media (max-width: 680px) {
+  .vs {
+    grid-template-columns: 1fr;
+  }
+}

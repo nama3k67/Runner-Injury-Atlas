@@ -178,12 +178,104 @@ export const simulationSchema = z
   .strict();
 export type Simulation = z.infer<typeof simulationSchema>;
 
+const heading = z.string().min(2);
+/** A sentence that makes a medical claim. Validation requires a [^rN] in it. */
+const claim = z.string().min(10);
+
+/** The long-form sections of an injury page: mechanism, causes, symptoms, clinical tests. */
+export const sectionsSchema = z
+  .object({
+    mechanism: z
+      .object({
+        title: heading,
+        /** Optional while it waits for a source. */
+        intro: claim.optional(),
+        /** The friction hypothesis the evidence replaced. Optional while it waits for a source. */
+        oldHypothesis: z
+          .object({ label: heading, title: heading, text: claim })
+          .strict()
+          .optional(),
+        evidence: z
+          .object({ label: heading, title: heading, points: z.array(claim).min(1) })
+          .strict(),
+        whyItMatters: z.object({ title: heading, text: claim }).strict(),
+      })
+      .strict(),
+    causes: z
+      .object({
+        title: heading,
+        intro: claim,
+        items: z.array(z.object({ title: heading, text: claim }).strict()).min(1),
+      })
+      .strict(),
+    symptoms: z
+      .object({
+        title: heading,
+        typical: z.array(claim).min(1),
+        /** May be empty while its claims wait for a source. */
+        redFlags: z.array(claim),
+        seeExpert: claim,
+        differential: z.array(z.object({ condition: heading, difference: claim }).strict()),
+      })
+      .strict(),
+    tests: z
+      .object({
+        title: heading,
+        intro: claim,
+        items: z
+          .array(
+            z
+              .object({
+                id,
+                name: heading,
+                en: heading,
+                text: claim,
+                /** "Xem góc …° trên 3D": open this term with the knee at this angle. */
+                scene: z
+                  .object({ term: id, kneeAngle: z.number().min(0).max(90) })
+                  .strict()
+                  .optional(),
+              })
+              .strict(),
+          )
+          .min(1),
+      })
+      .strict(),
+  })
+  .strict();
+export type Sections = z.infer<typeof sectionsSchema>;
+
+/** Every claim in the sections with where it sits, for the citation rules. */
+export const sectionClaims = (s: Sections): [where: string, text: string][] => [
+  ...(s.mechanism.intro ? [['mechanism.intro', s.mechanism.intro] as [string, string]] : []),
+  ...(s.mechanism.oldHypothesis
+    ? [['mechanism.oldHypothesis.text', s.mechanism.oldHypothesis.text] as [string, string]]
+    : []),
+  ...s.mechanism.evidence.points.map((t, i): [string, string] => [
+    `mechanism.evidence.points.${i}`,
+    t,
+  ]),
+  ['mechanism.whyItMatters.text', s.mechanism.whyItMatters.text],
+  ['causes.intro', s.causes.intro],
+  ...s.causes.items.map((c, i): [string, string] => [`causes.items.${i}.text`, c.text]),
+  ...s.symptoms.typical.map((t, i): [string, string] => [`symptoms.typical.${i}`, t]),
+  ...s.symptoms.redFlags.map((t, i): [string, string] => [`symptoms.redFlags.${i}`, t]),
+  ['symptoms.seeExpert', s.symptoms.seeExpert],
+  ...s.symptoms.differential.map((d, i): [string, string] => [
+    `symptoms.differential.${i}.difference`,
+    d.difference,
+  ]),
+  ['tests.intro', s.tests.intro],
+  ...s.tests.items.map((t, i): [string, string] => [`tests.items.${i}.text`, t.text]),
+];
+
 export interface InjuryBundle {
   injury: Injury;
   rehab: Rehab;
   myths: Myths;
   tour: Tour;
   simulation: Simulation;
+  sections: Sections;
   /** sha256 over the injury's files and the terms it uses. */
   contentHash: string;
 }

@@ -19,6 +19,30 @@ ID: L<n> · Status: active · Scope: <paths the rule is about, comma-separated>
 
 Edit one entry at a time. Do not rewrite or summarise the whole file.
 
+## 2026-11-27 — A long smooth scroll stalls the renderer on CI
+
+ID: L3 · Status: active · Scope: apps/web/src/components/, apps/web/e2e/
+
+**What happened.** PR #62 added four long sections between the simulation and the dictionary.
+The existing test "Xem trên 3D" then failed on CI desktop, on retry too. The term panel's
+heading was never in the viewport. Locally it passed, even with 20x CPU throttling.
+
+**Why.** The CI trace showed no new frame for about 5 s after the click. The page had stopped
+partway through a smooth `scrollIntoView` over about 5,800 px of text. On CI, SwiftShader
+paints the whole page in software, and a smooth scroll paints every screen it passes. By the
+time the scroll finished, the 5 s `toBeInViewport` had run out. That reading comes from the
+trace's screencast gaps; we did not profile it.
+
+**What we changed.** `ShowIn3D` jumps to the simulation instead of scrolling smoothly. The
+assertions did not change.
+
+**Rules from now on.**
+
+- Jump, do not smooth-scroll, to a target more than a screen or two away. A long smooth
+  scroll costs painting on weak phones too, not only on CI.
+- A frame gap in the trace's screencast after an action means the renderer stalled. Look for
+  what the page had to paint, not for a slow test.
+
 ## 2026-11-22 — Multi-step 3D e2e tests run out of the 30 s budget on CI
 
 ID: L2 · Status: active · Scope: apps/web/e2e/

@@ -13,6 +13,11 @@ describe('repository content', () => {
     expect(report.errors).toEqual([]);
   });
 
+  it('cites every source somewhere in structured content', () => {
+    const report = validateContent(loadContent(ROOT));
+    expect(report.warnings.filter((w) => w.message.includes('never cited'))).toEqual([]);
+  });
+
   it('has a stable content hash that ignores workflow fields', () => {
     const files = readContentFiles(ROOT);
     const before = parseContent(files).injuries[0]?.contentHash;
@@ -82,6 +87,33 @@ describe('medical content gate', () => {
     myths[0].fact = 'Một khẳng định dài nhưng không có nguồn nào cả.';
     const { errors } = validateContent(parseContent(files));
     expect(errors.some((e) => e.message.includes('must cite a source'))).toBe(true);
+  });
+
+  it('requires every claim in the long-form sections to cite a source', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    const sections = files['injuries/itbs/sections.json'] as {
+      symptoms: { typical: string[]; differential: { difference: string }[] };
+    };
+    sections.symptoms.typical[0] = 'Một dấu hiệu dài nhưng không có nguồn nào cả.';
+    const row = sections.symptoms.differential[0];
+    if (!row) throw new Error('fixture missing');
+    row.difference = 'Một điểm khác dài nhưng không có nguồn nào cả.';
+    const { errors } = validateContent(parseContent(files));
+    const messages = errors.map((e) => e.message);
+    expect(messages).toContain('symptoms.typical.0: must cite a source');
+    expect(messages).toContain('symptoms.differential.0.difference: must cite a source');
+  });
+
+  it('checks that a clinical test points at a known term', () => {
+    const files = clone(readContentFiles(ROOT)) as Record<string, unknown>;
+    const sections = files['injuries/itbs/sections.json'] as {
+      tests: { items: { scene?: { term: string } }[] };
+    };
+    const withScene = sections.tests.items.find((t) => t.scene);
+    if (!withScene?.scene) throw new Error('fixture missing');
+    withScene.scene.term = 'no-such-term';
+    const { errors } = validateContent(parseContent(files));
+    expect(errors.some((e) => e.message.includes('unknown term "no-such-term"'))).toBe(true);
   });
 
   it('requires every run mode explanation to cite a source', () => {

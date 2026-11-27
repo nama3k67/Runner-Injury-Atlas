@@ -2,9 +2,10 @@ import { sourceIndex } from '../content';
 import { paragraphs, tokenize } from '../richtext';
 
 export function Inline({ text }: { text: string }) {
+  const tokens = tokenize(text);
   return (
     <>
-      {tokenize(text).map((t, i) => {
+      {tokens.map((t, i) => {
         // Tokens come from one static string, so position is a stable key.
         const key = i;
         if (t.type === 'bold') return <strong key={key}>{t.text}</strong>;
@@ -13,6 +14,8 @@ export function Inline({ text }: { text: string }) {
           const n = sourceIndex.get(t.id)?.n ?? '?';
           return (
             <sup key={key}>
+              {/* "1,2", not "12", when sources follow each other (v0.3). */}
+              {tokens[i - 1]?.type === 'source' && ','}
               <a href={`#${t.id}`} aria-label={`Nguồn ${n}`}>
                 {n}
               </a>

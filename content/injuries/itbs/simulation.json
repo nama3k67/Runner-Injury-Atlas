@@ -1,6 +1,6 @@
 {
   "note": "Đường cong định tính, minh họa. Góc tiếp đất ~21° theo Orchard 1996.",
-  "sources": ["r3", "r1"],
+  "sources": ["r3", "r1", "r14"],
   "impingementZone": {
     "minDeg": 20,
     "maxDeg": 30
