@@ -28,7 +28,7 @@
     "items": [
       {
         "title": "Tăng khối lượng quá nhanh",
-        "text": "Tăng quãng đường mỗi tuần quá nhanh, hoặc chạy xuống dốc nhiều, là những yếu tố tập luyện liên quan đến ITBS[^r10][^r9]."
+        "text": "Tăng quãng đường mỗi tuần quá nhanh, hoặc chạy xuống dốc nhiều, là những yếu tố tập luyện liên quan đến ITBS[^r10][^r15]."
       },
       {
         "title": "Xuống dốc",
@@ -57,23 +57,23 @@
     "typical": [
       "Đau ở **mặt ngoài gối**, ngay chỗ mỏm lồi cầu ngoài[^r8].",
       "Thường xuất hiện sau **một quãng chạy nhất định** rồi tăng dần nếu chạy tiếp. Lúc đầu nghỉ thì hết, chạy lại thì quay lại[^r10].",
-      "Nặng hơn khi chạy xuống dốc[^r9]. Đi xuống cầu thang cũng có thể đau[^r8][^r9].",
-      "ITBS là chấn thương do quá tải[^r10], thường xuất hiện sau khi tăng khối lượng tập đột ngột[^r9]."
+      "Nặng hơn khi chạy xuống dốc[^r15]. Đi xuống cầu thang cũng có thể đau[^r8][^r9].",
+      "ITBS là chấn thương do quá tải[^r10], thường xuất hiện sau khi tăng khối lượng tập đột ngột[^r15]."
     ],
     "redFlags": [],
     "seeExpert": "bác sĩ y học thể thao hoặc chuyên viên vật lý trị liệu. Chẩn đoán ITBS dựa vào bệnh sử và khám trực tiếp, thường không cần chụp phim; chụp khi triệu chứng kéo dài hoặc cần loại trừ bệnh khác[^r8].",
     "differential": [
       {
         "condition": "Đau khớp chè đùi (PFPS)",
-        "difference": "Đau khi gập gối có tải, đi cầu thang hoặc sau khi ngồi lâu[^r9]. Nhiều yếu tố cơ sinh học giống ITBS, và hai tình trạng có thể đi cùng nhau[^r8]."
+        "difference": "Đau khi gập gối có tải, đi cầu thang hoặc sau khi ngồi lâu[^r15]. Nhiều yếu tố cơ sinh học giống ITBS, và hai tình trạng có thể đi cùng nhau[^r8]."
       },
       {
         "condition": "Sụn chêm ngoài hoặc thoái hóa khớp sớm",
-        "difference": "Đau khi ngồi xổm sâu hoặc xoay vặn gối, hay gặp hơn sau tuổi 40[^r9]. ITBS thường không ấn đau ở khe khớp ngoài[^r8]."
+        "difference": "Đau khi ngồi xổm sâu hoặc xoay vặn gối, hay gặp hơn sau tuổi 40[^r15]. ITBS thường không ấn đau ở khe khớp ngoài[^r8]."
       },
       {
         "condition": "Bệnh lý gân cơ nhị đầu đùi đoạn xa",
-        "difference": "Đau phía sau-ngoài gối, nặng hơn khi chạy lên dốc hoặc chạy nhanh, đỡ khi đã khởi động[^r9]."
+        "difference": "Đau phía sau-ngoài gối, nặng hơn khi chạy lên dốc hoặc chạy nhanh, đỡ khi đã khởi động[^r15]."
       }
     ]
   },
@@ -105,7 +105,7 @@
         "id": "ober",
         "name": "Test Ober (cẩn trọng)",
         "en": "Ober test",
-        "text": "Nằm nghiêng, để chân trên hạ xuống. Hay được dùng để đo \"dải chậu chày căng\", nhưng theo một nghiên cứu, test này không đo được độ ngắn của dải mà phản ánh độ ngắn của bao khớp háng nhiều hơn[^r9]."
+        "text": "Nằm nghiêng, để chân trên hạ xuống. Hay được dùng để đo \"dải chậu chày căng\", nhưng theo một nghiên cứu, test này không đo được độ ngắn của dải mà phản ánh độ ngắn của bao khớp háng nhiều hơn[^r15]."
       }
     ]
   }
