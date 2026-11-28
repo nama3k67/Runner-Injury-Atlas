@@ -1,0 +1,23 @@
+{
+  "source": "r17",
+  "studyType": "Clinical review for primary care (American Family Physician), with SORT evidence ratings",
+  "supports": [
+    "Patients needing urgent referral generally have severe pain, immediate swelling, and instability or inability to bear weight, in association with acute trauma, which suggests fracture, dislocation, or tendon or ligamentous rupture.",
+    "Referral is also indicated for signs of possible joint infection (fever, swelling, erythema, limited range of motion).",
+    "Locking, buckling or catching suggest internal derangement and possible instability.",
+    "After an acute injury, a knee joint effusion strongly suggests internal derangement (SORT C).",
+    "Meniscal tears commonly result from twisting injuries in the weight-bearing knee."
+  ],
+  "doesNotSupport": [
+    "Pain at rest or at night as a red flag in adults; it is mentioned only for adolescents with atraumatic diffuse pain.",
+    "Numbness or tingling down the leg as a reason to refer.",
+    "A time frame for referral; 'more than six weeks' is the threshold for radiography in chronic knee pain, not for referral.",
+    "Any twist, fall or impact as a reason to refer without severe pain, swelling, instability or inability to bear weight."
+  ],
+  "limits": [
+    "Initial evaluation of knee pain in general primary care, not specific to runners or ITBS.",
+    "A 2026 update exists (Pendergraph B, Cheng J, Garcia SD. Am Fam Physician. 2026;114(1):49–62); its full text is paywalled and was not read.",
+    "About two thirds of the web page were read verbatim; the remainder, including Table 4, was not checked."
+  ],
+  "checked": false
+}

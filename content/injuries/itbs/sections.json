@@ -60,7 +60,12 @@
       "Nặng hơn khi chạy xuống dốc[^r15]. Đi xuống cầu thang cũng có thể đau[^r8][^r9].",
       "ITBS là chấn thương do quá tải[^r10], thường xuất hiện sau khi tăng khối lượng tập đột ngột[^r15]."
     ],
-    "redFlags": [],
+    "redFlags": [
+      "Gối **sưng to hoặc biến dạng**, bị **kẹt khớp** hoặc **khuỵu xuống**, không cử động được, hoặc không dồn được chút sức nặng nào lên chân đó: cần được bác sĩ tư vấn ngay[^r16].",
+      "Sau một **chấn thương cấp** như cú xoắn vặn, ngã hoặc va đập trực tiếp vào gối, gối **đau dữ dội và sưng ngay**, kèm theo mất vững hoặc không dồn được sức nặng lên chân đó: cần được bác sĩ khám ngay, vì có thể là gãy xương, trật khớp hoặc đứt gân, dây chằng[^r17].",
+      "**Sốt cao** (hoặc người thấy nóng sốt, ớn lạnh, run) kèm **gối đỏ hoặc nóng**: cần được bác sĩ tư vấn ngay, vì có thể là nhiễm trùng[^r16].",
+      "Đau gối **không đỡ sau vài tuần**: nên đi khám bác sĩ[^r16]."
+    ],
     "seeExpert": "bác sĩ y học thể thao hoặc chuyên viên vật lý trị liệu. Chẩn đoán ITBS dựa vào bệnh sử và khám trực tiếp, thường không cần chụp phim; chụp khi triệu chứng kéo dài hoặc cần loại trừ bệnh khác[^r8].",
     "differential": [
       {
