@@ -66,11 +66,9 @@ Works: content pipeline with validation, ITBS page rendered from data, feedback 
 review badge driven by the API, unit, integration and browser tests for all of it, and the
 ITBS 3D rig in React Three Fiber (knee and hip-drop sliders, compression shown on the ITB and
 fat pad, layers, picking, labels, camera presets, run modes and the gait chart) and the guided
-tour read by the browser's voice. The full v0.3 simulation stays reachable as a frozen legacy
-page.
+tour read by the browser's voice, and the long-form ITBS sections as data.
 
-Not yet: long-form ITBS sections as data,
-recorded narration audio, clinician review, deployment, real authentication for reviewers.
+Not yet: recorded narration audio, clinician review, deployment, real authentication for reviewers.
 Open work is tracked in [issues](https://github.com/nama3k67/runner-injury-atlas/issues), one
 milestone per phase of the [roadmap](docs/backlog.md).
 

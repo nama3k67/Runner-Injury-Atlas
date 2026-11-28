@@ -26,6 +26,7 @@ test('prerendered HTML ships a placeholder, not the 3D scene', async ({ request 
   expect(html).toContain('data-testid="sim-placeholder"');
   expect(html).not.toContain('<canvas');
   expect(html).not.toContain('<iframe');
+  expect(html).not.toContain('/legacy/v0.3/');
 });
 
 test('ITBS page renders the R3F scene instead of the legacy iframe', async ({ page }) => {
@@ -36,10 +37,8 @@ test('ITBS page renders the R3F scene instead of the legacy iframe', async ({ pa
   await expect(stage).toHaveAttribute('data-state', 'ready', { timeout: 20_000 });
   await expect(stage.locator('canvas')).toBeVisible();
   await expect(page.locator('#sim ~ iframe, section iframe')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Xem bản v0.3' })).toHaveAttribute(
-    'href',
-    '/legacy/v0.3/index.html',
-  );
+  // v0.3 parity (#16): nothing on the page links to the frozen prototype.
+  await expect(page.locator('a[href*="/legacy/v0.3/"]')).toHaveCount(0);
 });
 
 test('knee angle drives the impingement readout', async ({ page }) => {

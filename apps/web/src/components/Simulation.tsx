@@ -298,9 +298,6 @@ function Controls({ sim, tour }: { sim: SimulationContent; tour: Tour }) {
         Lớp mỡ, sợi Kaplan và mũi tên là phần minh họa thêm, không có trong dữ liệu gốc. Màu "Sợi
         căng" là minh họa định tính, không phải số đo.
       </p>
-      <a className="note" href="/legacy/v0.3/index.html">
-        Xem bản v0.3
-      </a>
     </>
   );
 }
