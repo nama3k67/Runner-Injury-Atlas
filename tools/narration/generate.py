@@ -28,7 +28,9 @@ CODEC_REVISION = "ceff0d0749bfb3fa2d61149794ec6feef0d1e1ae"
 ONNX_SUBFOLDER = "onnx_update"  # the fp32 graphs; "onnx_int8" holds the int8 ones
 SAMPLE_RATE = 48_000
 TEMPERATURE = 0.8  # the SDK default, recorded so a change shows up as stale
-TARGET_LUFS = -16.0
+# Speech here peaks up to 20 dB above its loudness (measured on the first full run, 108 lines),
+# so -21 LUFS is the loudest level every line reaches under the -1 dBFS ceiling.
+TARGET_LUFS = -21.0
 CEILING_DBFS = -1.0
 
 

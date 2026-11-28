@@ -51,8 +51,9 @@ apps/web/public/narration/<injury>/
 ```
 
 - **Audio:** mono, 48 kHz, Ogg Opus.
-- **Loudness:** normalised to -16 LUFS with the sample peak at or below -1 dBFS, so every voice
-  plays at the same level.
+- **Loudness:** normalised to -21 LUFS with the sample peak at or below -1 dBFS, so every voice
+  plays at the same level. Speech peaks up to 20 dB above its loudness, so a louder target would
+  leave the peakiest lines quieter than the rest.
 - **No watermark:** the tour's voice menu says the voices are AI-generated (ADR 0014, decision 7).
 
 `manifest.json` is read by the stale-audio check (#54) and by the voice menu (#55):
@@ -72,7 +73,7 @@ apps/web/public/narration/<injury>/
             "precision": "fp32",
             "preset": "Ngọc Huyền",
             "temperature": 0.8,
-            "loudnessLufs": -16,
+            "loudnessLufs": -21,
             "format": "ogg-opus"
           }
         }
