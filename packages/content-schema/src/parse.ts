@@ -3,6 +3,8 @@ import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import { z } from 'zod';
 import {
   type Content,
+  type EvidenceNote,
+  evidenceNoteSchema,
   type InjuryBundle,
   injurySchema,
   mythsSchema,
@@ -66,6 +68,17 @@ export function parseContent(files: Record<string, unknown>): Content {
 
   const sources: Source[] = parse('sources.json', z.array(sourceSchema)) ?? [];
 
+  const evidence: EvidenceNote[] = [];
+  for (const file of Object.keys(files).sort()) {
+    const match = /^evidence\/([^/]+)\.json$/.exec(file);
+    if (!match) continue;
+    const note = parse(file, evidenceNoteSchema);
+    if (!note) continue;
+    if (note.source !== match[1])
+      issues.push({ file, message: `source "${note.source}" must match the file name` });
+    evidence.push(note);
+  }
+
   const terms: Term[] = [];
   for (const file of Object.keys(files).sort()) {
     const match = /^terms\/([^/]+)\.json$/.exec(file);
@@ -121,7 +134,7 @@ export function parseContent(files: Record<string, unknown>): Content {
   }
 
   if (issues.length > 0) throw new ContentParseError(issues);
-  return { sources, terms, injuries };
+  return { sources, evidence, terms, injuries };
 }
 
 export const INJURY_FILE_NAMES: readonly string[] = INJURY_FILES.map((f) => `${f}.json`);

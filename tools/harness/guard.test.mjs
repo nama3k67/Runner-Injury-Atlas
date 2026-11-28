@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blockReason, editFromToolCall } from './guard.mjs';
+import { blockCheckedNoteEdit, blockReason, editFromToolCall } from './guard.mjs';
 
 const edit = (filePath, newText = '') => ({ tool: 'Edit', filePath, newText });
 
@@ -20,6 +20,20 @@ describe('agent guard', () => {
     expect(
       blockReason(edit('content/injuries/pfps/injury.json', '"review": { "reviewerName": "x" }')),
     ).toMatch(/human/);
+  });
+
+  it('lets an agent draft an evidence note but never mark it checked', () => {
+    expect(blockReason(edit('content/evidence/r8.json', '"checked": false'))).toBeNull();
+    expect(blockReason(edit('content/evidence/r8.json', '"checked" : true'))).toMatch(/maintainer/);
+    expect(blockReason(edit('content/sources.json', '"checked": true'))).toBeNull();
+  });
+
+  it('keeps a checked evidence note for the maintainer to edit', () => {
+    const checked = '{ "source": "r8", "checked": true }';
+    expect(blockCheckedNoteEdit('content/evidence/r8.json', checked)).toMatch(/maintainer/);
+    expect(blockCheckedNoteEdit('content/evidence/r8.json', '{ "checked": false }')).toBeNull();
+    expect(blockCheckedNoteEdit('content/evidence/r8.json', '')).toBeNull();
+    expect(blockCheckedNoteEdit('content/terms/itb.json', checked)).toBeNull();
   });
 
   it('freezes legacy, migrations, lockfile and secrets', () => {

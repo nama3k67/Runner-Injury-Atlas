@@ -33,6 +33,26 @@ export function blockReason({ filePath, newText }) {
       return 'Only a human may write a review stamp. An agent must never claim content was medically reviewed.';
     }
   }
+  if (/^content\/evidence\/[^/]+\.json$/.test(filePath) && CHECKED.test(newText)) {
+    // ADR 0012, item 5: an agent drafts evidence notes, only the maintainer checks them.
+    return 'Only the maintainer may mark an evidence note checked, after reading the source. Leave "checked": false.';
+  }
+  return null;
+}
+
+const CHECKED = /"checked"\s*:\s*true/;
+
+/**
+ * A checked evidence note belongs to the maintainer: an agent edit would ride on
+ * their check. The hook passes the file as it is on disk ('' when it is new).
+ * @param {string} filePath  repo-relative with forward slashes
+ * @param {string} currentText
+ * @returns {string | null}
+ */
+export function blockCheckedNoteEdit(filePath, currentText) {
+  if (/^content\/evidence\/[^/]+\.json$/.test(filePath) && CHECKED.test(currentText)) {
+    return 'This evidence note is checked by the maintainer. Propose the change in the PR description or ask them to uncheck it first.';
+  }
   return null;
 }
 

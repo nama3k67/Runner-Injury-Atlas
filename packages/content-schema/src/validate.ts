@@ -184,5 +184,19 @@ export function validateContent(content: Content): ValidationReport {
     if (!usedSources.has(s.id))
       warnings.push({ file: 'sources.json', message: `${s.id} is never cited` });
   }
+
+  // Warn first; a later PR makes a missing note an error (ADR 0012, item 5).
+  const noted = new Set(content.evidence.map((n) => n.source));
+  for (const n of content.evidence) {
+    if (!sourceIds.has(n.source))
+      errors.push({
+        file: `evidence/${n.source}.json`,
+        message: `note for unknown source "${n.source}"`,
+      });
+  }
+  for (const s of content.sources) {
+    if (!noted.has(s.id))
+      warnings.push({ file: 'sources.json', message: `${s.id} has no evidence note` });
+  }
   return { errors, warnings };
 }

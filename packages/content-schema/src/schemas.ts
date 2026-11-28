@@ -14,6 +14,25 @@ export const sourceSchema = z.object({
 });
 export type Source = z.infer<typeof sourceSchema>;
 
+/**
+ * What one source can and cannot carry (ADR 0012, item 5), in
+ * content/evidence/<source id>.json. For the people who check claims, not for
+ * readers: the web bundle skips these files and the content hash ignores them.
+ * `checked` is the maintainer's word that they read the source against the
+ * note; the guard hook keeps agents from setting it.
+ */
+export const evidenceNoteSchema = z
+  .object({
+    source: sourceId,
+    studyType: z.string().min(3),
+    supports: z.array(z.string().min(5)).min(1),
+    doesNotSupport: z.array(z.string().min(5)),
+    limits: z.array(z.string().min(5)),
+    checked: z.boolean(),
+  })
+  .strict();
+export type EvidenceNote = z.infer<typeof evidenceNoteSchema>;
+
 export const sceneHintSchema = z
   .object({
     structure: id.optional(),
@@ -282,6 +301,7 @@ export interface InjuryBundle {
 
 export interface Content {
   sources: Source[];
+  evidence: EvidenceNote[];
   terms: Term[];
   injuries: InjuryBundle[];
 }
