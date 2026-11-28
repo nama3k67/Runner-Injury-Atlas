@@ -1,5 +1,7 @@
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import type { Issue } from './parse';
-import { type Content, sectionClaims } from './schemas';
+import { type Content, type NarrationManifest, sectionClaims, type Tour } from './schemas';
 
 export interface ValidationReport {
   errors: Issue[];
@@ -199,4 +201,52 @@ export function validateContent(content: Content): ValidationReport {
       warnings.push({ file: 'sources.json', message: `${s.id} has no evidence note` });
   }
   return { errors, warnings };
+}
+
+/** sha256 of a tour line's text, UTF-8 with no normalisation, as tools/narration computes it. */
+export function textSha256(text: string): string {
+  return bytesToHex(sha256(utf8ToBytes(text)));
+}
+
+/**
+ * Recorded narration must match the tour (ADR 0014, decision 3): every voice in the manifest
+ * has an up-to-date file for every line, and no file or entry is left for a line that is gone.
+ * `files` are paths relative to the manifest, like "ngoc-huyen/s1-l1.ogg".
+ */
+export function validateNarration(
+  tour: Tour,
+  manifest: NarrationManifest,
+  files: string[],
+  file: string,
+): Issue[] {
+  const issues: Issue[] = [];
+  const say = (voice: string, line: string, problem: string) =>
+    issues.push({ file, message: `${voice}/${line}: ${problem}` });
+  const lines = tour.steps.flatMap((s) => s.lines);
+  const lineIds = new Set(lines.map((l) => l.id));
+  const filesOf = new Map<string, Set<string>>();
+  for (const f of files) {
+    const [voice = '', name = ''] = f.split('/');
+    const set = filesOf.get(voice) ?? new Set<string>();
+    set.add(name.replace(/\.ogg$/, ''));
+    filesOf.set(voice, set);
+  }
+
+  for (const [voice, { lines: recorded }] of Object.entries(manifest.voices)) {
+    const have = filesOf.get(voice) ?? new Set<string>();
+    for (const line of lines) {
+      const entry = recorded[line.id];
+      if (!entry) say(voice, line.id, 'not in the manifest');
+      else if (!have.has(line.id)) say(voice, line.id, 'no audio file');
+      else if (entry.textSha256 !== textSha256(line.text))
+        say(voice, line.id, 'text changed since its audio was generated');
+    }
+    const extra = new Set([...Object.keys(recorded), ...have].filter((l) => !lineIds.has(l)));
+    for (const line of [...extra].sort()) say(voice, line, 'no such line in tour.json');
+  }
+  for (const [voice, names] of [...filesOf].sort(([a], [b]) => a.localeCompare(b))) {
+    if (voice in manifest.voices) continue;
+    for (const line of [...names].sort()) say(voice, line, 'voice is not in the manifest');
+  }
+  return issues;
 }
