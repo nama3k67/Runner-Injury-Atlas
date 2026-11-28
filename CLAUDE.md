@@ -26,7 +26,7 @@ packages/sim/          Pure simulation maths (compression, gait curves, skin wei
 content/               The product's content as JSON. Source of truth, reviewed by humans.
 tools/harness/         Agent guard hooks, commit-msg check (unit-tested).
 tools/anatomy-pipeline/  BodyParts3D STL -> GLB + landmark metadata (Python, run by hand).
-apps/web/public/legacy/v0.3/  Frozen single-file prototype, embedded until the R3F port lands.
+apps/web/public/legacy/v0.3/  Frozen single-file prototype. The app does not link to it; deleting it is a separate decision.
 docs/adr/              Why things are the way they are. Read the relevant ADR before changing a decision.
 docs/lessons.md        Incidents and the rules they taught. Read before debugging a flaky or CI-only failure.
 ```
@@ -81,7 +81,6 @@ Slash commands: `/feature`, `/verify`, `/add-injury`, `/adr`. Subagent: `content
 Open work is in GitHub issues, one milestone per phase: `gh issue list --milestone "Phase 1"`.
 `docs/backlog.md` is the roadmap. The gaps that change how you work:
 
-- The long-form ITBS sections live only in the legacy page (#16).
 - Nothing has been reviewed by a clinician (#32).
 - The API has only run on PGlite, never on a real Postgres server (#25).
 
