@@ -1,0 +1,23 @@
+{
+  "source": "r16",
+  "studyType": "Patient information page (NHS website), not a study or guideline",
+  "supports": [
+    "Get advice from NHS 111 now if the knee is badly swollen or has changed shape.",
+    "Get advice from NHS 111 now if the knee locks, gives way or painfully clicks; painless clicking is normal.",
+    "Get advice from NHS 111 now if the knee is very painful, or you cannot move it or put any weight on it.",
+    "Get advice from NHS 111 now if there is a very high temperature with redness or heat around the knee (possible infection).",
+    "See a GP if knee pain does not improve within a few weeks."
+  ],
+  "doesNotSupport": [
+    "Pain at rest or at night as a reason to seek care.",
+    "Numbness or tingling down the leg as a reason to seek care.",
+    "Any time frame more precise than 'a few weeks' (for example '2–3 weeks').",
+    "Onset after a twist, fall or impact as a reason to seek care on its own."
+  ],
+  "limits": [
+    "General knee pain advice for the public, not specific to runners or ITBS.",
+    "Routes readers to UK services (NHS 111, GP); the urgency levels carry over, the services do not.",
+    "Page last reviewed 21 December 2023; next review due 21 December 2026. Re-check the page after that date."
+  ],
+  "checked": false
+}
