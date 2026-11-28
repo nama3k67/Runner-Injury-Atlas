@@ -299,6 +299,34 @@ export interface InjuryBundle {
   contentHash: string;
 }
 
+/**
+ * apps/web/public/narration/<injury>/manifest.json, written by tools/narration (ADR 0014).
+ * The audio of a line is <voice id>/<line id>.ogg next to it. `textSha256` is the sha256 of
+ * the line's text as tour.json holds it; `settings` are the generator's, compared by the tool.
+ */
+export const narrationManifestSchema = z
+  .object({
+    voices: z.record(
+      id,
+      z
+        .object({
+          label: z.string().min(2),
+          lines: z.record(
+            id,
+            z
+              .object({
+                textSha256: z.string().regex(/^[a-f0-9]{64}$/),
+                settings: z.record(z.string(), z.union([z.string(), z.number()])),
+              })
+              .strict(),
+          ),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+export type NarrationManifest = z.infer<typeof narrationManifestSchema>;
+
 export interface Content {
   sources: Source[];
   evidence: EvidenceNote[];

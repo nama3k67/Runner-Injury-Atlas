@@ -1,8 +1,11 @@
-import { resolve } from 'node:path';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { loadContent, readContentFiles } from './load';
+import { loadContent, readContentFiles, readNarration } from './load';
 import { ContentParseError, parseContent, stableStringify } from './parse';
-import { sourceRefs, validateContent } from './validate';
+import { type NarrationManifest, narrationManifestSchema } from './schemas';
+import { sourceRefs, textSha256, validateContent, validateNarration } from './validate';
 
 const ROOT = resolve(__dirname, '../../../content');
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
@@ -200,5 +203,109 @@ describe('helpers', () => {
   });
   it('sourceRefs finds every reference', () => {
     expect(sourceRefs('a[^r1] b[^r12][^r3]')).toEqual(['r1', 'r12', 'r3']);
+  });
+});
+
+describe('narration (ADR 0014)', () => {
+  const tour = loadContent(ROOT).injuries[0]?.tour;
+  if (!tour) throw new Error('no tour in repository content');
+  const lines = tour.steps.flatMap((s) => s.lines);
+  const FILE = 'narration/itbs/manifest.json';
+
+  /** A manifest and file list that match the tour, for one voice. */
+  const upToDate = () => {
+    const manifest: NarrationManifest = {
+      voices: {
+        'ngoc-huyen': {
+          label: 'Ngọc Huyền (nữ, giọng Bắc)',
+          lines: Object.fromEntries(
+            lines.map((l) => [l.id, { textSha256: textSha256(l.text), settings: { preset: 'x' } }]),
+          ),
+        },
+      },
+    };
+    return { manifest, files: lines.map((l) => `ngoc-huyen/${l.id}.ogg`) };
+  };
+
+  it('hashes text the same way as tools/narration (UTF-8, no normalisation)', () => {
+    expect(textSha256('abc')).toBe(
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    );
+    // From Python: hashlib.sha256(text.encode()).hexdigest()
+    expect(textSha256('Chào bạn. Đây là mô hình chân phải, nhìn từ mặt ngoài.')).toBe(
+      '0ce4f07c2cebaadd63c9832cae069e49c7b8e714933dfbdbd35a7bbc2276b12f',
+    );
+  });
+
+  it('passes when every line of every voice matches', () => {
+    const { manifest, files } = upToDate();
+    expect(validateNarration(tour, manifest, files, FILE)).toEqual([]);
+  });
+
+  it('fails when a line text no longer matches its hash, naming voice and line', () => {
+    const { manifest, files } = upToDate();
+    const edited = clone(tour);
+    const first = edited.steps[0]?.lines[0];
+    if (!first) throw new Error('empty tour');
+    first.text += ' Thêm.';
+    expect(validateNarration(edited, manifest, files, FILE)).toEqual([
+      { file: FILE, message: `ngoc-huyen/${first.id}: text changed since its audio was generated` },
+    ]);
+  });
+
+  it('fails when a voice has no file or no manifest entry for a line', () => {
+    const { manifest, files } = upToDate();
+    const [a, b] = lines;
+    if (!a || !b) throw new Error('tour too short');
+    delete manifest.voices['ngoc-huyen']?.lines[b.id];
+    const issues = validateNarration(
+      tour,
+      manifest,
+      files.filter((f) => f !== `ngoc-huyen/${a.id}.ogg`),
+      FILE,
+    );
+    expect(issues).toEqual([
+      { file: FILE, message: `ngoc-huyen/${a.id}: no audio file` },
+      { file: FILE, message: `ngoc-huyen/${b.id}: not in the manifest` },
+    ]);
+  });
+
+  it('fails when a file or manifest entry has no line in the tour', () => {
+    const { manifest, files } = upToDate();
+    const voice = manifest.voices['ngoc-huyen'];
+    if (!voice) throw new Error('no voice');
+    voice.lines['s99-l1'] = { textSha256: textSha256('gone'), settings: {} };
+    const issues = validateNarration(tour, manifest, [...files, 'ngoc-huyen/s99-l2.ogg'], FILE);
+    expect(issues).toEqual([
+      { file: FILE, message: 'ngoc-huyen/s99-l1: no such line in tour.json' },
+      { file: FILE, message: 'ngoc-huyen/s99-l2: no such line in tour.json' },
+    ]);
+  });
+
+  it('fails when a file belongs to a voice the manifest does not list', () => {
+    const { manifest, files } = upToDate();
+    const [a] = lines;
+    if (!a) throw new Error('empty tour');
+    expect(validateNarration(tour, manifest, [...files, `truc-ly/${a.id}.ogg`], FILE)).toEqual([
+      { file: FILE, message: `truc-ly/${a.id}: voice is not in the manifest` },
+    ]);
+  });
+
+  it('rejects a malformed manifest', () => {
+    expect(
+      narrationManifestSchema.safeParse({ voices: { x: { label: 'X', lines: { a: {} } } } })
+        .success,
+    ).toBe(false);
+  });
+
+  it('reads a manifest and its files from disk, and nothing when there is no manifest', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'narration-'));
+    expect(readNarration(dir)).toBeUndefined();
+    const { manifest } = upToDate();
+    writeFileSync(join(dir, 'manifest.json'), JSON.stringify(manifest));
+    mkdirSync(join(dir, 'ngoc-huyen'));
+    writeFileSync(join(dir, 'ngoc-huyen', 's1-l1.ogg'), '');
+    writeFileSync(join(dir, 'ngoc-huyen', 'notes.txt'), '');
+    expect(readNarration(dir)).toEqual({ manifest, files: ['ngoc-huyen/s1-l1.ogg'] });
   });
 });
