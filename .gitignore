@@ -17,3 +17,7 @@ packages/anatomy-pipeline/.cache/
 # Evidence notes only: original papers are never committed (copyright, #43).
 content/evidence/*
 !content/evidence/*.json
+
+# Python tools (tools/narration)
+.venv/
+__pycache__/

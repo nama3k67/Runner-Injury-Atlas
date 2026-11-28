@@ -52,7 +52,10 @@ VNNI, which Apple Silicon does not have.
    are served as static assets by the web app. Nothing runs the model at reading time or in CI.
 2. **Pinned versions.** The tool pins the `vieneu` SDK version and the Hugging Face revision of
    both the model and the codec. It uses the fp32 ONNX graphs. At this ADR's date: `vieneu`
-   3.8.5, model `pnnbao-ump/VieNeu-TTS-v3-Turbo` at `61b85e3d`, codec at `6aa02b01`.
+   3.8.5, model `pnnbao-ump/VieNeu-TTS-v3-Turbo` at `61b85e3d`, codec
+   `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX` at `ceff0d07`. (Correction, #53: this ADR
+   first named `6aa02b01`, a revision of the non-ONNX codec repo, which the fp32 ONNX path does
+   not load.)
 3. **A manifest records what each file was made from.** For each voice and line, the manifest
    stores the hash of the line's text and the generator settings (SDK version, model revision,
    preset name, temperature). A check in `pnpm check` fails when a line's text does not
